@@ -1,0 +1,9 @@
+spring:
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:h2:mem:hostflow_analytics_test;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver

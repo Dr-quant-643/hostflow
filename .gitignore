@@ -1,0 +1,3 @@
+# Claude Code's own local tool state -- never project source, may contain
+# session-local data.
+.claude/

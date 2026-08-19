@@ -1,0 +1,172 @@
+# Production-style full-stack compose: infra + the app/gateway-service
+# images built from their own Dockerfiles. Unlike docker-compose.yml (local
+# dev only -- hardcoded creds, MailHog, --import-realm with checked-in
+# dev-secret-* client secrets), every credential here comes from the
+# environment -- copy .env.prod.example to .env.prod, fill in real values,
+# then:
+#
+#   docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+#
+# SECURITY: the Keycloak realm import (core-security/.../hostflow-realm.json)
+# ships with well-known dev-secret-<clientId> client secrets committed to
+# the repo. Importing it verbatim into a production Keycloak and leaving
+# those secrets in place is a real vulnerability -- rotate every client
+# secret via the admin console/API immediately after first import, and
+# update KEYCLOAK_ADMIN_CLIENT_SECRET / each frontend app's
+# KEYCLOAK_CLIENT_SECRET to match before exposing this publicly.
+name: hostflow
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-hostflow}
+      POSTGRES_USER: ${DB_SUPERUSER:-postgres}
+      POSTGRES_PASSWORD: ${DB_SUPERUSER_PASSWORD:?DB_SUPERUSER_PASSWORD is required}
+    volumes:
+      - hostflow_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_SUPERUSER:-postgres} -d ${DB_NAME:-hostflow}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"]
+    volumes:
+      - hostflow_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:?RABBITMQ_USERNAME is required}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD is required}
+    volumes:
+      - hostflow_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    restart: unless-stopped
+    # "start" (not "start-dev") -- start-dev disables production hardening
+    # and isn't supported for real deployments. KC_HOSTNAME must be the real
+    # public URL Keycloak will be reached at; KC_PROXY_HEADERS matters if
+    # TLS is terminated by a reverse proxy/load balancer in front of this.
+    command: ["start", "--http-port=8081", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN_USER:?KEYCLOAK_ADMIN_USER is required}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?KEYCLOAK_ADMIN_PASSWORD is required}
+      KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:?KEYCLOAK_PUBLIC_URL is required, e.g. https://auth.example.com}
+      KC_PROXY_HEADERS: ${KEYCLOAK_PROXY_HEADERS:-xforwarded}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-hostflow}
+      KC_DB_USERNAME: ${DB_SUPERUSER:-postgres}
+      KC_DB_PASSWORD: ${DB_SUPERUSER_PASSWORD}
+    volumes:
+      - ./modules/core-security/src/main/resources/keycloak:/opt/keycloak/data/import:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  minio:
+    image: minio/minio
+    restart: unless-stopped
+    command: ["server", "/data", "--address", ":9000", "--console-address", ":9011"]
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY:?STORAGE_ACCESS_KEY is required}
+      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:?STORAGE_SECRET_KEY is required}
+    volumes:
+      - hostflow_minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-hostflow}
+      APP_USERNAME: ${APP_USERNAME:-hostflow_app}
+      DB_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD is required}
+      MIGRATIONS_USERNAME: ${MIGRATIONS_USERNAME:-hostflow_migrations}
+      MIGRATIONS_DB_PASSWORD: ${MIGRATIONS_DB_PASSWORD:?MIGRATIONS_DB_PASSWORD is required}
+      PLATFORM_ADMIN_USERNAME: ${PLATFORM_ADMIN_USERNAME:-hostflow_platform_admin}
+      PLATFORM_ADMIN_DB_PASSWORD: ${PLATFORM_ADMIN_DB_PASSWORD:?PLATFORM_ADMIN_DB_PASSWORD is required}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_PUBLIC_URL}/realms/hostflow
+      KEYCLOAK_SERVER_URL: ${KEYCLOAK_PUBLIC_URL}
+      KEYCLOAK_ADMIN_CLIENT_SECRET: ${KEYCLOAK_ADMIN_CLIENT_SECRET:?KEYCLOAK_ADMIN_CLIENT_SECRET is required}
+      STORAGE_ENDPOINT: ${STORAGE_PUBLIC_ENDPOINT:?STORAGE_PUBLIC_ENDPOINT is required, e.g. https://storage.example.com}
+      STORAGE_BUCKET: ${STORAGE_BUCKET:-hostflow-prod}
+      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY}
+      STORAGE_PATH_STYLE: "true"
+      CORS_ORIGIN_1: ${CORS_ORIGIN_1:?CORS_ORIGIN_1 is required, e.g. https://app.example.com}
+      CORS_ORIGIN_2: ${CORS_ORIGIN_2:?CORS_ORIGIN_2 is required}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      AFRICASTALKING_USERNAME: ${AFRICASTALKING_USERNAME}
+      AFRICASTALKING_API_KEY: ${AFRICASTALKING_API_KEY}
+      FCM_SERVER_KEY: ${FCM_SERVER_KEY}
+      FASTAPI_BASE_URL: ${FASTAPI_BASE_URL:-http://localhost:9000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_PUBLIC_PORT:-8085}:8085"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KEYCLOAK_ISSUER_URI: ${KEYCLOAK_PUBLIC_URL}/realms/hostflow
+      APP_SERVICE_URI: http://app:8080
+    depends_on:
+      app:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  hostflow_postgres_data:
+  hostflow_redis_data:
+  hostflow_rabbitmq_data:
+  hostflow_minio_data:

@@ -1,0 +1,14 @@
+target/
+.idea/
+*.iml
+.vscode/
+.env
+.mvn/
+*.log
+HELP.md.env
+*.env
+# *.env only matches names ENDING in ".env" -- .env.prod doesn't (it ends
+# in ".prod"), so it was never actually covered by the pattern above despite
+# looking like it should be. Real production secrets live here.
+.env.prod
+*.pid

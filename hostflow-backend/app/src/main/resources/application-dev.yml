@@ -1,0 +1,331 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:hostflow}
+    username: ${APP_USERNAME:hostflow_app}
+    password: okrainc01
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        connection:
+          autocommit: false
+        generate_statistics: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:hostflow}
+    driver-class-name: org.postgresql.Driver
+    user: ${MIGRATIONS_USERNAME:hostflow_migrations}
+    password: okrainc02
+    validate-on-migrate: true
+    clean-disabled: true
+    baseline-version: 1
+    table: flyway_schema_history
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 60000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: 5000ms
+        shutdown-timeout: 100ms
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    connection-timeout: 60000
+    requested-heartbeat: 60
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+      reply-timeout: 30000
+      exchange: hostflow.direct
+    listener:
+      simple:
+        concurrency: 3
+        max-concurrency: 10
+        prefetch: 5
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+          multiplier: 2.0
+          max-interval: 10000ms
+
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:changeme_in_env}
+    password: ${SMTP_PASSWORD:changeme_in_env}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8081/realms/hostflow}
+          jwk-set-uri: ${KEYCLOAK_JWK_URI:http://localhost:8081/realms/hostflow/protocol/openid-connect/certs}
+
+hostflow:
+  notification:
+    providers:
+      email:
+        from-address: ${NOTIFICATION_FROM_EMAIL:no-reply@hostflow.app}
+        from-name: HostFlow
+      sms:
+        api-url: https://api.africastalking.com/version1/messaging
+        username: ${AFRICASTALKING_USERNAME:sandbox}
+        api-key: ${AFRICASTALKING_API_KEY:changeme_in_env}
+        sender-id: ${AFRICASTALKING_SENDER_ID:HOSTFLOW}
+      push:
+        fcm-server-key: ${FCM_SERVER_KEY:changeme_in_env}
+        fcm-url: https://fcm.googleapis.com/fcm/send
+
+  datasource:
+    platform-admin:
+      url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:hostflow}
+      username: ${PLATFORM_ADMIN_USERNAME:hostflow_platform_admin}
+      password: ${PLATFORM_ADMIN_DB_PASSWORD:changeme_in_env}
+
+  cors:
+    allowed-origins:
+      # hostflow-web=3000, nazilco-web=3001, hostflow-admin=3002,
+      # nazilco-admin=3003, xanuos-console=3004 (see each app's package.json
+      # "dev" script). CORS_ORIGIN_2 previously defaulted to :9090, which is
+      # this backend's own port, not a frontend origin -- nothing running on
+      # nazilco-web's actual dev port (3001) could ever pass CORS.
+      - ${CORS_ORIGIN_1:http://localhost:3000}
+      - ${CORS_ORIGIN_2:http://localhost:3001}
+      - ${CORS_ORIGIN_3:http://localhost:3002}
+      - ${CORS_ORIGIN_4:http://localhost:3003}
+      - ${CORS_ORIGIN_5:http://localhost:3004}
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - X-Tenant-ID
+      - X-Request-ID
+      - Accept
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    allow-credentials: true
+    max-age: 3600
+    exposed-headers:
+      - X-Tenant-ID
+      - X-Request-ID
+
+  keycloak:
+    admin:
+      server-url: ${KEYCLOAK_SERVER_URL:http://localhost:8081}
+      realm: ${KEYCLOAK_REALM:hostflow}
+      admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:hostflow-admin-cli}
+      admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET:dev-secret-hostflow-admin-cli}
+    user:
+      client-id: ${KEYCLOAK_USER_CLIENT_ID:hostflow-app}
+      client-secret: ${KEYCLOAK_USER_CLIENT_SECRET:changeme_in_env}
+
+  ai:
+    fastapi:
+      base-url: ${FASTAPI_BASE_URL:http://localhost:9000}
+      timeout-seconds: ${FASTAPI_TIMEOUT:120}
+      retry:
+        max-attempts: 3
+        backoff-delay: 1000
+
+  storage:
+    endpoint: ${STORAGE_ENDPOINT:http://localhost:9010}
+    region: us-east-1
+    bucket: ${STORAGE_BUCKET:hostflow-dev}
+    access-key: ${STORAGE_ACCESS_KEY:minioadmin}
+    secret-key: ${STORAGE_SECRET_KEY:minioadmin}
+    path-style-access: true
+    presigned-url-expiry-seconds: 3600
+
+  tenant:
+    header: X-Tenant-ID
+    default: public
+    validation:
+      enabled: true
+
+  security:
+    bypass-rls-roles:
+      - hostflow_migrations
+      - hostflow_platform_admin
+    rate-limit:
+      enabled: true
+      default-limit: 100
+      default-duration: 60
+
+  rabbitmq:
+    exchanges:
+      direct: hostflow.direct
+      topic: hostflow.topic
+      fanout: hostflow.fanout
+      dlx: hostflow.dlx
+    queues:
+      booking:
+        created: hostflow.booking.created
+        confirmed: hostflow.booking.confirmed
+        cancelled: hostflow.booking.cancelled
+        expired: hostflow.booking.expired
+      property:
+        created: hostflow.property.created
+        updated: hostflow.property.updated
+        deleted: hostflow.property.deleted
+      payment:
+        success: hostflow.payment.success
+        failed: hostflow.payment.failed
+        refunded: hostflow.payment.refunded
+      notification:
+        email: hostflow.notification.email
+        sms: hostflow.notification.sms
+        push: hostflow.notification.push
+        whatsapp: hostflow.notification.whatsapp
+
+      tenant:
+        created: hostflow.tenant.created
+        updated: hostflow.tenant.updated
+
+    dlq: hostflow.dlq
+    routing-keys:
+      booking:
+        created: booking.created
+        confirmed: booking.confirmed
+        cancelled: booking.cancelled
+        expired: booking.expired
+      property:
+        created: property.created
+        updated: property.updated
+        deleted: property.deleted
+      payment:
+        success: payment.success
+        failed: payment.failed
+        refunded: payment.refunded
+      notification:
+        email: notification.email
+        sms: notification.sms
+        push: notification.push
+        whatsapp: notification.whatsapp
+      tenant:
+        created: tenant.created
+        updated: tenant.updated
+
+logging:
+  level:
+    com.hostflow: DEBUG
+    org.springframework: INFO
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web: DEBUG
+    org.flywaydb: INFO
+    org.springframework.data.redis: DEBUG
+    org.springframework.amqp: DEBUG
+    org.springframework.rabbit: DEBUG
+    com.hostflow.messaging: DEBUG
+
+server:
+  port: ${SERVER_PORT:9090}
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never
+    include-exception: false
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 2048
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,flyway
+      base-path: /actuator
+    enabled-by-default: true
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+    flyway:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  health:
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    rabbit:
+      enabled: true
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+    filter: true
+    display-request-duration: true

@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: gateway-service
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8081/realms/hostflow}
+
+hostflow:
+  gateway:
+    app-service-uri: ${APP_SERVICE_URI:http://localhost:9090}
+    health:
+      app-service-uri: ${APP_SERVICE_URI:http://localhost:9090}
+      timeout-seconds: 5
+
+server:
+  port: 8085
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never

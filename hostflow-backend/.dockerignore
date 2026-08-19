@@ -1,0 +1,19 @@
+# Mirrors .gitignore, plus dev-only artifacts that don't belong in a build
+# context — this is what's excluded when `docker build` sends context to
+# the daemon, so a smaller/cleaner list here directly speeds up every build.
+target/
+.idea/
+*.iml
+.vscode/
+.env
+.env.*
+.mvn/
+*.log
+*.pid
+.git/
+HELP.md.env
+docker-compose.yml
+seed-kenya-data.ps1
+seed-kenya-photos.ps1
+create-roles.sql
+PROJECT_STATE.md

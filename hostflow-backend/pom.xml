@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hostflow</groupId>
+    <artifactId>hostflow-backend</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>HostFlow Backend</name>
+    <description>Modular monolith backend for the HostFlow ecosystem</description>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.version>3.3.4</spring-boot.version>
+        <lombok.version>1.18.34</lombok.version>
+        <junit.version>5.11.0</junit.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <modules>
+
+        <module>modules/core-common</module>
+        <module>modules/core-config</module>
+        <module>modules/core-persistence</module>
+        <module>modules/core-tenancy</module>
+        <module>modules/core-security</module>
+        <module>modules/core-storage</module>
+        <module>modules/core-messaging</module>
+        <module>gateway-service</module>
+        <module>modules/module-identity</module>
+        <module>modules/module-property</module>
+        <module>modules/module-booking</module>
+        <module>modules/module-notification</module>
+        <module>modules/module-crm</module>
+        <module>modules/module-marketing</module>
+        <module>modules/module-billing</module>
+        <module>modules/module-analytics</module>
+        <module>modules/module-maintenance</module>
+        <module>modules/module-rental</module>
+        <module>modules/module-office</module>
+        <module>modules/module-mall</module>
+        <module>modules/module-review</module>
+        <module>modules/module-platform-admin</module>
+        
+        <module>app</module>
+        <!-- future modules are added here as they are built -->
+    </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <release>21</release>
+                        <parameters>true</parameters>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

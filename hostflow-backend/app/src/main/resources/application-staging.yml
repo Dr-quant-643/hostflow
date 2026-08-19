@@ -1,0 +1,47 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: hostflow_app
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+    user: hostflow_migrations
+    password: ${MIGRATIONS_DB_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
+
+hostflow:
+  cors:
+    allowed-origins:
+      - https://staging.hostflow.app
+      - https://staging-nazilco.hostflow.app
+  keycloak:
+    admin:
+      server-url: ${KEYCLOAK_SERVER_URL}
+      realm: hostflow
+      admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}
+      admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET}
+  ai:
+    fastapi:
+      base-url: ${FASTAPI_BASE_URL}
+      timeout-seconds: 120
+
+logging:
+  level:
+    com.hostflow: INFO

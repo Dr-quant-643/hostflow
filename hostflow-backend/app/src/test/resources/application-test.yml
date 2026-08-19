@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+hostflow:
+  ai:
+    fastapi:
+      base-url: http://localhost:9000
+      timeout-seconds: 5

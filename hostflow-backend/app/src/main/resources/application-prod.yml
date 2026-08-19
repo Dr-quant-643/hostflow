@@ -1,0 +1,290 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${APP_USERNAME:hostflow_app}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: public
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+        connection:
+          autocommit: false
+        generate_statistics: false
+
+  # Same DB_URL as the main datasource -- Flyway needs its own explicit
+  # url/driver-class-name (they are NOT inherited from spring.datasource.*),
+  # a gap that broke local dev with "Driver has not been set" until fixed.
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+    url: ${DB_URL}
+    driver-class-name: org.postgresql.Driver
+    user: ${MIGRATIONS_USERNAME:hostflow_migrations}
+    password: ${MIGRATIONS_DB_PASSWORD}
+    validate-on-migrate: true
+    clean-disabled: true
+    baseline-version: 1
+    table: flyway_schema_history
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 60000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 16
+          min-idle: 2
+          max-wait: 5000ms
+        shutdown-timeout: 100ms
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    ssl:
+      enabled: ${RABBITMQ_SSL_ENABLED:false}
+    connection-timeout: 60000
+    requested-heartbeat: 60
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+      reply-timeout: 30000
+      exchange: hostflow.direct
+    listener:
+      simple:
+        concurrency: 5
+        max-concurrency: 20
+        prefetch: 10
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+          multiplier: 2.0
+          max-interval: 10000ms
+
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI}
+
+hostflow:
+  notification:
+    providers:
+      email:
+        from-address: ${NOTIFICATION_FROM_EMAIL:no-reply@hostflow.app}
+        from-name: HostFlow
+      sms:
+        api-url: https://api.africastalking.com/version1/messaging
+        username: ${AFRICASTALKING_USERNAME}
+        api-key: ${AFRICASTALKING_API_KEY}
+        sender-id: ${AFRICASTALKING_SENDER_ID:HOSTFLOW}
+      push:
+        fcm-server-key: ${FCM_SERVER_KEY}
+        fcm-url: https://fcm.googleapis.com/fcm/send
+      whatsapp:
+        api-url: ${WHATSAPP_API_URL:https://graph.facebook.com/v20.0}
+        phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID}
+        access-token: ${WHATSAPP_ACCESS_TOKEN}
+
+  # Second DataSource for the hostflow_platform_admin (BYPASSRLS) role, used
+  # by every cross-tenant read: public NazilCo browsing, platform-admin
+  # screens. Missing entirely from this file before -- PublicPropertyQueries
+  # and friends would have failed to start (or worse, silently misbound) in
+  # production with no explicit error pointing at this section.
+  datasource:
+    platform-admin:
+      url: ${DB_URL}
+      username: ${PLATFORM_ADMIN_USERNAME:hostflow_platform_admin}
+      password: ${PLATFORM_ADMIN_DB_PASSWORD}
+
+  cors:
+    allowed-origins:
+      - ${CORS_ORIGIN_1}
+      - ${CORS_ORIGIN_2}
+      - ${CORS_ORIGIN_3:}
+      - ${CORS_ORIGIN_4:}
+      - ${CORS_ORIGIN_5:}
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+    allowed-headers:
+      - Authorization
+      - Content-Type
+      - X-Tenant-ID
+      - X-Request-ID
+      - Accept
+      - Origin
+      - Access-Control-Request-Method
+      - Access-Control-Request-Headers
+    allow-credentials: true
+    max-age: 3600
+    exposed-headers:
+      - X-Tenant-ID
+      - X-Request-ID
+
+  keycloak:
+    admin:
+      server-url: ${KEYCLOAK_SERVER_URL}
+      realm: ${KEYCLOAK_REALM:hostflow}
+      admin-client-id: ${KEYCLOAK_ADMIN_CLIENT_ID:hostflow-admin-cli}
+      admin-client-secret: ${KEYCLOAK_ADMIN_CLIENT_SECRET}
+
+  ai:
+    fastapi:
+      base-url: ${FASTAPI_BASE_URL}
+      timeout-seconds: ${FASTAPI_TIMEOUT:120}
+      retry:
+        max-attempts: 3
+        backoff-delay: 1000
+
+  storage:
+    endpoint: ${STORAGE_ENDPOINT}
+    region: ${STORAGE_REGION:us-east-1}
+    bucket: ${STORAGE_BUCKET}
+    access-key: ${STORAGE_ACCESS_KEY}
+    secret-key: ${STORAGE_SECRET_KEY}
+    path-style-access: ${STORAGE_PATH_STYLE:false}
+    presigned-url-expiry-seconds: 3600
+
+  tenant:
+    header: X-Tenant-ID
+    default: public
+    validation:
+      enabled: true
+
+  security:
+    bypass-rls-roles:
+      - hostflow_migrations
+      - hostflow_platform_admin
+    rate-limit:
+      enabled: true
+      default-limit: 100
+      default-duration: 60
+
+  # Exchange/queue/routing-key NAMES are wire-format contracts, not secrets
+  # -- identical to dev on purpose, so messages published by one environment
+  # would (mechanically) route the same way in another.
+  rabbitmq:
+    exchanges:
+      direct: hostflow.direct
+      topic: hostflow.topic
+      fanout: hostflow.fanout
+      dlx: hostflow.dlx
+    queues:
+      booking:
+        created: hostflow.booking.created
+        confirmed: hostflow.booking.confirmed
+        cancelled: hostflow.booking.cancelled
+        expired: hostflow.booking.expired
+      property:
+        created: hostflow.property.created
+        updated: hostflow.property.updated
+        deleted: hostflow.property.deleted
+      payment:
+        success: hostflow.payment.success
+        failed: hostflow.payment.failed
+        refunded: hostflow.payment.refunded
+      notification:
+        email: hostflow.notification.email
+        sms: hostflow.notification.sms
+        push: hostflow.notification.push
+        whatsapp: hostflow.notification.whatsapp
+      tenant:
+        created: hostflow.tenant.created
+        updated: hostflow.tenant.updated
+    dlq: hostflow.dlq
+    routing-keys:
+      booking:
+        created: booking.created
+        confirmed: booking.confirmed
+        cancelled: booking.cancelled
+        expired: booking.expired
+      property:
+        created: property.created
+        updated: property.updated
+        deleted: property.deleted
+      payment:
+        success: payment.success
+        failed: payment.failed
+        refunded: payment.refunded
+      notification:
+        email: notification.email
+        sms: notification.sms
+        push: notification.push
+        whatsapp: notification.whatsapp
+      tenant:
+        created: tenant.created
+        updated: tenant.updated
+
+logging:
+  level:
+    com.hostflow: INFO
+    root: WARN
+    org.flywaydb: INFO
+
+server:
+  port: ${SERVER_PORT:8080}
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+    include-exception: false
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 2048
+
+# Public API docs are a dev/staging convenience, not something to expose
+# unauthenticated in production by default -- springdoc is enabled by its
+# own default unless explicitly turned off here.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
