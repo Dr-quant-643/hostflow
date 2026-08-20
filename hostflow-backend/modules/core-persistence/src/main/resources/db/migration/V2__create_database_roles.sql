@@ -32,6 +32,9 @@ BEGIN
 END
 $$;
 
-COMMENT ON ROLE hostflow_app IS 'Normal application runtime role. Must never have BYPASSRLS. All tenant-owned tables enforce RLS against this role.';
-COMMENT ON ROLE hostflow_migrations IS 'Flyway-only role. Used exclusively for running schema migrations, never by the running application.';
-COMMENT ON ROLE hostflow_platform_admin IS 'Cross-tenant background jobs only (billing reconciliation, platform analytics rollups). Must not be used for any user-facing request path.';
+-- No COMMENT ON ROLE statements here: PG16 requires ADMIN OPTION on a role
+-- to comment on it, and a role can never hold ADMIN OPTION on itself
+-- (self-grant is rejected), so hostflow_migrations commenting on its own
+-- role can never succeed under this least-privilege setup, superuser
+-- bootstrap or not. Role purposes are documented in this file's header
+-- comment instead.
