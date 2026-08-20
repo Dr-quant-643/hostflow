@@ -1,0 +1,7 @@
+{
+  "name": "hostflow-backend-railway-iac",
+  "private": true,
+  "allowScripts": {
+    "esbuild": true
+  }
+}

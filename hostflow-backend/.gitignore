@@ -12,3 +12,10 @@ HELP.md.env
 # looking like it should be. Real production secrets live here.
 .env.prod
 *.pid
+# Railway IaC config -- will contain real production secrets (DB/Keycloak/
+# RabbitMQ/MinIO passwords) once filled in, same reasoning as .env.prod above.
+.railway/
+# package.json here is only local tooling scaffolding so `npm install
+# railway` can provide the .railway/railway.ts IaC runner -- not a real
+# Node project, node_modules shouldn't be committed.
+node_modules/
