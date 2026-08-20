@@ -19,7 +19,7 @@ export function AppSidebar() {
           active: pathname.startsWith(item.href),
         };
       })}
-      brand="XanuOS Admin"
+      logo="XanuOS Admin"
     />
   );
 }

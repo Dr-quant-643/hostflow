@@ -23,7 +23,7 @@ export default function SettingsPage() {
         <Stack gap="sm">
           <h3 className="font-medium">Product Access</h3>
           <Stack direction="row" gap="sm">
-            {user?.productScopes?.map((scope) => (
+            {user?.productScope?.map((scope) => (
               <Badge key={scope}>{scope}</Badge>
             ))}
           </Stack>

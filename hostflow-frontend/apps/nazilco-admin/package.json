@@ -22,7 +22,8 @@
     "@hostflow/validation": "workspace:*",
     "@hookform/resolvers": "^3.9.0",
     "react-hook-form": "^7.53.0",
-    "lucide-react": "^0.441.0"
+    "lucide-react": "^0.441.0",
+    "@tanstack/react-table": "^8.21.3"
   },
   "devDependencies": {
     "typescript": "^5.5.4",

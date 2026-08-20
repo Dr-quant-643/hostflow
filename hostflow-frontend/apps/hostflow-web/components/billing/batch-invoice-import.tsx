@@ -53,9 +53,9 @@ export function BatchInvoiceImport() {
           if (file) handleFile(file);
         }}
       />
-      {parseError && <Alert variant="error">{parseError}</Alert>}
+      {parseError && <Alert variant="destructive">{parseError}</Alert>}
       {rowCount > 0 && !parseError && (
-        <Alert variant="info">{rowCount} rows ready to import (max 100).</Alert>
+        <Alert variant="default">{rowCount} rows ready to import (max 100).</Alert>
       )}
       <Button
         disabled={!parsed}
@@ -83,7 +83,7 @@ export function BatchInvoiceImport() {
           {result.results
             .filter((r) => !r.success)
             .map((r) => (
-              <Alert key={r.index} variant="error">
+              <Alert key={r.index} variant="destructive">
                 Row {r.index + 1}: {r.errorMessage}
               </Alert>
             ))}

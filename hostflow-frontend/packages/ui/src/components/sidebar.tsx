@@ -13,11 +13,12 @@ export interface SidebarNavItem {
 export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   items: SidebarNavItem[];
   logo?: React.ReactNode;
-  LinkComponent?: React.ComponentType<{
-    href: string;
-    className?: string;
-    children: React.ReactNode;
-  }>;
+  // ComponentType<any> rather than a `{href: string; ...}`-shaped generic:
+  // Next.js's Link types `href` as `Url` (string | UrlObject), which makes
+  // its `propTypes` field structurally incompatible with any component type
+  // whose props narrow `href` to `string`, even though passing Link here is
+  // always valid at runtime. `any` sidesteps that structural comparison.
+  LinkComponent?: React.ComponentType<any>;
   collapsed?: boolean;
 }
 
