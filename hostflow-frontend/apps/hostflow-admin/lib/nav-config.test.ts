@@ -2,13 +2,8 @@ import { describe, it, expect } from "vitest";
 import { ADMIN_NAV } from "./nav-config";
 
 describe("ADMIN_NAV", () => {
-  it("covers exactly the support/billing/product/access scope", () => {
-    expect(ADMIN_NAV.map((i) => i.label)).toEqual([
-      "Support",
-      "Billing",
-      "Products",
-      "Access Control",
-    ]);
+  it("covers exactly the support/billing scope", () => {
+    expect(ADMIN_NAV.map((i) => i.label)).toEqual(["Support", "Billing"]);
   });
 
   it("does not overlap with hostflow-web's owner-facing nav paths", () => {
