@@ -1,7 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
-import { Stack, Badge, Button, Skeleton, EmptyState, Card } from "@hostflow/ui";
+import { Stack, Badge, Button, Skeleton, EmptyState, Card, toast } from "@hostflow/ui";
 import {
   useRentPayments,
   useMarkRentPaid,

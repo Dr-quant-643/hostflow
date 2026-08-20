@@ -2,9 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { leaseFormSchema, type LeaseFormValues } from "@hostflow/validation";
-import { Button, Input, Select, Stack } from "@hostflow/ui";
+import { Button, Input, Select, Stack, toast } from "@hostflow/ui";
 import { useCreateLease } from "@hostflow/api-client/src/hooks/use-rental";
 import { useRentalTenants } from "@hostflow/api-client/src/hooks/use-rental";
 

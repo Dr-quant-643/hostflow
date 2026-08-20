@@ -1,8 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { toast } from "sonner";
-import { PageHeader, Skeleton, EmptyState, Badge, Stack, Button } from "@hostflow/ui";
+import { PageHeader, Skeleton, EmptyState, Badge, Stack, Button, toast } from "@hostflow/ui";
 import { useLease, useActivateLease, useTerminateLease } from "@hostflow/api-client/src/hooks/use-rental";
 import { RentPaymentList } from "@/components/rental/rent-payment-list";
 

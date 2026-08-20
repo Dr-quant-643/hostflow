@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
-import { Button, Input, Stack, Card, Badge, Skeleton, EmptyState } from "@hostflow/ui";
+import { Button, Input, Stack, Card, Badge, Skeleton, EmptyState, toast } from "@hostflow/ui";
 import {
   usePaymentsByInvoice,
   useRecordPayment,

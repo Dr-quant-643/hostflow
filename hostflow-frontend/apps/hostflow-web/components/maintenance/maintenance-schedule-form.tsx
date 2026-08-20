@@ -2,12 +2,11 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import {
   maintenanceScheduleFormSchema,
   type MaintenanceScheduleFormValues,
 } from "@hostflow/validation";
-import { Button, Input, Select, Stack } from "@hostflow/ui";
+import { Button, Input, Select, Stack, toast } from "@hostflow/ui";
 import { useCreateMaintenanceSchedule } from "@hostflow/api-client/src/hooks/use-maintenance";
 
 const CATEGORY_OPTIONS = [

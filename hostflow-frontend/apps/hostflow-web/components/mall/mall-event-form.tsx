@@ -2,9 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { mallEventFormSchema, type MallEventFormValues } from "@hostflow/validation";
-import { Button, Input, Textarea, Stack } from "@hostflow/ui";
+import { Button, Input, Textarea, Stack, toast } from "@hostflow/ui";
 import { useCreateMallEvent } from "@hostflow/api-client/src/hooks/use-mall";
 
 export function MallEventForm({ propertyId }: { propertyId: string }) {

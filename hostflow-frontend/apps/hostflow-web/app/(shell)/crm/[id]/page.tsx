@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { toast } from "sonner";
-import {
-  PageHeader,
+import { PageHeader,
   Skeleton,
   EmptyState,
   Timeline,
@@ -13,8 +11,7 @@ import {
   Button,
   Select,
   Textarea,
-  Card,
-} from "@hostflow/ui";
+  Card,, toast } from "@hostflow/ui";
 import {
   useContact,
   useContactInteractions,

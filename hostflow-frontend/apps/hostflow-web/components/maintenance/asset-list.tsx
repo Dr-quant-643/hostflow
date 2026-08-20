@@ -1,7 +1,6 @@
 "use client";
 
-import { toast } from "sonner";
-import { DataTable, Skeleton, EmptyState, Badge, Button } from "@hostflow/ui";
+import { DataTable, Skeleton, EmptyState, Badge, Button, toast } from "@hostflow/ui";
 import { useAssets, useDecommissionAsset } from "@hostflow/api-client/src/hooks/use-maintenance";
 import type { AssetResponse } from "@hostflow/types";
 import { ColumnDef } from "@tanstack/react-table";

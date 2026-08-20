@@ -3,12 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
   campaignFormSchema,
   type CampaignFormValues,
 } from "@hostflow/validation";
-import { Button, Input, Select, Textarea, Stack } from "@hostflow/ui";
+import { Button, Input, Select, Textarea, Stack, toast } from "@hostflow/ui";
 import { useCreateCampaign } from "@hostflow/api-client/src/hooks/use-marketing";
 
 export function CampaignForm() {

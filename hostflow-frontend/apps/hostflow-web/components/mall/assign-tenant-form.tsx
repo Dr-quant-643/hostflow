@@ -2,12 +2,11 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import {
   assignRetailTenantFormSchema,
   type AssignRetailTenantFormValues,
 } from "@hostflow/validation";
-import { Button, Input, Select, Stack, Card } from "@hostflow/ui";
+import { Button, Input, Select, Stack, Card, toast } from "@hostflow/ui";
 import { useAssignRetailTenant } from "@hostflow/api-client/src/hooks/use-mall";
 import type { RetailUnitResponse } from "@hostflow/types";
 

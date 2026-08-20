@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { toast } from "sonner";
-import { Card, Stack, Badge, Button, Checkbox } from "@hostflow/ui";
+import { Card, Stack, Badge, Button, Checkbox, toast } from "@hostflow/ui";
 import { useUpdateUserRoles, useDeactivateUser } from "@hostflow/api-client/src/hooks/use-team";
 import type { OrgUserSummaryResponse, UserRole } from "@hostflow/types";
 

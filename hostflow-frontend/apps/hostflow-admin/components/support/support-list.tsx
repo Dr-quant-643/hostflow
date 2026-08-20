@@ -1,7 +1,6 @@
 "use client";
 
-import { DataTable, Skeleton, EmptyState, Button, Badge } from "@hostflow/ui";
-import { toast } from "sonner";
+import { DataTable, Skeleton, EmptyState, Button, Badge, toast } from "@hostflow/ui";
 import {
   useSupportTickets,
   useAssignTicket,

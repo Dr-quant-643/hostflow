@@ -2,9 +2,8 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { assetFormSchema, type AssetFormValues } from "@hostflow/validation";
-import { Button, Input, Stack } from "@hostflow/ui";
+import { Button, Input, Stack, toast } from "@hostflow/ui";
 import { useCreateAsset } from "@hostflow/api-client/src/hooks/use-maintenance";
 
 export function AssetForm({ propertyId }: { propertyId: string }) {

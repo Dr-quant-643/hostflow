@@ -3,12 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import {
   contactFormSchema,
   type ContactFormValues,
 } from "@hostflow/validation";
-import { Button, Input, Stack } from "@hostflow/ui";
+import { Button, Input, Stack, toast } from "@hostflow/ui";
 import { useCreateContact } from "@hostflow/api-client/src/hooks/use-crm";
 
 export function ContactForm() {

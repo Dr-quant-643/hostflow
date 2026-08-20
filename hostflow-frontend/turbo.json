@@ -3,7 +3,15 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "VERCEL",
+        "NEXT_PUBLIC_*",
+        "KEYCLOAK_*",
+        "SESSION_SECRET",
+        "APP_BASE_URL",
+        "DEV_MOCK_*"
+      ]
     },
     "dev": {
       "cache": false,

@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { toast } from "sonner";
-import { PageHeader, Skeleton, EmptyState, Badge, Stack, Button, Input, Textarea, Card } from "@hostflow/ui";
+import { PageHeader, Skeleton, EmptyState, Badge, Stack, Button, Input, Textarea, Card, toast } from "@hostflow/ui";
 import {
   useWorkOrder,
   useAssignTechnician,
