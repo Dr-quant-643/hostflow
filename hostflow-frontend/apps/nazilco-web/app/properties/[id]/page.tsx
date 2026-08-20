@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -24,6 +25,17 @@ import { ReviewsSection } from "@/components/property/reviews-section";
 type Property = PublicPropertySummary & Partial<DemoProperty>;
 
 export default function PropertyDetailPage() {
+  return (
+    <Suspense fallback={null}>
+      <PropertyDetailPageContent />
+    </Suspense>
+  );
+}
+
+// useSearchParams() (used for the checkIn/checkOut trip deep link) requires a
+// Suspense boundary during static generation, or `next build` fails
+// prerendering this route entirely.
+function PropertyDetailPageContent() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();

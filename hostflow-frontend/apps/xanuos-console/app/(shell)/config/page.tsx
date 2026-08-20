@@ -8,7 +8,7 @@ import { PageHeader,
   Button,
   Badge,
   Skeleton,
-  EmptyState,, toast } from "@hostflow/ui";
+  EmptyState, toast } from "@hostflow/ui";
 import {
   useFeatureFlags,
   useSetGlobalFlag,

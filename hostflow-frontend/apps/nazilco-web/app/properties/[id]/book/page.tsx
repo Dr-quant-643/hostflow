@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +26,17 @@ import { BrandBackground } from "@/components/layout/brand-background";
 import { BookingSteps } from "@/components/property/booking-steps";
 
 export default function BookPropertyPage() {
+  return (
+    <Suspense fallback={null}>
+      <BookPropertyPageContent />
+    </Suspense>
+  );
+}
+
+// useSearchParams() (used for the checkIn/checkOut query params) requires a
+// Suspense boundary during static generation, or `next build` fails
+// prerendering this route entirely.
+function BookPropertyPageContent() {
   const { id } = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();

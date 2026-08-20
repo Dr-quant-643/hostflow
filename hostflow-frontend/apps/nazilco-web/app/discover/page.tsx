@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
@@ -81,6 +81,18 @@ function applyFilters(
 }
 
 export default function DiscoverPage() {
+  return (
+    <Suspense fallback={null}>
+      <DiscoverPageContent />
+    </Suspense>
+  );
+}
+
+// useSearchParams() (used for the ?nearMe=1 deep link) requires a Suspense
+// boundary during static generation, or `next build` fails prerendering
+// this route entirely -- `next dev` doesn't enforce this, which is why it
+// went unnoticed until a real production build actually ran.
+function DiscoverPageContent() {
   const { data } = useDiscoverProperties();
   const [filters, setFilters] = useState<DiscoverFilterState>(DEFAULT_FILTERS);
   const [savedOnly, setSavedOnly] = useState(false);

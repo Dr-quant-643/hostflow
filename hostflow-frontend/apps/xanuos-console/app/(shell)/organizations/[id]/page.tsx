@@ -9,7 +9,7 @@ import { PageHeader,
   Stack,
   Card,
   Input,
-  Button,, toast } from "@hostflow/ui";
+  Button, toast } from "@hostflow/ui";
 import {
   useOrganization,
   useRenameOrganization,
