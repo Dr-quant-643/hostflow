@@ -54,7 +54,7 @@ For **each** of `hostflow-web`, `nazilco-web`, `hostflow-admin`,
 
    | Variable | Value |
    |---|---|
-   | `NEXT_PUBLIC_GATEWAY_URL` | `https://<your-gateway-domain>/api/v1` |
+   | `NEXT_PUBLIC_API_BASE_URL` | `https://<your-gateway-domain>/api/v1` |
    | `KEYCLOAK_ISSUER` | `https://<your-keycloak-domain>/realms/hostflow` |
    | `KEYCLOAK_CLIENT_ID` | the app's client id (e.g. `nazilco-web`) |
    | `KEYCLOAK_CLIENT_SECRET` | the *rotated* secret for that client |
