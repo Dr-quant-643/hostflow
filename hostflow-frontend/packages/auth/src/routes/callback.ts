@@ -3,8 +3,10 @@ import { exchangeCodeForTokens } from "../keycloak-client";
 import { decodeJwtPayload } from "../jwt-decode";
 import { decodeUserInfo } from "../keycloak-client";
 import {
-  encryptSession,
+  encryptUserSession,
+  encryptTokenSession,
   SESSION_COOKIE_NAME,
+  TOKEN_COOKIE_NAME,
   sessionCookieOptions,
 } from "../session";
 import { generateCsrfToken, CSRF_COOKIE_NAME } from "../csrf";
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
     const claims = decodeJwtPayload(tokens.access_token);
     const userInfo = decodeUserInfo(claims as any);
 
-    const sessionCookie = await encryptSession({
+    const userCookie = await encryptUserSession({
       user: {
         id: userInfo.id,
         tenantId: userInfo.tenantId,
@@ -38,17 +40,16 @@ export async function GET(request: NextRequest) {
         authorities: userInfo.authorities as any,
         productScope: userInfo.productScope as any,
       },
+    });
+    const tokenCookie = await encryptTokenSession({
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token,
       accessTokenExpiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
     });
 
     const response = NextResponse.redirect(new URL("/", request.url));
-    response.cookies.set(
-      SESSION_COOKIE_NAME,
-      sessionCookie,
-      sessionCookieOptions,
-    );
+    response.cookies.set(SESSION_COOKIE_NAME, userCookie, sessionCookieOptions);
+    response.cookies.set(TOKEN_COOKIE_NAME, tokenCookie, sessionCookieOptions);
     response.cookies.set(CSRF_COOKIE_NAME, generateCsrfToken(), {
       httpOnly: false, // must be readable by client JS to echo back per synchronizer pattern
       secure: process.env.NODE_ENV === "production",
