@@ -9,6 +9,7 @@ import {
 } from "@hostflow/validation";
 import { PageHeader, Stack, Card, Input, Button, toast } from "@hostflow/ui";
 import { useRegisterGuest } from "@hostflow/api-client/src/hooks/use-guest-registration";
+import { ApiError } from "@hostflow/api-client/src/errors";
 
 export default function SignupPage() {
   const [registered, setRegistered] = useState(false);
@@ -34,8 +35,12 @@ export default function SignupPage() {
       await register.mutateAsync(values);
       setRegistered(true);
       toast.success("Account created");
-    } catch {
-      toast.error("Couldn't create your account. Please try again.");
+    } catch (err) {
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : "Couldn't create your account. Please try again.";
+      toast.error(message);
     }
   });
 
