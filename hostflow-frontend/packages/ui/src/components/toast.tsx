@@ -1,42 +1,18 @@
 "use client";
 
 import * as React from "react";
-// Type-only import: erased at compile time, so it does NOT create a runtime
-// dependency on sonner (the whole point of the Function("return require")()
-// trick below is to keep sonner a soft/optional dependency downstream). This
-// just gives the exported `toast` its real shape (toast.success/.error/etc.)
-// instead of the loose `(...args: any[]) => any` that was hiding those
-// methods from every call site typed against this export.
-import type { toast as SonnerToastFn } from "sonner";
-
-type SonnerModule = {
-  toast: (...args: any[]) => any;
-  Toaster: (props?: any) => React.ReactElement | null;
-};
-
-const sonner = (() => {
-  try {
-    return Function("return require")()("sonner") as SonnerModule;
-  } catch {
-    return {
-      toast: (...args: any[]) => {
-        if (typeof console !== "undefined") {
-          console.warn(
-            "sonner is not installed; toast calls are ignored.",
-            args,
-          );
-        }
-      },
-      Toaster: () => null,
-    } satisfies SonnerModule;
-  }
-})();
-
-const { toast: rawToast, Toaster: SonnerToaster } = sonner;
+import { toast as rawToast, Toaster as SonnerToaster } from "sonner";
 
 // Re-export a thin wrapper so app code imports from @hostflow/ui, not sonner
-// directly — keeps the toast implementation swappable later.
-export const toast = rawToast as typeof SonnerToastFn;
+// directly — keeps the toast implementation swappable later. sonner is a
+// real, hard dependency of this package (see package.json), so a plain
+// static import is all this ever needed — a prior version of this file
+// tried to load it via `Function("return require")()` to keep it a "soft"
+// optional dependency, but `require` doesn't exist at runtime in a browser
+// bundle at all, so that always threw and silently fell back to a no-op
+// stub with no .error/.success methods, breaking every toast call in every
+// app that used them.
+export const toast = rawToast;
 
 export function Toaster() {
   return (
