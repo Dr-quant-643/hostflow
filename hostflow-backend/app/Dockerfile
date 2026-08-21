@@ -7,8 +7,13 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 COPY . .
+# clean, not just package: a stale modules/*/target/ from a local build
+# on the host was previously slipping past .dockerignore's non-recursive
+# `target/` pattern (fixed to `**/target/`) and getting repackaged as-is
+# by Maven, which doesn't recompile a module whose source file was
+# deleted -- the leftover .class file just rides along.
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -q -B -pl app -am package -DskipTests
+    mvn -q -B -pl app -am clean package -DskipTests
 
 FROM eclipse-temurin:21-jre AS runtime
 RUN useradd --system --create-home --home-dir /app appuser

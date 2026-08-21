@@ -1,7 +1,7 @@
 # Mirrors .gitignore, plus dev-only artifacts that don't belong in a build
 # context — this is what's excluded when `docker build` sends context to
 # the daemon, so a smaller/cleaner list here directly speeds up every build.
-target/
+**/target/
 .idea/
 *.iml
 .vscode/

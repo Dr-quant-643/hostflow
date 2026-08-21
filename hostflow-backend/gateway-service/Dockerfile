@@ -6,8 +6,9 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 COPY . .
+# clean, not just package: see app/Dockerfile for why.
 RUN --mount=type=cache,target=/root/.m2 \
-    mvn -q -B -pl gateway-service -am package -DskipTests
+    mvn -q -B -pl gateway-service -am clean package -DskipTests
 
 FROM eclipse-temurin:21-jre AS runtime
 RUN useradd --system --create-home --home-dir /app appuser
