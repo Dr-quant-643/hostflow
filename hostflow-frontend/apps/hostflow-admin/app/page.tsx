@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { AdminPicker } from "@/components/homepage/admin-picker";
 
-export default function RootPage() {
-  redirect("/support");
+export default function HomePage() {
+  return <AdminPicker />;
 }

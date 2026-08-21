@@ -1,4 +1,4 @@
-import { getAuthConfig } from "./config";
+import type { AuthConfig } from "./config";
 
 interface TokenResponse {
   access_token: string;
@@ -16,26 +16,25 @@ interface KeycloakUserInfo {
   realm_access?: { roles?: string[] };
 }
 
-async function tokenEndpoint(): Promise<string> {
-  const { issuer } = getAuthConfig();
-  return `${issuer}/protocol/openid-connect/token`;
+function tokenEndpoint(config: AuthConfig): string {
+  return `${config.issuer}/protocol/openid-connect/token`;
 }
 
 export async function exchangeCodeForTokens(
+  config: AuthConfig,
   code: string,
   codeVerifier: string,
 ): Promise<TokenResponse> {
-  const { clientId, clientSecret, redirectUri } = getAuthConfig();
   const body = new URLSearchParams({
     grant_type: "authorization_code",
-    client_id: clientId,
+    client_id: config.clientId,
     code,
-    redirect_uri: redirectUri,
+    redirect_uri: config.redirectUri,
     code_verifier: codeVerifier,
   });
-  if (clientSecret) body.set("client_secret", clientSecret);
+  if (config.clientSecret) body.set("client_secret", config.clientSecret);
 
-  const response = await fetch(await tokenEndpoint(), {
+  const response = await fetch(tokenEndpoint(config), {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
@@ -47,17 +46,17 @@ export async function exchangeCodeForTokens(
 }
 
 export async function refreshTokens(
+  config: AuthConfig,
   refreshToken: string,
 ): Promise<TokenResponse> {
-  const { clientId, clientSecret } = getAuthConfig();
   const body = new URLSearchParams({
     grant_type: "refresh_token",
-    client_id: clientId,
+    client_id: config.clientId,
     refresh_token: refreshToken,
   });
-  if (clientSecret) body.set("client_secret", clientSecret);
+  if (config.clientSecret) body.set("client_secret", config.clientSecret);
 
-  const response = await fetch(await tokenEndpoint(), {
+  const response = await fetch(tokenEndpoint(config), {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
@@ -101,26 +100,30 @@ export function decodeUserInfo(accessTokenPayload: KeycloakUserInfo): {
   };
 }
 
-export function buildAuthorizationUrl(params: {
-  state: string;
-  codeChallenge: string;
-}): string {
-  const { issuer, clientId, redirectUri, scope } = getAuthConfig();
-  const url = new URL(`${issuer}/protocol/openid-connect/auth`);
-  url.searchParams.set("client_id", clientId);
-  url.searchParams.set("redirect_uri", redirectUri);
+export function buildAuthorizationUrl(
+  config: AuthConfig,
+  params: {
+    state: string;
+    codeChallenge: string;
+  },
+): string {
+  const url = new URL(`${config.issuer}/protocol/openid-connect/auth`);
+  url.searchParams.set("client_id", config.clientId);
+  url.searchParams.set("redirect_uri", config.redirectUri);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", scope);
+  url.searchParams.set("scope", config.scope);
   url.searchParams.set("state", params.state);
   url.searchParams.set("code_challenge", params.codeChallenge);
   url.searchParams.set("code_challenge_method", "S256");
   return url.toString();
 }
 
-export function buildLogoutUrl(): string {
-  const { issuer, postLogoutRedirectUri, clientId } = getAuthConfig();
-  const url = new URL(`${issuer}/protocol/openid-connect/logout`);
-  url.searchParams.set("client_id", clientId);
-  url.searchParams.set("post_logout_redirect_uri", postLogoutRedirectUri);
+export function buildLogoutUrl(config: AuthConfig): string {
+  const url = new URL(`${config.issuer}/protocol/openid-connect/logout`);
+  url.searchParams.set("client_id", config.clientId);
+  url.searchParams.set(
+    "post_logout_redirect_uri",
+    config.postLogoutRedirectUri,
+  );
   return url.toString();
 }

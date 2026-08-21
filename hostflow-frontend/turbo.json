@@ -10,7 +10,11 @@
         "KEYCLOAK_*",
         "SESSION_SECRET",
         "APP_BASE_URL",
-        "DEV_MOCK_*"
+        "DEV_MOCK_*",
+        "XANUOS_*",
+        "NAZILCO_*",
+        "XANUOS_ADMIN_*",
+        "NAZILCO_ADMIN_*"
       ]
     },
     "dev": {

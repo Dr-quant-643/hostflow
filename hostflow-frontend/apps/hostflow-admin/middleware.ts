@@ -1,17 +1,37 @@
+import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authorityGate } from "@hostflow/auth/src/middleware-guard";
+import { createAuthConfig } from "@hostflow/auth/src/config";
 
-const PUBLIC_PATHS = ["/login", "/api/auth", "/access-denied"];
+const xanuosAdminConfig = createAuthConfig("XANUOS_ADMIN", "/xanuos-admin");
+const nazilcoAdminConfig = createAuthConfig("NAZILCO_ADMIN", "/nazilco-admin");
 
-// Gated on PRODUCT_XANUOS (this is XanuOS's admin app). Some screens
-// (Billing, Bookings-oversight) also call PlatformAdminController endpoints
-// that require ROLE_PLATFORM_ADMIN server-side — that stricter check is
-// enforced by the backend per-endpoint, not duplicated here.
+// Both workspaces are protect-by-default (matches both old admin apps' policy).
+const XANUOS_ADMIN_PUBLIC_PATHS = ["/xanuos-admin/api/auth", "/xanuos-admin/access-denied"];
+const NAZILCO_ADMIN_PUBLIC_PATHS = ["/nazilco-admin/api/auth", "/nazilco-admin/access-denied"];
+
 export function middleware(request: NextRequest) {
-  return authorityGate(request, {
-    publicPaths: PUBLIC_PATHS,
-    requireAnyAuthority: ["PRODUCT_XANUOS"],
-  });
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/") return NextResponse.next();
+
+  if (pathname.startsWith("/xanuos-admin")) {
+    return authorityGate(
+      request,
+      { publicPaths: XANUOS_ADMIN_PUBLIC_PATHS, requireAnyAuthority: ["PRODUCT_XANUOS"] },
+      xanuosAdminConfig,
+    );
+  }
+
+  if (pathname.startsWith("/nazilco-admin")) {
+    return authorityGate(
+      request,
+      { publicPaths: NAZILCO_ADMIN_PUBLIC_PATHS, requireAnyAuthority: ["PRODUCT_NAZILCO"] },
+      nazilcoAdminConfig,
+    );
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

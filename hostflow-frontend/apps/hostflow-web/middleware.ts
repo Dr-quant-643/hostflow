@@ -1,13 +1,55 @@
+import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authorityGate } from "@hostflow/auth/src/middleware-guard";
+import { createAuthConfig } from "@hostflow/auth/src/config";
 
-const PUBLIC_PATHS = ["/login", "/api/auth", "/access-denied"];
+const xanuosConfig = createAuthConfig("XANUOS", "/xanuos");
+const nazilcoConfig = createAuthConfig("NAZILCO", "/nazilco");
+
+// XanuOS: protect-by-default (matches old hostflow-web policy).
+const XANUOS_PUBLIC_PATHS = ["/xanuos/api/auth", "/xanuos/access-denied"];
+
+// NazilCo: public-by-default (matches old nazilco-web policy) — only these
+// paths require a session. Left exactly as the original app had it
+// (properties/search/discover stay anonymous-browsable); anything beyond
+// this is reconciliation-doc work for after this migration, not part of it.
+const NAZILCO_PUBLIC_PATHS = ["/nazilco/api/auth", "/nazilco/access-denied"];
+const NAZILCO_PROTECTED_PATHS = [
+  "/nazilco/checkout",
+  "/nazilco/guest-portal",
+  "/nazilco/profile",
+  "/nazilco/invoices",
+  "/nazilco/notifications",
+  "/nazilco/support",
+];
 
 export function middleware(request: NextRequest) {
-  return authorityGate(request, {
-    publicPaths: PUBLIC_PATHS,
-    requireAnyAuthority: ["PRODUCT_XANUOS"],
-  });
+  const { pathname } = request.nextUrl;
+
+  // Homepage and its picker are always public.
+  if (pathname === "/") return NextResponse.next();
+
+  if (pathname.startsWith("/xanuos")) {
+    return authorityGate(
+      request,
+      { publicPaths: XANUOS_PUBLIC_PATHS, requireAnyAuthority: ["PRODUCT_XANUOS"] },
+      xanuosConfig,
+    );
+  }
+
+  if (pathname.startsWith("/nazilco")) {
+    return authorityGate(
+      request,
+      {
+        publicPaths: NAZILCO_PUBLIC_PATHS,
+        protectedPaths: NAZILCO_PROTECTED_PATHS,
+        requireAnyAuthority: ["PRODUCT_NAZILCO"],
+      },
+      nazilcoConfig,
+    );
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {

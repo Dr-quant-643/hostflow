@@ -1,5 +1,4 @@
-export const CSRF_COOKIE_NAME = "XSRF-TOKEN";
-
+// Cookie name is per-product now — see session.ts's csrfCookieName(prefix).
 export function generateCsrfToken(): string {
   const bytes = new Uint8Array(24);
   crypto.getRandomValues(bytes);

@@ -1,27 +1,22 @@
 import type { Metadata } from "next";
-import { getServerSession } from "@hostflow/auth/src/server";
-import { Providers } from "./providers";
 import "./globals.css";
 
+// Minimal root layout — no product-specific Providers here. See
+// app/xanuos-admin/layout.tsx and app/nazilco-admin/layout.tsx for each
+// admin workspace's own independent session.
 export const metadata: Metadata = {
-  title: "Admin | HostFlow",
-  description: "XanuOS support, billing, and product administration",
+  title: "HostFlow Admin",
+  description: "XanuOS and NazilCo administration",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Fully authenticated app like hostflow-web (not optional like
-  // nazilco-web) — an anonymous visitor here is always redirected.
-  const session = await getServerSession();
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        <Providers initialUser={session ?? null}>{children}</Providers>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

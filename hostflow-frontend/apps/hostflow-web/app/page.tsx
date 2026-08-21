@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { ProductPicker } from "@/components/homepage/product-picker";
 
-export default function RootPage() {
-  redirect("/dashboard");
+export default function HomePage() {
+  return <ProductPicker />;
 }

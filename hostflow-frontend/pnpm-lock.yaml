@@ -111,9 +111,15 @@ importers:
       '@hostflow/validation':
         specifier: workspace:*
         version: link:../../packages/validation
+      '@tanstack/react-query':
+        specifier: ^5.56.2
+        version: 5.101.4(react@18.3.1)
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      framer-motion:
+        specifier: ^13.1.0
+        version: 13.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       lucide-react:
         specifier: ^0.441.0
         version: 0.441.0(react@18.3.1)
