@@ -1,10 +1,5 @@
 import { cookies } from "next/headers";
-import {
-  decryptUserSession,
-  decryptTokenSession,
-  SESSION_COOKIE_NAME,
-  TOKEN_COOKIE_NAME,
-} from "./session";
+import { decryptSession, SESSION_COOKIE_NAME } from "./session";
 import type { Authority, ProductScope, SessionUser } from "@hostflow/types";
 
 // Server Component / Route Handler helper: resolves the current session
@@ -47,7 +42,7 @@ export async function getServerSession(): Promise<SessionUser | null> {
   const cookieStore = cookies();
   const raw = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!raw) return null;
-  const session = await decryptUserSession(raw);
+  const session = await decryptSession(raw);
   return session?.user ?? null;
 }
 
@@ -62,9 +57,9 @@ export async function getValidAccessToken(): Promise<string | null> {
   }
 
   const cookieStore = cookies();
-  const raw = cookieStore.get(TOKEN_COOKIE_NAME)?.value;
+  const raw = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!raw) return null;
-  const session = await decryptTokenSession(raw);
+  const session = await decryptSession(raw);
   if (!session) return null;
 
   const now = Math.floor(Date.now() / 1000);

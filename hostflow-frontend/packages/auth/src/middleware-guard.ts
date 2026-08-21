@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decryptUserSession, SESSION_COOKIE_NAME } from "./session";
+import { decryptSession, SESSION_COOKIE_NAME } from "./session";
 import type { Authority } from "@hostflow/types";
 
 // Shared middleware-level auth gate for all 5 apps. Runs in the Edge
 // runtime, so it can't use next/headers' cookies()/getServerSession() (that
 // only works in Server Components/Route Handlers) — it reads the session
-// cookie directly off NextRequest and reuses decryptUserSession, which is
+// cookie directly off NextRequest and reuses decryptSession, which is
 // Edge-safe (jose, not Node's crypto).
 //
 // Every app before this had session-presence-only gating (any authenticated
@@ -74,7 +74,7 @@ export async function authorityGate(
     return redirectToLogin(request, pathname);
   }
 
-  const session = await decryptUserSession(raw);
+  const session = await decryptSession(raw);
   if (!session) {
     return redirectToLogin(request, pathname);
   }
