@@ -6,9 +6,7 @@ import { Button } from "@hostflow/ui";
 import { useDiscoverProperties } from "@hostflow/api-client/src/hooks/use-public-properties";
 import { PropertyCard } from "@/components/nazilco/discover/property-card";
 import { HeroSearchBar } from "@/components/nazilco/home/hero-search-bar";
-
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=2000&q=80";
+import { HeroMapBackdrop } from "@/components/nazilco/home/hero-map-backdrop";
 
 const CATEGORY_PILLS = [
   { emoji: "🏡", label: "Vacation rentals", href: "/nazilco/discover?type=VACATION_RENTAL" },
@@ -18,22 +16,27 @@ const CATEGORY_PILLS = [
   { emoji: "✨", label: "All stays", href: "/nazilco/discover" },
 ];
 
+const MARKETING_QUOTES = [
+  "🏡 Every pin is a place you could call home",
+  "📍 Search by place, not just price",
+  "❤️ Save it, compare it, book it",
+];
+
 export default function HomePage() {
   const { data: properties } = useDiscoverProperties(9);
 
   return (
     <div>
       <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden">
-        <motion.div
-          initial={{ scale: 1.08, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1.4, ease: "easeOut" }}
-          className="absolute inset-0"
+        <HeroMapBackdrop />
+
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 select-none text-center font-light leading-none tracking-tight text-white/[0.05]"
+          style={{ fontSize: "11vw" }}
         >
-          <img src={HERO_IMAGE} alt="" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#180f2b]/90 via-[#2c1b4d]/45 to-black/10" />
-          <div className="absolute inset-0 bg-gradient-to-br from-sapphire-500/10 via-transparent to-purple-500/20" />
-        </motion.div>
+          NazilCo
+        </span>
 
         <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center gap-6 px-6 text-center text-white">
           <motion.span
@@ -87,6 +90,17 @@ export default function HomePage() {
                 <span>{pill.emoji}</span>
                 {pill.label}
               </Link>
+            ))}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
+            className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 pt-2 text-xs italic text-white/60"
+          >
+            {MARKETING_QUOTES.map((quote) => (
+              <span key={quote}>{quote}</span>
             ))}
           </motion.div>
         </div>
