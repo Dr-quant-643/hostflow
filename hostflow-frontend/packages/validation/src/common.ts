@@ -21,6 +21,11 @@ export const emailSchema = z
   .string()
   .email({ message: "Enter a valid email address." });
 
+export const passwordSchema = z
+  .string()
+  .min(8, { message: "Password must be at least 8 characters." })
+  .max(255);
+
 export const nonEmptyString = (fieldLabel: string, max = 255) =>
   z
     .string()

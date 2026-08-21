@@ -27,7 +27,7 @@ class GuestRegistrationServiceTest {
     private GuestRegistrationService service;
 
     private final RegisterGuestRequest request = new RegisterGuestRequest("Amina", "Njoroge", "amina@example.com",
-            "+254700000000");
+            "+254700000000", "correct-horse-battery-staple");
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
@@ -46,7 +46,8 @@ class GuestRegistrationServiceTest {
     @Test
     void register_provisionsKeycloakUser_thenSavesProfileWithReturnedId() {
         when(guestProfileRepository.existsByEmail(anyString())).thenReturn(false);
-        when(keycloakProvisioningService.provisionGuest("amina@example.com", "Amina", "Njoroge"))
+        when(keycloakProvisioningService.provisionGuest("amina@example.com", "Amina", "Njoroge",
+                "correct-horse-battery-staple"))
                 .thenReturn("kc-guest-123");
         when(guestProfileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 

@@ -2,6 +2,7 @@ package com.hostflow.identity.keycloak;
 
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,11 @@ import java.util.Map;
  * of that claim is what JwtTenantResolvingFilter and TenantContext correctly
  * interpret as "no tenant," which is exactly right for a marketplace guest.
  * Assigns the nazilco_customer realm role only.
+ *
+ * Sets the password directly at creation rather than the invite-email flow
+ * used by KeycloakProvisioningService (owner accounts) — self-service guest
+ * signup has no admin in the loop to depend on email delivery, and this
+ * deployment has no SMTP configured, so an email link would never arrive.
  */
 @Service
 public class GuestKeycloakProvisioningService {
@@ -28,15 +34,21 @@ public class GuestKeycloakProvisioningService {
         this.properties = properties;
     }
 
-    public String provisionGuest(String email, String firstName, String lastName) {
+    public String provisionGuest(String email, String firstName, String lastName, String password) {
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(password);
+        credential.setTemporary(false);
+
         UserRepresentation representation = new UserRepresentation();
         representation.setUsername(email);
         representation.setEmail(email);
         representation.setFirstName(firstName);
         representation.setLastName(lastName);
-        representation.setEnabled(false);
+        representation.setEnabled(true);
         representation.setEmailVerified(false);
         representation.setAttributes(Map.of("product_scope", List.of("NAZILCO")));
+        representation.setCredentials(List.of(credential));
 
         var usersResource = keycloakAdminClient.realm(properties.getRealm()).users();
         String keycloakUserId;
@@ -55,11 +67,6 @@ public class GuestKeycloakProvisioningService {
             var realmResource = keycloakAdminClient.realm(properties.getRealm());
             var role = realmResource.roles().get("nazilco_customer").toRepresentation();
             realmResource.users().get(keycloakUserId).roles().realmLevel().add(List.of(role));
-
-            usersResource.get(keycloakUserId).executeActionsEmail(List.of("UPDATE_PASSWORD", "VERIFY_EMAIL"));
-
-            representation.setEnabled(true);
-            usersResource.get(keycloakUserId).update(representation);
         } catch (Exception e) {
             usersResource.get(keycloakUserId).remove();
             throw new KeycloakProvisioningException(

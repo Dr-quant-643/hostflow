@@ -15,7 +15,7 @@ export default function SignupPage() {
   const register = useRegisterGuest();
   const form = useForm<GuestSignupFormValues>({
     resolver: zodResolver(guestSignupFormSchema),
-    defaultValues: { firstName: "", lastName: "", email: "", phone: "" },
+    defaultValues: { firstName: "", lastName: "", email: "", phone: "", password: "" },
   });
 
   if (registered) {
@@ -64,6 +64,12 @@ export default function SignupPage() {
               label="Phone (optional)"
               {...form.register("phone")}
               error={form.formState.errors.phone?.message}
+            />
+            <Input
+              label="Password"
+              type="password"
+              {...form.register("password")}
+              error={form.formState.errors.password?.message}
             />
             <Button type="submit" loading={register.isPending}>
               Sign Up

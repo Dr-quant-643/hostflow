@@ -35,7 +35,7 @@ public class GuestRegistrationService {
         }
 
         String keycloakId = keycloakProvisioningService.provisionGuest(
-                request.email(), request.firstName(), request.lastName());
+                request.email(), request.firstName(), request.lastName(), request.password());
 
         GuestProfile profile = new GuestProfile(
                 keycloakId, request.email(), request.firstName(), request.lastName(), request.phone());

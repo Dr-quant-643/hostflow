@@ -5,6 +5,7 @@ export interface RegisterGuestRequest {
   lastName: string;
   email: string;
   phone?: string;
+  password: string;
 }
 
 export interface GuestProfileResponse {
