@@ -23,7 +23,7 @@ export default function SignupPage() {
     return (
       <Stack gap="lg" className="p-6 text-center">
         <PageHeader title="Account created" description="You can now log in." />
-        <Button onClick={() => (window.location.href = "/api/auth/login")}>
+        <Button onClick={() => (window.location.href = "/nazilco/api/auth/login")}>
           Log In
         </Button>
       </Stack>

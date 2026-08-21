@@ -101,15 +101,21 @@ function DiscoverPageContent() {
   const searchParams = useSearchParams();
   const autoRequestedRef = useRef(false);
 
-  // Arrived via the homepage's "Show stays near me" link — kick off the
-  // location prompt automatically instead of making the user click twice.
+  // Arrived via the homepage's "Show stays near me" or category-pill links
+  // — kick off the location prompt / seed the type filter automatically
+  // instead of making the user re-apply what they already chose.
   useEffect(() => {
     if (autoRequestedRef.current) return;
-    if (searchParams.get("nearMe") === "1") {
-      autoRequestedRef.current = true;
-      geo.request();
-      setFilters((f) => ({ ...f, sort: "nearest" }));
-    }
+    const nearMe = searchParams.get("nearMe") === "1";
+    const type = searchParams.get("type");
+    if (!nearMe && !type) return;
+    autoRequestedRef.current = true;
+    if (nearMe) geo.request();
+    setFilters((f) => ({
+      ...f,
+      sort: nearMe ? "nearest" : f.sort,
+      propertyType: type ?? f.propertyType,
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -157,7 +163,10 @@ function DiscoverPageContent() {
       <BrandBackground />
       <Stack gap="lg" className="mx-auto max-w-6xl p-6">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <PageHeader title="Discover" description="Browse properties by location" />
+          <PageHeader
+            title="Explore stays"
+            description="Browse properties the way you browse ideas — save what you love."
+          />
         </motion.div>
 
         <DiscoverFilters

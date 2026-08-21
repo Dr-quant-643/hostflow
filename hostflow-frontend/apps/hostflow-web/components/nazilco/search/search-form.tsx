@@ -38,7 +38,7 @@ export function SearchForm() {
       guests: String(values.guests),
       ...(values.destination ? { destination: values.destination } : {}),
     });
-    router.push(`/search?${params.toString()}`);
+    router.push(`/nazilco/search?${params.toString()}`);
   });
 
   return (

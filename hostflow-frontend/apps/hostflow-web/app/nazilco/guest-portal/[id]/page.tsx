@@ -55,7 +55,7 @@ export default function TripDetailPage() {
                   try {
                     await cancel.mutateAsync();
                     toast.success("Booking cancelled");
-                    router.push("/guest-portal");
+                    router.push("/nazilco/guest-portal");
                   } catch {
                     toast.error("Couldn't cancel this booking");
                   }

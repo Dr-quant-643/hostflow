@@ -9,6 +9,8 @@ import { PropertyCard } from "./property-card";
 
 type GridProperty = PublicPropertySummary & { distanceKm?: number };
 
+const SKELETON_HEIGHTS = ["h-56", "h-72", "h-64", "h-80", "h-60", "h-96", "h-64", "h-52", "h-72"];
+
 export function PropertyGrid({
   properties,
   userLocation,
@@ -23,16 +25,12 @@ export function PropertyGrid({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="animate-pulse overflow-hidden rounded-2xl border border-border/60">
-            <div className="aspect-[4/3] bg-muted" />
-            <div className="space-y-2 p-4">
-              <div className="h-4 w-2/3 rounded bg-muted" />
-              <div className="h-3 w-1/2 rounded bg-muted" />
-              <div className="h-3 w-1/3 rounded bg-muted" />
-            </div>
-          </div>
+      <div className="columns-2 gap-4 sm:columns-3 lg:columns-4 xl:columns-5">
+        {SKELETON_HEIGHTS.map((h, i) => (
+          <div
+            key={i}
+            className={`mb-4 animate-pulse break-inside-avoid overflow-hidden rounded-3xl bg-muted ${h}`}
+          />
         ))}
       </div>
     );
@@ -51,7 +49,7 @@ export function PropertyGrid({
 
   return (
     <AnimatePresence mode="popLayout">
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="columns-2 gap-4 sm:columns-3 lg:columns-4 xl:columns-5">
         {data.map((property, i) => (
           <motion.div
             key={property.id}
@@ -59,7 +57,8 @@ export function PropertyGrid({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96 }}
-            transition={{ duration: 0.35, delay: i * 0.04 }}
+            transition={{ duration: 0.35, delay: i * 0.03 }}
+            className="mb-4 break-inside-avoid"
           >
             <PropertyCard
               property={property}

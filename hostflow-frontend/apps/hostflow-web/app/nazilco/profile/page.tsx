@@ -184,21 +184,21 @@ export default function ProfilePage() {
           transition={{ duration: 0.4, delay: 0.1 }}
           className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
-          <StatCard icon={Briefcase} label="Upcoming trips" value={upcoming.length} href="/guest-portal" />
+          <StatCard icon={Briefcase} label="Upcoming trips" value={upcoming.length} href="/nazilco/guest-portal" />
           <StatCard icon={Heart} label="Saved stays" value={savedIds.length} href="#saved" />
-          <StatCard icon={Bell} label="Recent updates" value={recentCount} href="/notifications" />
-          <StatCard icon={Receipt} label="Invoices" value="View" href="/invoices" />
+          <StatCard icon={Bell} label="Recent updates" value={recentCount} href="/nazilco/notifications" />
+          <StatCard icon={Receipt} label="Invoices" value="View" href="/nazilco/invoices" />
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
           <Stack gap="sm">
             <h3 className="text-sm font-medium text-muted-foreground">Quick links</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <QuickLink icon={Briefcase} label="My Trips" description="Upcoming and past bookings" href="/guest-portal" />
-              <QuickLink icon={Receipt} label="Invoices" description="Payment history and receipts" href="/invoices" />
-              <QuickLink icon={Bell} label="Notifications" description="Booking and account updates" href="/notifications" />
-              <QuickLink icon={Compass} label="Discover more stays" description="Browse properties near you" href="/discover" />
-              <QuickLink icon={LifeBuoy} label="Support" description="Get help with a booking" href="/support" />
+              <QuickLink icon={Briefcase} label="My Trips" description="Upcoming and past bookings" href="/nazilco/guest-portal" />
+              <QuickLink icon={Receipt} label="Invoices" description="Payment history and receipts" href="/nazilco/invoices" />
+              <QuickLink icon={Bell} label="Notifications" description="Booking and account updates" href="/nazilco/notifications" />
+              <QuickLink icon={Compass} label="Discover more stays" description="Browse properties near you" href="/nazilco/discover" />
+              <QuickLink icon={LifeBuoy} label="Support" description="Get help with a booking" href="/nazilco/support" />
             </div>
           </Stack>
         </motion.div>
@@ -215,7 +215,7 @@ export default function ProfilePage() {
                 <Heart className="h-3.5 w-3.5" /> Saved stays
               </h3>
               {savedProperties.length > 0 && (
-                <Link href="/discover" className="text-xs font-medium text-sapphire-600 hover:underline">
+                <Link href="/nazilco/discover" className="text-xs font-medium text-sapphire-600 hover:underline">
                   Browse more
                 </Link>
               )}
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                   You haven&rsquo;t saved any stays yet. Tap the heart icon on any property to save it here.
                 </p>
                 <Link
-                  href="/discover"
+                  href="/nazilco/discover"
                   className="mt-3 inline-block rounded-full bg-sapphire-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-sapphire-700"
                 >
                   Discover stays

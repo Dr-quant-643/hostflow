@@ -24,6 +24,17 @@ type CardProperty = PublicPropertySummary & {
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80";
 
+// Masonry needs varied tile heights to read as a mosaic rather than a grid.
+// Real photos already vary naturally (no forced aspect ratio below); this
+// only kicks in for the generic fallback image so it doesn't tile as a wall
+// of identical squares.
+const FALLBACK_RATIOS = ["aspect-[3/4]", "aspect-[4/5]", "aspect-square", "aspect-[4/3]", "aspect-[9/16]"];
+function fallbackRatio(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return FALLBACK_RATIOS[hash % FALLBACK_RATIOS.length];
+}
+
 export function PropertyCard({
   property,
   distanceKm,
@@ -45,23 +56,27 @@ export function PropertyCard({
   // parent already supplied photos (e.g. saved-properties reuse).
   const { data: fetchedPhotos } = usePropertyPhotos(property.photos ? "" : property.id);
   const photos = property.photos ?? fetchedPhotos;
+  const hasRealPhoto = Boolean(photos?.[0]);
   const image = photos?.[0] ?? FALLBACK_IMAGE;
 
   return (
-    <Link href={`/properties/${property.id}`} className="group block">
+    <Link href={`/nazilco/properties/${property.id}`} className="group block">
       <motion.div
-        whileHover={{ y: -4 }}
+        whileHover={{ y: -6 }}
         transition={{ type: "spring", stiffness: 300, damping: 22 }}
-        className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-shadow group-hover:shadow-lg"
+        className="relative overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border/50 transition-shadow group-hover:shadow-2xl group-hover:shadow-purple-500/10"
       >
-        <div className="relative aspect-[4/3] overflow-hidden">
+        <div className={`relative overflow-hidden ${hasRealPhoto ? "" : fallbackRatio(property.id)}`}>
           <motion.img
             src={image}
             alt={property.name}
-            className="h-full w-full object-cover"
-            whileHover={{ scale: 1.08 }}
+            className={`block w-full ${hasRealPhoto ? "h-auto" : "h-full object-cover"}`}
+            whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
+
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent" />
+
           <button
             type="button"
             onClick={(e) => {
@@ -69,7 +84,7 @@ export function PropertyCard({
               toggle(property.id);
             }}
             aria-label={saved ? "Remove from saved" : "Save"}
-            className="absolute right-3 top-3 rounded-full bg-black/25 p-1.5 backdrop-blur-sm transition-colors hover:bg-black/40"
+            className="absolute right-3 top-3 rounded-full bg-black/30 p-2 backdrop-blur-md transition-all hover:scale-110 hover:bg-black/50"
           >
             <motion.span
               key={saved ? "saved" : "unsaved"}
@@ -85,19 +100,26 @@ export function PropertyCard({
               />
             </motion.span>
           </button>
+
           {property.rating != null && (
-            <div className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-xs font-medium shadow-sm">
+            <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-xs font-medium shadow-sm">
               <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
               {property.rating.toFixed(2)}
             </div>
           )}
+
+          {/* Pinterest-style hover reveal over the photo itself */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-2 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 pt-8 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+            <p className="line-clamp-1 text-sm font-semibold text-white">{property.name}</p>
+            <p className="line-clamp-1 text-xs text-white/80">
+              {property.city}, {property.country}
+            </p>
+          </div>
         </div>
 
-        <div className="space-y-1 p-4">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-1 font-medium">{property.name}</h3>
-          </div>
-          <p className="line-clamp-1 text-sm text-muted-foreground">
+        <div className="space-y-1.5 p-3.5">
+          <h3 className="line-clamp-1 text-sm font-medium text-foreground">{property.name}</h3>
+          <p className="line-clamp-1 text-xs text-muted-foreground">
             {property.city}, {property.country}
           </p>
           {distanceKm != null && (
@@ -126,10 +148,10 @@ export function PropertyCard({
               )}
             </div>
           )}
-          <p className="pt-1 text-sm">
+          <p className="pt-0.5 text-sm">
             {property.basePrice ? (
               <>
-                <span className="font-semibold">{formatKES(property.basePrice)}</span>{" "}
+                <span className="font-semibold text-foreground">{formatKES(property.basePrice)}</span>{" "}
                 <span className="text-muted-foreground">/ night</span>
               </>
             ) : (

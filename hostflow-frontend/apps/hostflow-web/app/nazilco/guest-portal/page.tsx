@@ -47,7 +47,7 @@ export default function GuestPortalPage() {
               description="Ready for your next getaway?"
               action={
                 <Link
-                  href="/discover"
+                  href="/nazilco/discover"
                   className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-sapphire-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-sapphire-700"
                 >
                   <LinkIcon className="h-3.5 w-3.5" /> Browse stays

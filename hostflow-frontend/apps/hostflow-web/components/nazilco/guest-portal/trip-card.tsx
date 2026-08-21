@@ -39,7 +39,7 @@ export function TripCard({ booking }: { booking: BookingResponse }) {
 
   return (
     <Card className="overflow-hidden transition-shadow hover:shadow-md">
-      <Link href={`/guest-portal/${booking.id}`} className="block">
+      <Link href={`/nazilco/guest-portal/${booking.id}`} className="block">
         <motion.div whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}>
           <Stack direction="row" gap="md">
             <div className="relative h-24 w-32 shrink-0 bg-muted">

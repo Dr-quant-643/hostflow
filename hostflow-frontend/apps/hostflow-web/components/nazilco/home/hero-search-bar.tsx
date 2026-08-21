@@ -20,7 +20,7 @@ export function HeroSearchBar() {
       guests: String(guests),
       ...(destination ? { destination } : {}),
     });
-    router.push(`/search?${params.toString()}`);
+    router.push(`/nazilco/search?${params.toString()}`);
   };
 
   return (
@@ -97,7 +97,7 @@ export function HeroSearchBar() {
     </form>
 
       <Link
-        href="/discover?nearMe=1"
+        href="/nazilco/discover?nearMe=1"
         className="mx-auto flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-4 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm transition-colors hover:bg-white/20"
       >
         <LocateFixed className="h-3.5 w-3.5" />

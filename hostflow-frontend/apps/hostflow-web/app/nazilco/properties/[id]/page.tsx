@@ -186,7 +186,7 @@ function PropertyDetailPageContent() {
                 <Button
                   onClick={() => {
                     const params = new URLSearchParams({ checkIn: tripCheckIn, checkOut: tripCheckOut });
-                    router.push(`/properties/${property.id}/book?${params.toString()}`);
+                    router.push(`/nazilco/properties/${property.id}/book?${params.toString()}`);
                   }}
                 >
                   Book {tripCheckIn} → {tripCheckOut}
@@ -196,19 +196,19 @@ function PropertyDetailPageContent() {
                 propertyId={property.id}
                 onSelectRange={(checkIn, checkOut) => {
                   const params = new URLSearchParams({ checkIn, checkOut });
-                  router.push(`/properties/${property.id}/book?${params.toString()}`);
+                  router.push(`/nazilco/properties/${property.id}/book?${params.toString()}`);
                 }}
               />
             </Stack>
           </Card>
 
           {property.propertyType === "RETAIL_MALL" && (
-            <a href={`/properties/${property.id}/mall`} className="mt-3 block text-center text-sm underline">
+            <a href={`/nazilco/properties/${property.id}/mall`} className="mt-3 block text-center text-sm underline">
               Browse store directory
             </a>
           )}
           {property.propertyType === "OFFICE" && (
-            <a href={`/properties/${property.id}/office`} className="mt-3 block text-center text-sm underline">
+            <a href={`/nazilco/properties/${property.id}/office`} className="mt-3 block text-center text-sm underline">
               View meeting rooms
             </a>
           )}

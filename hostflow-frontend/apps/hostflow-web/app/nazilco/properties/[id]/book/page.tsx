@@ -69,7 +69,7 @@ function BookPropertyPageContent() {
     }
     try {
       const booking = await createBooking.mutateAsync({ ...formValues, totalPrice });
-      router.push(`/checkout/${booking.id}`);
+      router.push(`/nazilco/checkout/${booking.id}`);
     } catch {
       toast.error("Couldn't create your booking. Please try again.");
     }

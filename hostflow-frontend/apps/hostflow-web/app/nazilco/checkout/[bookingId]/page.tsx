@@ -80,7 +80,7 @@ export default function CheckoutPage() {
                       try {
                         await confirmCheckout.mutateAsync();
                         toast.success("Booking confirmed");
-                        router.push("/guest-portal");
+                        router.push("/nazilco/guest-portal");
                       } catch {
                         toast.error("Couldn't confirm your booking");
                       }

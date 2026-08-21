@@ -15,7 +15,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <Link href={href} className="group relative py-1 text-sm text-foreground/80 transition-colors hover:text-foreground">
       {label}
       <span
-        className={`absolute -bottom-0.5 left-0 h-[1.5px] bg-primary transition-all duration-300 ${
+        className={`absolute -bottom-0.5 left-0 h-[1.5px] bg-gradient-to-r from-sapphire-500 to-purple-500 transition-all duration-300 ${
           active ? "w-full" : "w-0 group-hover:w-full"
         }`}
       />
@@ -33,8 +33,9 @@ export function SiteHeader() {
       transition={{ duration: 0.4 }}
       className="sticky top-0 z-40 flex items-center justify-between border-b border-border/60 bg-background/80 px-6 py-3.5 backdrop-blur-md"
     >
-      <Link href="/" className="flex items-center gap-1.5 text-lg font-semibold tracking-tight">
-        <span className="bg-gradient-to-br from-sapphire-600 to-purple-600 bg-clip-text text-transparent">
+      <Link href="/nazilco" className="flex items-center gap-2 text-lg font-semibold tracking-tight">
+        <span className="text-xl">📌</span>
+        <span className="bg-gradient-to-br from-sapphire-500 via-purple-500 to-purple-600 bg-clip-text text-transparent">
           NazilCo
         </span>
       </Link>
@@ -55,7 +56,7 @@ export function SiteHeader() {
             // POST-only (state change, avoids cross-site GET-triggered logout)
             const form = document.createElement("form");
             form.method = "POST";
-            form.action = "/api/auth/logout";
+            form.action = "/nazilco/api/auth/logout";
             document.body.appendChild(form);
             form.submit();
           }}
@@ -64,12 +65,13 @@ export function SiteHeader() {
         </Button>
       ) : (
         <Stack direction="row" gap="sm" align="center">
-          <Link href="/signup" className="text-sm text-foreground/80 hover:text-foreground">
+          <Link href="/nazilco/signup" className="text-sm text-foreground/80 hover:text-foreground">
             Sign up
           </Link>
           <Button
             size="sm"
-            onClick={() => (window.location.href = "/api/auth/login")}
+            className="bg-gradient-to-r from-sapphire-500 to-purple-600 hover:opacity-90"
+            onClick={() => (window.location.href = "/nazilco/api/auth/login")}
           >
             Log in
           </Button>
