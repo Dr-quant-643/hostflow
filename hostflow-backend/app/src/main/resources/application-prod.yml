@@ -261,6 +261,18 @@ hostflow:
         created: tenant.created
         updated: tenant.updated
 
+# SMTP/SMS/push aren't configured with real credentials yet (see
+# PROJECT_STATE.md gap #6) -- spring.mail.host being merely non-null (even
+# an empty string) still activates Spring Boot's built-in MailHealthIndicator,
+# which then fails an actual SMTP connection test on every /actuator/health
+# call. That made the app's own healthcheck endpoint return DOWN and Railway
+# kill the deployment as unhealthy, even though the application itself was
+# running fine.
+management:
+  health:
+    mail:
+      enabled: false
+
 logging:
   level:
     com.hostflow: INFO
