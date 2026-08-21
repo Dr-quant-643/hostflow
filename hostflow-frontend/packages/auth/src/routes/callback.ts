@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
   if (!code || !state || !verifier || state !== expectedState) {
     return NextResponse.redirect(
-      new URL("/login?error=invalid_state", request.url),
+      new URL("/?authError=invalid_state", request.url),
     );
   }
 
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     return response;
   } catch {
     return NextResponse.redirect(
-      new URL("/login?error=token_exchange_failed", request.url),
+      new URL("/?authError=token_exchange_failed", request.url),
     );
   }
 }
