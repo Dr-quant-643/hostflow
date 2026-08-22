@@ -6,7 +6,8 @@ import { Button } from "@hostflow/ui";
 import { useDiscoverProperties } from "@hostflow/api-client/src/hooks/use-public-properties";
 import { PropertyCard } from "@/components/nazilco/discover/property-card";
 import { HeroSearchBar } from "@/components/nazilco/home/hero-search-bar";
-import { HeroMapBackdrop } from "@/components/nazilco/home/hero-map-backdrop";
+import { HeroSlideshowBackdrop } from "@/components/nazilco/home/hero-slideshow-backdrop";
+import { FeatureRow } from "@/components/nazilco/home/feature-row";
 
 const CATEGORY_PILLS = [
   { emoji: "🏡", label: "Vacation rentals", href: "/nazilco/discover?type=VACATION_RENTAL" },
@@ -28,7 +29,7 @@ export default function HomePage() {
   return (
     <div>
       <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden">
-        <HeroMapBackdrop />
+        <HeroSlideshowBackdrop />
 
         <span
           aria-hidden
@@ -53,8 +54,8 @@ export default function HomePage() {
             transition={{ delay: 0.35, duration: 0.7 }}
             className="text-4xl font-semibold leading-tight sm:text-6xl"
           >
-            Find your next stay,
-            <br className="hidden sm:block" /> beautifully.
+            A place to stay, work, or chill —
+            <br className="hidden sm:block" /> we got you.
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
@@ -62,8 +63,8 @@ export default function HomePage() {
             transition={{ delay: 0.5, duration: 0.7 }}
             className="max-w-xl text-base text-white/85 sm:text-lg"
           >
-            Browse homes, villas, and hotels the way you browse ideas —
-            hand-picked, visual, and booked in minutes.
+            From bedsitters to villas, offices to hidden getaways — find it,
+            pin it, book it.
           </motion.p>
 
           <motion.div
@@ -106,6 +107,16 @@ export default function HomePage() {
         </div>
       </section>
 
+      <FeatureRow
+        emoji="🛏️"
+        badge="Bedsitters, 1BR & 2BR"
+        quote="Hiyo bedsitter haiku nice, kuja niku show. Kuna 1bedroom na 2bedroom apo ivi, haita disappoint."
+        image="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80"
+        alt="Bright, cozy studio apartment"
+        ctaHref="/nazilco/discover?type=RESIDENTIAL"
+        ctaLabel="See bedsitters & apartments"
+      />
+
       <section className="mx-auto max-w-7xl px-6 py-16">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -145,6 +156,38 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      <FeatureRow
+        reverse
+        emoji="👨‍👩‍👧‍👦"
+        badge="Family homes"
+        quote="Apartments pia — we help you find your family home."
+        image="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80"
+        alt="Spacious family living room"
+        ctaHref="/nazilco/discover?type=RESIDENTIAL"
+        ctaLabel="Find a family home"
+      />
+
+      <FeatureRow
+        emoji="💼"
+        badge="Office spaces"
+        quote="Your 9–5 deserves better. A chill office space is what you need, and it's what we deliver."
+        image="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80"
+        alt="Modern open-plan office"
+        ctaHref="/nazilco/discover?type=OFFICE"
+        ctaLabel="Browse office spaces"
+      />
+
+      <FeatureRow
+        reverse
+        emoji="🌿"
+        badge="Getaways & hidden gems"
+        quote="Just step in and take a virtual tour — hidden gems, serene getaways, all waiting for you."
+        image="https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1200&q=80"
+        alt="Cabin retreat at dusk"
+        ctaHref="/nazilco/discover?type=VACATION_RENTAL"
+        ctaLabel="Explore getaways"
+      />
 
       <section className="border-y border-border/60 bg-gradient-to-b from-sapphire-50/60 to-purple-50/40 dark:from-sapphire-950/10 dark:to-purple-950/10">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-16 sm:grid-cols-3">
