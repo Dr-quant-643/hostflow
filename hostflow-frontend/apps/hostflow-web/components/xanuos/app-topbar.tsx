@@ -17,7 +17,7 @@ export function AppTopbar() {
         // POST -> Keycloak-logout redirect chain the same way a link would.
         const form = document.createElement("form");
         form.method = "POST";
-        form.action = "/api/auth/logout";
+        form.action = "/xanuos/api/auth/logout";
         document.body.appendChild(form);
         form.submit();
       }}

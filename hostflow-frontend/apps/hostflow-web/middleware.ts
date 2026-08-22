@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { authorityGate } from "@hostflow/auth/src/middleware-guard";
+import { decryptSession } from "@hostflow/auth/src/session";
 import { createAuthConfig } from "@hostflow/auth/src/config";
 
 const xanuosConfig = createAuthConfig("XANUOS", "/xanuos");
@@ -26,7 +27,7 @@ const NAZILCO_PROTECTED_PATHS = [
   "/nazilco/support",
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Homepage and its picker are always public.
@@ -37,7 +38,22 @@ export function middleware(request: NextRequest) {
   // everything else under /xanuos stays protect-by-default — this is an
   // exact match, not a prefix, since "/xanuos" would otherwise swallow every
   // dashboard route too.
-  if (pathname === "/xanuos") return NextResponse.next();
+  //
+  // An already-authorized owner landing here (e.g. finish.ts always redirects
+  // to the product's basePath after login, with no notion of "is this the
+  // marketing page") would otherwise see the generic anonymous landing page
+  // forever, with no visible sign they're logged in — so send them straight
+  // into the dashboard instead.
+  if (pathname === "/xanuos") {
+    const raw = request.cookies.get(xanuosConfig.sessionCookieName)?.value;
+    if (raw) {
+      const session = await decryptSession(raw, xanuosConfig.sessionSecret);
+      if (session?.user.authorities?.includes("PRODUCT_XANUOS")) {
+        return NextResponse.redirect(new URL("/xanuos/dashboard", request.url));
+      }
+    }
+    return NextResponse.next();
+  }
 
   if (pathname.startsWith("/xanuos")) {
     return authorityGate(
