@@ -9,11 +9,12 @@ export const NAZILCO_NAV: NavLink[] = [
 ];
 
 // Shown only when a session exists — swapped in by the header component,
-// not merged into the public nav above.
+// not merged into the public nav above. "Profile" lives in the account
+// avatar menu instead of here (see UserMenu), matching how most apps split
+// account-identity actions from primary nav.
 export const NAZILCO_AUTHENTICATED_NAV: NavLink[] = [
   { label: "My Trips", href: "/nazilco/guest-portal" },
   { label: "Invoices", href: "/nazilco/invoices" },
   { label: "Notifications", href: "/nazilco/notifications" },
   { label: "Support", href: "/nazilco/support" },
-  { label: "Profile", href: "/nazilco/profile" },
 ];

@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Button, Stack } from "@hostflow/ui";
 import { useSession } from "@hostflow/auth/src/use-session";
 import { NAZILCO_NAV, NAZILCO_AUTHENTICATED_NAV } from "@/lib/nazilco-nav-config";
+import { UserMenu } from "@/components/nazilco/user-menu";
 
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
@@ -49,10 +50,9 @@ export function SiteHeader() {
           ))}
       </nav>
       {user ? (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
+        <UserMenu
+          user={user}
+          onLogout={() => {
             // POST-only (state change, avoids cross-site GET-triggered logout)
             const form = document.createElement("form");
             form.method = "POST";
@@ -60,9 +60,7 @@ export function SiteHeader() {
             document.body.appendChild(form);
             form.submit();
           }}
-        >
-          Log out
-        </Button>
+        />
       ) : (
         <Stack direction="row" gap="sm" align="center">
           <Link href="/nazilco/signup" className="text-sm text-foreground/80 hover:text-foreground">
