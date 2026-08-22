@@ -56,4 +56,25 @@ class GuestRegistrationServiceTest {
         assertThat(result.getKeycloakId()).isEqualTo("kc-guest-123");
         assertThat(result.getEmail()).isEqualTo("amina@example.com");
     }
+
+    @Test
+    void claimProfile_rejectsIfProfileAlreadyExistsForEmail() {
+        when(guestProfileRepository.existsByEmail("amina@example.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.claimProfile("kc-user-1", "amina@example.com", "Amina", "Njoroge"))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("amina@example.com");
+    }
+
+    @Test
+    void claimProfile_attachesExistingIdentityRatherThanCreatingNewOne() {
+        when(guestProfileRepository.existsByEmail(anyString())).thenReturn(false);
+        when(guestProfileRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        GuestProfile result = service.claimProfile("kc-user-1", "amina@example.com", "Amina", "Njoroge");
+
+        assertThat(result.getKeycloakId()).isEqualTo("kc-user-1");
+        assertThat(result.getEmail()).isEqualTo("amina@example.com");
+        org.mockito.Mockito.verify(keycloakProvisioningService).attachExistingUserAsGuest("kc-user-1");
+    }
 }

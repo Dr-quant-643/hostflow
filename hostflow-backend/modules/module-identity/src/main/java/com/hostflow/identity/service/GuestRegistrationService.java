@@ -41,4 +41,23 @@ public class GuestRegistrationService {
                 keycloakId, request.email(), request.firstName(), request.lastName(), request.phone());
         return guestProfileRepository.save(profile);
     }
+
+    /**
+     * Counterpart to register() for a caller who already has a Keycloak
+     * identity (typically via "Continue with Google") but no NazilCo guest
+     * profile yet -- attaches product_scope=NAZILCO to that existing identity
+     * instead of trying to create a second one, which would collide on
+     * email/username.
+     */
+    @Transactional
+    public GuestProfile claimProfile(String keycloakUserId, String email, String firstName, String lastName) {
+        if (guestProfileRepository.existsByEmail(email)) {
+            throw new BusinessRuleException("A guest profile already exists for '" + email + "'");
+        }
+
+        keycloakProvisioningService.attachExistingUserAsGuest(keycloakUserId);
+
+        GuestProfile profile = new GuestProfile(keycloakUserId, email, firstName, lastName, null);
+        return guestProfileRepository.save(profile);
+    }
 }

@@ -1,5 +1,6 @@
 package com.hostflow.identity.keycloak;
 
+import com.hostflow.common.exception.BusinessRuleException;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -54,11 +55,21 @@ public class HostKeycloakProvisioningService {
         String keycloakUserId;
 
         try (Response response = usersResource.create(representation)) {
+            if (response.getStatus() == 409) {
+                // Most commonly: this email already has a Keycloak identity from
+                // "Continue with Google" -- the signup form can't create a second
+                // one for the same email/username, and shouldn't try to.
+                throw new BusinessRuleException(
+                        "An account with email '" + email + "' already exists. If you signed up with Google, "
+                                + "use \"Continue with Google\" to log in instead.");
+            }
             if (response.getStatus() != 201) {
                 throw new KeycloakProvisioningException(
                         "Keycloak host user creation failed with status " + response.getStatus(), null);
             }
             keycloakUserId = extractIdFromLocationHeader(response);
+        } catch (BusinessRuleException e) {
+            throw e;
         } catch (Exception e) {
             throw new KeycloakProvisioningException("Failed to create Keycloak host user for " + email, e);
         }
