@@ -35,7 +35,7 @@ export function ContactList() {
         description="Contacts appear here as leads and guests come in."
         action={
           <Button asChild>
-            <Link href="/crm/new">Add Contact</Link>
+            <Link href="/xanuos/crm/new">Add Contact</Link>
           </Button>
         }
       />
@@ -47,7 +47,7 @@ export function ContactList() {
       columns={columns}
       data={data}
       onRowClick={(row) => {
-        window.location.href = `/crm/${row.id}`;
+        window.location.href = `/xanuos/crm/${row.id}`;
       }}
     />
   );

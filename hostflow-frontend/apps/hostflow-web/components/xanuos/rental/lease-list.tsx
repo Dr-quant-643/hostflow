@@ -41,7 +41,7 @@ export function LeaseList({ propertyId }: { propertyId: string }) {
       columns={columns}
       data={data.content}
       onRowClick={(row) => {
-        window.location.href = `/rental/${row.id}`;
+        window.location.href = `/xanuos/rental/${row.id}`;
       }}
     />
   );

@@ -23,7 +23,7 @@ export function CampaignForm() {
     try {
       const created = await createCampaign.mutateAsync(values);
       toast.success("Campaign created");
-      router.push(`/marketing/${created.id}`);
+      router.push(`/xanuos/marketing/${created.id}`);
     } catch {
       toast.error("Failed to create campaign");
     }

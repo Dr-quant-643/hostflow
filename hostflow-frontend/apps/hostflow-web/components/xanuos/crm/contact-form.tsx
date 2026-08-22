@@ -23,7 +23,7 @@ export function ContactForm() {
     try {
       const created = await createContact.mutateAsync(values);
       toast.success("Contact created");
-      router.push(`/crm/${created.id}`);
+      router.push(`/xanuos/crm/${created.id}`);
     } catch {
       toast.error("Failed to create contact");
     }

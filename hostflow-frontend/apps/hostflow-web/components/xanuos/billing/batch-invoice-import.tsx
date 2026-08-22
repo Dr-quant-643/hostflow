@@ -67,7 +67,7 @@ export function BatchInvoiceImport() {
             setResult(response);
             if (response.failed === 0) {
               toast.success(`${response.succeeded} invoices created`);
-              router.push("/billing");
+              router.push("/xanuos/billing");
             } else {
               toast.error(`${response.succeeded} created, ${response.failed} failed`);
             }

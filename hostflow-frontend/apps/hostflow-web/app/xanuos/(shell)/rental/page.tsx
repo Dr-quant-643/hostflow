@@ -20,7 +20,7 @@ export default function RentalPage() {
         description="Leases and tenants"
         actions={
           <Button asChild variant="outline">
-            <Link href="/rental/tenants">Tenants</Link>
+            <Link href="/xanuos/rental/tenants">Tenants</Link>
           </Button>
         }
       />

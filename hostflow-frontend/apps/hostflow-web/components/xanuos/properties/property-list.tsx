@@ -52,7 +52,7 @@ export function PropertyList() {
         description="Add your first property to get started."
         action={
           <Button asChild>
-            <Link href="/properties/new">Add Property</Link>
+            <Link href="/xanuos/properties/new">Add Property</Link>
           </Button>
         }
       />
@@ -64,7 +64,7 @@ export function PropertyList() {
       columns={columns}
       data={data}
       onRowClick={(row) => {
-        window.location.href = `/properties/${row.id}`;
+        window.location.href = `/xanuos/properties/${row.id}`;
       }}
     />
   );

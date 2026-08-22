@@ -23,10 +23,10 @@ export default function MallPage() {
         actions={
           <Stack direction="row" gap="sm">
             <Button asChild variant="outline">
-              <Link href="/mall/events">Events</Link>
+              <Link href="/xanuos/mall/events">Events</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/mall/parking">Parking</Link>
+              <Link href="/xanuos/mall/parking">Parking</Link>
             </Button>
           </Stack>
         }

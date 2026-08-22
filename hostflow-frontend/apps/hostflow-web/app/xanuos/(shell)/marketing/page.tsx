@@ -10,7 +10,7 @@ export default function MarketingPage() {
         description="Campaigns and content"
         actions={
           <Button asChild>
-            <Link href="/marketing/new">New Campaign</Link>
+            <Link href="/xanuos/marketing/new">New Campaign</Link>
           </Button>
         }
       />

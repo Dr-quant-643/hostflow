@@ -10,7 +10,7 @@ export default function BillingPage() {
         description="Invoices and payments"
         actions={
           <Button asChild variant="outline">
-            <Link href="/billing/batch-import">Batch Import</Link>
+            <Link href="/xanuos/billing/batch-import">Batch Import</Link>
           </Button>
         }
       />

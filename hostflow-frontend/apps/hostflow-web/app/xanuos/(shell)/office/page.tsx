@@ -22,7 +22,7 @@ export default function OfficePage() {
         description="Meeting rooms and visitors"
         actions={
           <Button asChild variant="outline">
-            <Link href="/office/visitors">Visitors</Link>
+            <Link href="/xanuos/office/visitors">Visitors</Link>
           </Button>
         }
       />

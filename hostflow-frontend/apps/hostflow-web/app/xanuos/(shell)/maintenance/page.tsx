@@ -21,10 +21,10 @@ export default function MaintenancePage() {
         actions={
           <Stack direction="row" gap="sm">
             <Button asChild variant="outline">
-              <Link href="/maintenance/my-assignments">My Assignments</Link>
+              <Link href="/xanuos/maintenance/my-assignments">My Assignments</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/maintenance/assets">Assets</Link>
+              <Link href="/xanuos/maintenance/assets">Assets</Link>
             </Button>
           </Stack>
         }

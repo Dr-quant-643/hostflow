@@ -10,7 +10,7 @@ export default function PropertiesPage() {
         description="Manage your property portfolio"
         actions={
           <Button asChild>
-            <Link href="/properties/new">Add Property</Link>
+            <Link href="/xanuos/properties/new">Add Property</Link>
           </Button>
         }
       />

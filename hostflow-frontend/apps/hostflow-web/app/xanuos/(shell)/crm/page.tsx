@@ -10,7 +10,7 @@ export default function CrmPage() {
         description="Contacts and lead pipeline"
         actions={
           <Button asChild>
-            <Link href="/crm/new">Add Contact</Link>
+            <Link href="/xanuos/crm/new">Add Contact</Link>
           </Button>
         }
       />

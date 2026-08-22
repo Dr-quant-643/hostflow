@@ -47,7 +47,7 @@ export function BookingList() {
       columns={columns}
       data={data}
       onRowClick={(row) => {
-        window.location.href = `/bookings/${row.id}`;
+        window.location.href = `/xanuos/bookings/${row.id}`;
       }}
     />
   );

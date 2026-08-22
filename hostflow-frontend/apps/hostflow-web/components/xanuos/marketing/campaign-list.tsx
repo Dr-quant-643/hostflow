@@ -35,7 +35,7 @@ export function CampaignList() {
         description="Create a campaign to start reaching leads."
         action={
           <Button asChild>
-            <Link href="/marketing/new">New Campaign</Link>
+            <Link href="/xanuos/marketing/new">New Campaign</Link>
           </Button>
         }
       />
@@ -47,7 +47,7 @@ export function CampaignList() {
       columns={columns}
       data={data}
       onRowClick={(row) => {
-        window.location.href = `/marketing/${row.id}`;
+        window.location.href = `/xanuos/marketing/${row.id}`;
       }}
     />
   );

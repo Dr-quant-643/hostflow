@@ -41,7 +41,7 @@ export function WorkOrderList({ propertyId }: { propertyId: string }) {
       columns={columns}
       data={data.content}
       onRowClick={(row) => {
-        window.location.href = `/maintenance/${row.id}`;
+        window.location.href = `/xanuos/maintenance/${row.id}`;
       }}
     />
   );

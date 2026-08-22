@@ -29,7 +29,7 @@ export function PropertyForm() {
     try {
       const created = await createProperty.mutateAsync(values);
       toast.success("Property created");
-      router.push(`/properties/${created.id}`);
+      router.push(`/xanuos/properties/${created.id}`);
     } catch {
       toast.error("Failed to create property");
     }

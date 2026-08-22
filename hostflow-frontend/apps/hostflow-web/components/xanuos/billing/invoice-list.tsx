@@ -44,7 +44,7 @@ export function InvoiceList() {
         description="Invoices appear here once bookings are billed."
         action={
           <Button asChild>
-            <Link href="/billing/batch-import">Batch Import</Link>
+            <Link href="/xanuos/billing/batch-import">Batch Import</Link>
           </Button>
         }
       />
@@ -56,7 +56,7 @@ export function InvoiceList() {
       columns={columns}
       data={data}
       onRowClick={(row) => {
-        window.location.href = `/billing/${row.id}`;
+        window.location.href = `/xanuos/billing/${row.id}`;
       }}
     />
   );
