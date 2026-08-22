@@ -1,0 +1,78 @@
+/* HostFlow brand re-theme for Keycloak's login pages -- CSS-only override
+ * layered on top of the stock keycloak.v2 theme (see theme.properties),
+ * so the actual FreeMarker templates, form behavior, and validation are
+ * completely untouched. Selectors below were taken from the real rendered
+ * login page, not guessed. Applies unconditionally regardless of the
+ * visitor's OS light/dark preference (keycloak.v2 auto-toggles a
+ * pf-v5-theme-dark class) -- one deliberate branded look, not two.
+ */
+
+body#keycloak-bg {
+  background: linear-gradient(135deg, #150f22 0%, #241640 55%, #2c1b4d 100%) !important;
+  min-height: 100vh;
+}
+
+#kc-header-wrapper.pf-v5-c-brand {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 300;
+  font-size: 1.9rem;
+  text-align: center;
+  background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.02em;
+}
+#kc-header-wrapper.pf-v5-c-brand b {
+  font-weight: 300;
+}
+
+.pf-v5-c-login__main {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-radius: 1.25rem !important;
+  padding: 2.5rem 2rem !important;
+  box-shadow: 0 25px 70px rgba(76, 29, 149, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+.pf-v5-c-title {
+  color: #1a1425 !important;
+}
+
+.pf-v5-c-form__label-text {
+  color: #4b4458 !important;
+}
+
+.pf-v5-c-form-control {
+  border-radius: 0.5rem !important;
+}
+.pf-v5-c-form-control:focus-within {
+  border-color: #9333ea !important;
+  box-shadow: 0 0 0 1px #9333ea !important;
+}
+
+#kc-login.pf-v5-c-button.pf-m-primary {
+  background: linear-gradient(135deg, #0ea5e9 0%, #9333ea 100%) !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+}
+#kc-login.pf-v5-c-button.pf-m-primary:hover {
+  filter: brightness(1.08);
+}
+
+.pf-v5-c-login__main-footer-band-item {
+  color: #6b6478 !important;
+}
+
+#social-google.pf-v5-c-login__main-footer-links-item-link {
+  border-radius: 0.5rem !important;
+  border: 1px solid #e5e0eb !important;
+  padding: 0.4rem !important;
+}
+
+a {
+  color: #9333ea;
+}
+a:hover {
+  color: #7e22ce;
+}

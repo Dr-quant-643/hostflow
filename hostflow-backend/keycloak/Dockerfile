@@ -8,6 +8,7 @@
 #   docker build -f keycloak/Dockerfile -t hostflow-keycloak .
 FROM quay.io/keycloak/keycloak:26.0
 COPY modules/core-security/src/main/resources/keycloak/hostflow-realm-export.json /opt/keycloak/data/import/hostflow-realm-export.json
+COPY keycloak/themes/hostflow /opt/keycloak/themes/hostflow
 
 # Baked in rather than relying on Railway's startCommand field: that field
 # gets passed through as a single string (effectively `sh -c "start ..."`),
