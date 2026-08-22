@@ -27,3 +27,9 @@ export interface RegisterHostRequest {
   adminEmail: string;
   password: string;
 }
+
+// Mirrors module-identity's ClaimWorkspaceRequest -- for an already-
+// authenticated Keycloak identity (e.g. via Google) with no workspace yet.
+export interface ClaimWorkspaceRequest {
+  organizationName: string;
+}

@@ -148,4 +148,32 @@ class OrganizationOnboardingServiceTest {
         verify(userRepository).save(any());
         assertThat(TenantContext.isSet()).isFalse();
     }
+
+    @Test
+    void claimWorkspace_rejectsIfWorkspaceAlreadyExistsForEmail() {
+        when(userRepository.existsByEmail("jane@acme.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.claimWorkspace(
+                "kc-user-1", "jane@acme.com", "Jane", "Doe", "Acme Properties"))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("jane@acme.com");
+    }
+
+    @Test
+    void claimWorkspace_attachesExistingIdentityRatherThanCreatingNewOne() {
+        UUID orgId = UUID.randomUUID();
+        Organization savedOrg = new Organization("Acme Properties", "acme-properties", OrganizationProduct.XANUOS);
+        Organization orgWithId = spyWithId(savedOrg, orgId);
+
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(organizationRepository.existsBySlug(anyString())).thenReturn(false);
+        when(organizationRepository.save(any())).thenReturn(orgWithId);
+
+        Organization result = service.claimWorkspace("kc-user-1", "jane@acme.com", "Jane", "Doe", "Acme Properties");
+
+        assertThat(result.getId()).isEqualTo(orgId);
+        verify(hostKeycloakProvisioningService).attachExistingUserToOrganization("kc-user-1", orgId);
+        verify(userRepository).save(any());
+        assertThat(TenantContext.isSet()).isFalse();
+    }
 }

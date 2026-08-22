@@ -76,6 +76,37 @@ public class HostKeycloakProvisioningService {
         return keycloakUserId;
     }
 
+    /**
+     * Attaches an already-authenticated Keycloak identity (e.g. one created via
+     * "Continue with Google", which has no tenant_id/product_scope yet) to a
+     * newly created organization -- the counterpart to provisionHostOwner()
+     * for a user who already has a Keycloak account but no workspace. Merges
+     * into the existing attribute map (never overwrites) so provider-supplied
+     * attributes like "picture" survive.
+     */
+    public void attachExistingUserToOrganization(String keycloakUserId, UUID tenantId) {
+        var usersResource = keycloakAdminClient.realm(properties.getRealm()).users();
+        var userResource = usersResource.get(keycloakUserId);
+        UserRepresentation representation = userResource.toRepresentation();
+
+        Map<String, List<String>> attributes = representation.getAttributes() != null
+                ? new java.util.HashMap<>(representation.getAttributes())
+                : new java.util.HashMap<>();
+        attributes.put("tenant_id", List.of(tenantId.toString()));
+        attributes.put("product_scope", List.of("XANUOS"));
+        representation.setAttributes(attributes);
+        userResource.update(representation);
+
+        try {
+            var realmResource = keycloakAdminClient.realm(properties.getRealm());
+            var role = realmResource.roles().get("xanuos_owner").toRepresentation();
+            realmResource.users().get(keycloakUserId).roles().realmLevel().add(List.of(role));
+        } catch (Exception e) {
+            throw new KeycloakProvisioningException(
+                    "Failed to assign xanuos_owner role to existing user " + keycloakUserId, e);
+        }
+    }
+
     private String extractIdFromLocationHeader(Response response) {
         String location = response.getHeaderString("Location");
         return location.substring(location.lastIndexOf('/') + 1);

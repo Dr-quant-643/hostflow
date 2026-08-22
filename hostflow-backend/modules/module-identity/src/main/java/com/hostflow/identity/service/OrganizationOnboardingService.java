@@ -84,6 +84,40 @@ public class OrganizationOnboardingService {
         return organization;
     }
 
+    /**
+     * Counterpart to selfSignup() for a caller who already has a Keycloak
+     * identity but no workspace -- the "Continue with Google" path, where
+     * Keycloak's first-broker-login already created the account with no
+     * tenant_id/product_scope. Attaches an org to that EXISTING identity
+     * instead of creating a new one (selfSignup() would collide on
+     * email/username).
+     */
+    @Transactional
+    public Organization claimWorkspace(String keycloakUserId, String email, String firstName, String lastName,
+                                        String organizationName) {
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessRuleException("A workspace already exists for '" + email + "'");
+        }
+
+        String slug = generateUniqueSlug(organizationName);
+        Organization organization = new Organization(organizationName, slug, OrganizationProduct.XANUOS);
+        organization = organizationRepository.save(organization);
+
+        TenantContext.set(organization.getId());
+        try {
+            hostKeycloakProvisioningService.attachExistingUserToOrganization(keycloakUserId, organization.getId());
+
+            User ownerUser = new User(keycloakUserId, email, firstName, lastName, Set.of(UserRole.XANUOS_OWNER));
+            userRepository.save(ownerUser);
+
+            tenantEventPublisher.created(organization);
+        } finally {
+            TenantContext.clear();
+        }
+
+        return organization;
+    }
+
     private String generateUniqueSlug(String organizationName) {
         String base = organizationName.toLowerCase(Locale.ROOT)
                 .replaceAll("[^a-z0-9]+", "-")
