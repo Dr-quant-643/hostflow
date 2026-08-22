@@ -12,8 +12,7 @@ COPY . .
 # `target/` pattern (fixed to `**/target/`) and getting repackaged as-is
 # by Maven, which doesn't recompile a module whose source file was
 # deleted -- the leftover .class file just rides along.
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn -q -B -pl app -am clean package -DskipTests
+RUN mvn -q -B -pl app -am clean package -DskipTests
 
 FROM eclipse-temurin:21-jre AS runtime
 RUN useradd --system --create-home --home-dir /app appuser

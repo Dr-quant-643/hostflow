@@ -16,5 +16,6 @@ export * from "./identity/org-user.schema";
 export * from "./review/review.schema";
 export * from "./identity/organization.schema";
 export * from "./identity/guest.schema";
+export * from "./identity/host.schema";
 export * from "./crm/support-ticket.schema";
 export * from "./search/search.schema";

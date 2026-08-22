@@ -44,6 +44,7 @@ public class GatewaySecurityConfig {
             "/api/v1/properties/public/**",
             "/api/v1/bookings/public/availability",
             "/api/v1/guests/register",
+            "/api/v1/hosts/register",
             "/api/v1/mall/public/store-directory",
             "/api/v1/office/public/rooms"
     };

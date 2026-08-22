@@ -94,7 +94,7 @@ export default function XanuosLandingPage() {
             className="bg-gradient-to-r from-sapphire-500 to-purple-600 hover:opacity-90"
             asChild
           >
-            <a href="/xanuos/api/auth/login?idp=google">Continue with Google</a>
+            <Link href="/xanuos/signup">Get started</Link>
           </Button>
         </div>
       </header>
@@ -151,7 +151,7 @@ export default function XanuosLandingPage() {
               className="bg-gradient-to-r from-sapphire-500 to-purple-600 hover:opacity-90"
               asChild
             >
-              <a href="/xanuos/api/auth/login?idp=google">Continue with Google</a>
+              <Link href="/xanuos/signup">Get started free</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <a href="/xanuos/api/auth/login">Log in to your workspace</a>
@@ -225,8 +225,8 @@ export default function XanuosLandingPage() {
             See it with your own properties.
           </h2>
           <p className="mt-3 text-muted-foreground">
-            Sign in to explore XanuOS — if your workspace isn&rsquo;t set up
-            yet, we&rsquo;ll be in touch to get you started.
+            Create your workspace and start adding properties in minutes —
+            no sales call required.
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Button
@@ -234,7 +234,7 @@ export default function XanuosLandingPage() {
               className="bg-gradient-to-r from-sapphire-500 to-purple-600 hover:opacity-90"
               asChild
             >
-              <a href="/xanuos/api/auth/login?idp=google">Continue with Google</a>
+              <Link href="/xanuos/signup">Create your workspace</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/">Explore other HostFlow products</Link>

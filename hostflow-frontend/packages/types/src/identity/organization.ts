@@ -17,3 +17,13 @@ export interface CreateOrganizationRequest {
 export interface RenameOrganizationRequest {
   name: string;
 }
+
+// Mirrors module-identity's RegisterHostRequest -- self-service XanuOS
+// signup, the property-manager counterpart to RegisterGuestRequest.
+export interface RegisterHostRequest {
+  organizationName: string;
+  adminFirstName: string;
+  adminLastName: string;
+  adminEmail: string;
+  password: string;
+}

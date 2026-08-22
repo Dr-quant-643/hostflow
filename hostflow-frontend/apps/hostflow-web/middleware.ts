@@ -6,8 +6,11 @@ import { createAuthConfig } from "@hostflow/auth/src/config";
 const xanuosConfig = createAuthConfig("XANUOS", "/xanuos");
 const nazilcoConfig = createAuthConfig("NAZILCO", "/nazilco");
 
-// XanuOS: protect-by-default (matches old hostflow-web policy).
-const XANUOS_PUBLIC_PATHS = ["/xanuos/api/auth", "/xanuos/access-denied"];
+// XanuOS: protect-by-default (matches old hostflow-web policy). /xanuos/signup
+// is the self-service host-signup form (creates its own Keycloak identity
+// server-side, so it must be reachable anonymously, same reasoning as
+// NazilCo's /nazilco/signup).
+const XANUOS_PUBLIC_PATHS = ["/xanuos/api/auth", "/xanuos/access-denied", "/xanuos/signup"];
 
 // NazilCo: public-by-default (matches old nazilco-web policy) — only these
 // paths require a session. Left exactly as the original app had it

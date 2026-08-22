@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/properties/public/**").permitAll()
                         .requestMatchers("/api/v1/bookings/public/availability").permitAll()
                         .requestMatchers("/api/v1/guests/register").permitAll()
+                        .requestMatchers("/api/v1/hosts/register").permitAll()
                         .requestMatchers("/api/v1/mall/public/**").permitAll()
                         .requestMatchers("/api/v1/office/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews").permitAll()

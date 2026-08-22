@@ -2,8 +2,10 @@ package com.hostflow.identity.service;
 
 import com.hostflow.common.exception.BusinessRuleException;
 import com.hostflow.identity.dto.OnboardOrganizationRequest;
+import com.hostflow.identity.dto.RegisterHostRequest;
 import com.hostflow.identity.entity.Organization;
 import com.hostflow.identity.entity.OrganizationProduct;
+import com.hostflow.identity.keycloak.HostKeycloakProvisioningService;
 import com.hostflow.identity.keycloak.KeycloakProvisioningService;
 import com.hostflow.identity.messaging.TenantEventPublisher;
 import com.hostflow.identity.repository.OrganizationRepository;
@@ -36,6 +38,8 @@ class OrganizationOnboardingServiceTest {
     @Mock
     private KeycloakProvisioningService keycloakProvisioningService;
     @Mock
+    private HostKeycloakProvisioningService hostKeycloakProvisioningService;
+    @Mock
     private TenantEventPublisher tenantEventPublisher;
 
     private OrganizationOnboardingService service;
@@ -45,10 +49,15 @@ class OrganizationOnboardingServiceTest {
             "Jane", "Doe", "jane@acme.com"
     );
 
+    private final RegisterHostRequest selfSignupRequest = new RegisterHostRequest(
+            "Acme Properties", "Jane", "Doe", "jane@acme.com", "supersecret1"
+    );
+
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
         service = new OrganizationOnboardingService(
-                organizationRepository, userRepository, keycloakProvisioningService, tenantEventPublisher);
+                organizationRepository, userRepository, keycloakProvisioningService,
+                hostKeycloakProvisioningService, tenantEventPublisher);
     }
 
     @AfterEach
@@ -103,5 +112,40 @@ class OrganizationOnboardingServiceTest {
         Organization spy = org.mockito.Mockito.spy(organization);
         when(spy.getId()).thenReturn(id);
         return spy;
+    }
+
+    @Test
+    void selfSignup_rejectsDuplicateAdminEmail() {
+        when(userRepository.existsByEmail("jane@acme.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.selfSignup(selfSignupRequest))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("jane@acme.com");
+    }
+
+    @Test
+    void selfSignup_derivesSlugFromOrganizationNameAndDedupesOnCollision() {
+        UUID orgId = UUID.randomUUID();
+        Organization savedOrg = new Organization("Acme Properties", "acme-properties-2", OrganizationProduct.XANUOS);
+        Organization orgWithId = spyWithId(savedOrg, orgId);
+
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        // The natural slug is already taken -- must fall back to "-2".
+        when(organizationRepository.existsBySlug("acme-properties")).thenReturn(true);
+        when(organizationRepository.existsBySlug("acme-properties-2")).thenReturn(false);
+        when(organizationRepository.save(any())).thenReturn(orgWithId);
+        when(hostKeycloakProvisioningService.provisionHostOwner(any(), anyString(), anyString(), anyString(), anyString()))
+                .thenReturn("keycloak-user-456");
+
+        Organization result = service.selfSignup(selfSignupRequest);
+
+        assertThat(result.getId()).isEqualTo(orgId);
+        verify(organizationRepository).save(org.mockito.ArgumentMatchers.argThat(
+                org -> org.getSlug().equals("acme-properties-2")
+                        && org.getPrimaryProduct() == OrganizationProduct.XANUOS));
+        verify(hostKeycloakProvisioningService).provisionHostOwner(
+                org.mockito.ArgumentMatchers.eq(orgId), anyString(), anyString(), anyString(), anyString());
+        verify(userRepository).save(any());
+        assertThat(TenantContext.isSet()).isFalse();
     }
 }
