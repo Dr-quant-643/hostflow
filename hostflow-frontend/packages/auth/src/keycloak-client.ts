@@ -105,6 +105,9 @@ export function buildAuthorizationUrl(
   params: {
     state: string;
     codeChallenge: string;
+    /** Skips Keycloak's own login form and jumps straight to a federated
+     *  identity provider (e.g. "google") configured on the realm. */
+    idpHint?: string;
   },
 ): string {
   const url = new URL(`${config.issuer}/protocol/openid-connect/auth`);
@@ -115,6 +118,7 @@ export function buildAuthorizationUrl(
   url.searchParams.set("state", params.state);
   url.searchParams.set("code_challenge", params.codeChallenge);
   url.searchParams.set("code_challenge_method", "S256");
+  if (params.idpHint) url.searchParams.set("kc_idp_hint", params.idpHint);
   return url.toString();
 }
 

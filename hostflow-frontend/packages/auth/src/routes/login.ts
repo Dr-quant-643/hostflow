@@ -11,12 +11,15 @@ import { createAuthConfig, type AuthConfig } from "../config";
 // Mount per product at e.g. app/xanuos/api/auth/login/route.ts as:
 //   export const GET = createLoginRoute(createAuthConfig("XANUOS", "/xanuos"));
 export function createLoginRoute(config: AuthConfig) {
-  return async function GET(_request: NextRequest) {
+  return async function GET(request: NextRequest) {
     const verifier = generateCodeVerifier();
     const challenge = await generateCodeChallenge(verifier);
     const state = generateState();
 
-    const authUrl = buildAuthorizationUrl(config, { state, codeChallenge: challenge });
+    // ?idp=google skips Keycloak's own login form and jumps straight to the
+    // federated provider — used by the "Continue with Google" button.
+    const idpHint = new URL(request.url).searchParams.get("idp") ?? undefined;
+    const authUrl = buildAuthorizationUrl(config, { state, codeChallenge: challenge, idpHint });
 
     const response = NextResponse.redirect(authUrl);
     // state and verifier are both plain base64url (no "." possible), so a
