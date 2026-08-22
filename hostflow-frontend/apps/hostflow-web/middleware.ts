@@ -29,6 +29,13 @@ export function middleware(request: NextRequest) {
   // Homepage and its picker are always public.
   if (pathname === "/") return NextResponse.next();
 
+  // XanuOS's marketing/landing page is public (property managers should be
+  // able to see what the product offers before signing in) even though
+  // everything else under /xanuos stays protect-by-default — this is an
+  // exact match, not a prefix, since "/xanuos" would otherwise swallow every
+  // dashboard route too.
+  if (pathname === "/xanuos") return NextResponse.next();
+
   if (pathname.startsWith("/xanuos")) {
     return authorityGate(
       request,
