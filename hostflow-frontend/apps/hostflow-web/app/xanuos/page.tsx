@@ -2,69 +2,20 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  Building2,
-  Wrench,
-  Receipt,
-  Users,
-  BarChart3,
-  Store,
-  Briefcase,
-  Megaphone,
-  CalendarCheck,
-  ShieldCheck,
-  Zap,
-  Headset,
-} from "lucide-react";
+import { ShieldCheck, Zap, Headset } from "lucide-react";
 import { Button } from "@hostflow/ui";
-
-const FEATURES = [
-  {
-    icon: Building2,
-    title: "Property portfolio",
-    desc: "Track every unit, building, and listing status in one place — residential, vacation, office, or retail.",
-  },
-  {
-    icon: Receipt,
-    title: "Billing & invoicing",
-    desc: "Automated rent, invoices, expenses, and budgets — no more spreadsheets chasing payments.",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Leasing & rentals",
-    desc: "Manage leases, tenants, and rent payments end to end, with renewals that don't fall through the cracks.",
-  },
-  {
-    icon: Wrench,
-    title: "Maintenance & work orders",
-    desc: "Log assets, assign work orders, and track maintenance schedules across every property.",
-  },
-  {
-    icon: Users,
-    title: "CRM & leads",
-    desc: "Keep every prospect, tenant, and owner conversation in one pipeline, not scattered across inboxes.",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics & reporting",
-    desc: "Real-time occupancy, revenue, and performance reporting across your entire portfolio.",
-  },
-  {
-    icon: Store,
-    title: "Mall & retail ops",
-    desc: "Purpose-built tools for retail/mall operators — tenant events, parking, and unit management.",
-  },
-  {
-    icon: Briefcase,
-    title: "Office management",
-    desc: "Meeting rooms, visitor logs, and workplace bookings for managed office spaces.",
-  },
-  {
-    icon: Megaphone,
-    title: "Marketing campaigns",
-    desc: "Run and track campaigns to fill vacancies faster, straight from the same dashboard.",
-  },
-];
+import { FeatureShowcase } from "@/components/xanuos/marketing/feature-showcase";
+import {
+  PortfolioMockup,
+  BillingMockup,
+  LeasingMockup,
+  MaintenanceMockup,
+  CrmMockup,
+  AnalyticsMockup,
+  MallMockup,
+  OfficeMockup,
+  MarketingMockup,
+} from "@/components/xanuos/marketing/feature-mockups";
 
 const TRUST_BADGES = [
   { icon: ShieldCheck, label: "Role-based access for your whole team" },
@@ -177,41 +128,144 @@ export default function XanuosLandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5 }}
-          className="mb-10 text-center"
-        >
-          <h2 className="text-2xl font-semibold sm:text-3xl">
-            Everything your portfolio needs
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            One platform instead of five disconnected tools.
-          </p>
-        </motion.div>
+      <div className="mx-auto max-w-3xl px-6 pt-16 text-center">
+        <h2 className="text-2xl font-semibold sm:text-3xl">
+          Everything your portfolio needs — see it in action
+        </h2>
+        <p className="mt-2 text-muted-foreground">
+          One platform instead of five disconnected tools. Here&rsquo;s what each one actually looks like.
+        </p>
+      </div>
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURES.map((feature, i) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.4, delay: (i % 3) * 0.08 }}
-              className="rounded-2xl border border-border/60 bg-card p-6 transition-shadow hover:shadow-lg hover:shadow-purple-500/5"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-sapphire-500/15 to-purple-500/15">
-                <feature.icon className="h-5 w-5 text-sapphire-600" />
-              </div>
-              <h3 className="mt-4 font-medium">{feature.title}</h3>
-              <p className="mt-1.5 text-sm text-muted-foreground">{feature.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+      <FeatureShowcase
+        emoji="🏢"
+        badge="Property portfolio"
+        title="Every property, one live view"
+        quote="I used to have three spreadsheets open just to know my occupancy. Now it's one screen."
+        description="Track units, occupancy, and rent across every building you manage — residential, vacation, office, or retail — updated the moment a lease changes."
+        photo="https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Apartment building exterior"
+        mockupPath="app.hostflow.io/xanuos/properties"
+        mockup={<PortfolioMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="See your properties in one view"
+      />
+
+      <FeatureShowcase
+        reverse
+        emoji="🧾"
+        badge="Billing & invoicing"
+        title="Rent that chases itself"
+        quote="No more month-end scramble to figure out who's paid and who hasn't."
+        description="Auto-generate rent invoices, track payments, and see overdue tenants flagged instantly — instead of digging through bank statements."
+        photo="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Invoices and calculator on a desk"
+        mockupPath="app.hostflow.io/xanuos/billing"
+        mockup={<BillingMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="Automate your rent collection"
+      />
+
+      <FeatureShowcase
+        emoji="📋"
+        badge="Leasing & rentals"
+        title="Never miss a renewal again"
+        quote="We got a 60-day heads up on a lease ending — that's a month's rent we didn't lose."
+        description="Every lease, every tenant, every renewal date in one place — with alerts before a vacancy costs you money."
+        photo="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=400&q=60"
+        photoAlt="House keys on a table"
+        mockupPath="app.hostflow.io/xanuos/rental"
+        mockup={<LeasingMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="Track your leases automatically"
+      />
+
+      <FeatureShowcase
+        reverse
+        emoji="🔧"
+        badge="Maintenance & work orders"
+        title="A leaking tap becomes a ticket, not a lost tenant"
+        quote="Tenants report it, a technician gets assigned, and I can see it's actually done."
+        description="Every maintenance request tracked from reported to resolved, with a technician assigned and a paper trail — no more 'I thought someone else was handling it.'"
+        photo="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Maintenance technician at work"
+        mockupPath="app.hostflow.io/xanuos/maintenance"
+        mockup={<MaintenanceMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="Never lose a maintenance request"
+      />
+
+      <FeatureShowcase
+        emoji="🤝"
+        badge="CRM & leads"
+        title="Every prospect, one pipeline"
+        quote="I stopped losing leads in a WhatsApp thread I can never find again."
+        description="Track a prospect from first inquiry to signed lease — who viewed what, who's ready to sign, who's gone quiet."
+        photo="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Team collaborating around laptops"
+        mockupPath="app.hostflow.io/xanuos/crm"
+        mockup={<CrmMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="Organize your leads"
+      />
+
+      <FeatureShowcase
+        reverse
+        emoji="📊"
+        badge="Analytics & reporting"
+        title="Know your numbers before your accountant does"
+        quote="Occupancy, revenue, and costs — I check one dashboard now, not five spreadsheets."
+        description="Real-time occupancy trends, revenue by property, and maintenance costs, so decisions are made on data, not guesswork."
+        photo="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Analytics dashboard on a monitor"
+        mockupPath="app.hostflow.io/xanuos/analytics"
+        mockup={<AnalyticsMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="See your portfolio's numbers"
+      />
+
+      <FeatureShowcase
+        emoji="🛍️"
+        badge="Mall & retail ops"
+        title="From anchor tenant to pop-up stall, one directory"
+        quote="Store leases, parking, and mall events — finally in one place instead of three different systems."
+        description="Purpose-built for retail and mall operators: manage tenant leases, monitor parking capacity, and run mall-wide events from a single screen."
+        photo="https://images.unsplash.com/photo-1567958451986-2de427a4a0be?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Retail store interior"
+        mockupPath="app.hostflow.io/xanuos/mall"
+        mockup={<MallMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="Manage your retail space"
+      />
+
+      <FeatureShowcase
+        reverse
+        emoji="🏙️"
+        badge="Office management"
+        title="No more double-booked boardrooms"
+        quote="Visitors sign in at the door, and I actually know who's in the building."
+        description="Meeting rooms booked in seconds, visitor check-ins logged automatically — no more a logbook nobody can find."
+        photo="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Modern open-plan office"
+        mockupPath="app.hostflow.io/xanuos/office"
+        mockup={<OfficeMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="Streamline your office"
+      />
+
+      <FeatureShowcase
+        emoji="📣"
+        badge="Marketing campaigns"
+        title="Fill vacancies faster, with numbers to prove it"
+        quote="I can finally see which listing promo actually turns into a signed lease."
+        description="Launch a campaign for a vacant unit, track views turning into inquiries, and know exactly what's working — not just what you hope is working."
+        photo="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=60"
+        photoAlt="Marketing analytics on a laptop"
+        mockupPath="app.hostflow.io/xanuos/marketing"
+        mockup={<MarketingMockup />}
+        ctaHref="/xanuos/signup"
+        ctaLabel="Launch your first campaign"
+      />
 
       <section className="border-t border-border/60 bg-gradient-to-b from-sapphire-50/60 to-purple-50/40 dark:from-sapphire-950/10 dark:to-purple-950/10">
         <motion.div
