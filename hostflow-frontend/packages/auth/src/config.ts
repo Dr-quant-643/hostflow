@@ -64,8 +64,14 @@ export function createAuthConfig(prefix = "", basePath = ""): AuthConfig {
     redirectUri: p
       ? `${appBaseUrl}${basePath}/api/auth/callback`
       : required("KEYCLOAK_REDIRECT_URI"),
+    // The site-wide homepage, not this product's own basePath — logging out
+    // of one product should land you back at the neutral "choose a product"
+    // picker, not the same product's marketing page (which looks nearly
+    // identical logged-in vs logged-out, so it can read as "nothing
+    // happened"). Requires this exact URL to be registered on the Keycloak
+    // client's post-logout-redirect-uris, not just its regular redirect URIs.
     postLogoutRedirectUri: p
-      ? `${appBaseUrl}${basePath}`
+      ? appBaseUrl
       : required("KEYCLOAK_POST_LOGOUT_REDIRECT_URI"),
     sessionSecret: required(
       `${envPrefix}SESSION_SECRET`,
