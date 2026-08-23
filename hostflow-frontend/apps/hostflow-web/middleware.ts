@@ -11,13 +11,19 @@ const nazilcoConfig = createAuthConfig("NAZILCO", "/nazilco");
 // is the self-service host-signup form (creates its own Keycloak identity
 // server-side, so it must be reachable anonymously, same reasoning as
 // NazilCo's /nazilco/signup).
-const XANUOS_PUBLIC_PATHS = ["/xanuos/api/auth", "/xanuos/access-denied", "/xanuos/signup"];
+// /xanuos/api/v1 (the Gateway BFF proxy) is public here for the same reason
+// /xanuos/api/auth is: authorityGate's rejection path is an HTTP redirect,
+// which a fetch() call follows transparently into HTML it can't parse as
+// JSON, instead of the clean 401 JSON the proxy itself already returns when
+// there's no valid session. The proxy is not actually unauthenticated —
+// createGatewayProxyRoute does its own session check per request.
+const XANUOS_PUBLIC_PATHS = ["/xanuos/api/auth", "/xanuos/api/v1", "/xanuos/access-denied", "/xanuos/signup"];
 
 // NazilCo: public-by-default (matches old nazilco-web policy) — only these
 // paths require a session. Left exactly as the original app had it
 // (properties/search/discover stay anonymous-browsable); anything beyond
 // this is reconciliation-doc work for after this migration, not part of it.
-const NAZILCO_PUBLIC_PATHS = ["/nazilco/api/auth", "/nazilco/access-denied"];
+const NAZILCO_PUBLIC_PATHS = ["/nazilco/api/auth", "/nazilco/api/v1", "/nazilco/access-denied"];
 const NAZILCO_PROTECTED_PATHS = [
   "/nazilco/checkout",
   "/nazilco/guest-portal",
