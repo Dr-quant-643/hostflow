@@ -5,9 +5,7 @@ import com.hostflow.notification.delivery.PushDeliveryService;
 import com.hostflow.notification.delivery.SmsDeliveryService;
 import com.hostflow.notification.delivery.WhatsAppDeliveryService;
 import com.hostflow.notification.entity.NotificationChannel;
-import com.hostflow.notification.entity.NotificationLog;
-import com.hostflow.notification.entity.NotificationStatus;
-import com.hostflow.notification.repository.NotificationLogRepository;
+import com.hostflow.notification.service.NotificationLogUpdateService;
 import com.hostflow.tenancy.context.TenantContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -15,20 +13,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationConsumerTest {
 
     @Mock
-    private NotificationLogRepository notificationLogRepository;
+    private NotificationLogUpdateService notificationLogUpdateService;
     @Mock
     private EmailDeliveryService emailDeliveryService;
     @Mock
@@ -42,7 +37,7 @@ class NotificationConsumerTest {
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        consumer = new NotificationConsumer(notificationLogRepository, emailDeliveryService,
+        consumer = new NotificationConsumer(notificationLogUpdateService, emailDeliveryService,
                 smsDeliveryService, pushDeliveryService, whatsAppDeliveryService);
     }
 
@@ -54,8 +49,6 @@ class NotificationConsumerTest {
     @Test
     void consumeEmail_onSuccess_callsRealEmailDeliveryService_marksSent() {
         UUID logId = UUID.randomUUID();
-        NotificationLog notificationLog = new NotificationLog(UUID.randomUUID(), "welcome_email", NotificationChannel.EMAIL);
-        when(notificationLogRepository.findById(logId)).thenReturn(Optional.of(notificationLog));
 
         NotificationMessage message = new NotificationMessage(
                 logId, UUID.randomUUID(), UUID.randomUUID(), "jane@example.com", NotificationChannel.EMAIL, "Welcome", "Hello!");
@@ -63,15 +56,12 @@ class NotificationConsumerTest {
         consumer.consumeEmail(message);
 
         verify(emailDeliveryService).send("jane@example.com", "Welcome", "Hello!");
-        assertThat(notificationLog.getStatus()).isEqualTo(NotificationStatus.SENT);
-        assertThat(TenantContext.isSet()).isFalse();
+        verify(notificationLogUpdateService).markSent(logId);
     }
 
     @Test
     void consumeSms_onProviderFailure_marksFailedAndRethrows() {
         UUID logId = UUID.randomUUID();
-        NotificationLog notificationLog = new NotificationLog(UUID.randomUUID(), "otp_code", NotificationChannel.SMS);
-        when(notificationLogRepository.findById(logId)).thenReturn(Optional.of(notificationLog));
         doThrow(new RuntimeException("Africa's Talking 401")).when(smsDeliveryService).send(any(), any());
 
         NotificationMessage message = new NotificationMessage(
@@ -79,7 +69,6 @@ class NotificationConsumerTest {
 
         org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> consumer.consumeSms(message));
 
-        assertThat(notificationLog.getStatus()).isEqualTo(NotificationStatus.FAILED);
-        assertThat(TenantContext.isSet()).isFalse();
+        verify(notificationLogUpdateService).markFailed(logId, "Africa's Talking 401");
     }
 }

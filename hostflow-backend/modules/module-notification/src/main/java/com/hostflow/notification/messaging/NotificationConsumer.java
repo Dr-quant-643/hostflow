@@ -5,58 +5,57 @@ import com.hostflow.notification.delivery.EmailDeliveryService;
 import com.hostflow.notification.delivery.PushDeliveryService;
 import com.hostflow.notification.delivery.SmsDeliveryService;
 import com.hostflow.notification.delivery.WhatsAppDeliveryService;
-import com.hostflow.notification.entity.NotificationLog;
-import com.hostflow.notification.repository.NotificationLogRepository;
+import com.hostflow.notification.service.NotificationLogUpdateService;
 import com.hostflow.tenancy.context.TenantContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class NotificationConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationConsumer.class);
 
-    private final NotificationLogRepository notificationLogRepository;
+    private final NotificationLogUpdateService notificationLogUpdateService;
     private final EmailDeliveryService emailDeliveryService;
     private final SmsDeliveryService smsDeliveryService;
     private final PushDeliveryService pushDeliveryService;
     private final WhatsAppDeliveryService whatsAppDeliveryService;
 
-    public NotificationConsumer(NotificationLogRepository notificationLogRepository,
+    public NotificationConsumer(NotificationLogUpdateService notificationLogUpdateService,
                                  EmailDeliveryService emailDeliveryService,
                                  SmsDeliveryService smsDeliveryService,
                                  PushDeliveryService pushDeliveryService,
                                  WhatsAppDeliveryService whatsAppDeliveryService) {
-        this.notificationLogRepository = notificationLogRepository;
+        this.notificationLogUpdateService = notificationLogUpdateService;
         this.emailDeliveryService = emailDeliveryService;
         this.smsDeliveryService = smsDeliveryService;
         this.pushDeliveryService = pushDeliveryService;
         this.whatsAppDeliveryService = whatsAppDeliveryService;
     }
 
+    // Deliberately NOT @Transactional at the listener level, same reasoning as
+    // DomainAuditEventConsumer's non-@Transactional listeners: that would open
+    // the transaction (and issue SET LOCAL) before TenantContext.set() below
+    // ever runs. Each DB touch instead goes through NotificationLogUpdateService,
+    // which opens its own transaction per call, safely after TenantContext is set.
     @RabbitListener(queues = QueueNames.NOTIFICATION_EMAIL)
-    @Transactional
     public void consumeEmail(NotificationMessage message) {
         process(message, () -> emailDeliveryService.send(message.recipientAddress(), message.subject(), message.renderedBody()));
     }
 
     @RabbitListener(queues = QueueNames.NOTIFICATION_SMS)
-    @Transactional
     public void consumeSms(NotificationMessage message) {
         process(message, () -> smsDeliveryService.send(message.recipientAddress(), message.renderedBody()));
     }
 
     @RabbitListener(queues = QueueNames.NOTIFICATION_PUSH)
-    @Transactional
     public void consumePush(NotificationMessage message) {
         process(message, () -> pushDeliveryService.send(message.recipientAddress(), message.subject(), message.renderedBody()));
     }
 
     @RabbitListener(queues = QueueNames.NOTIFICATION_WHATSAPP)
-    @Transactional
     public void consumeWhatsApp(NotificationMessage message) {
         process(message, () -> whatsAppDeliveryService.send(message.recipientAddress(), message.renderedBody()));
     }
@@ -71,19 +70,17 @@ public class NotificationConsumer {
     }
 
     private void handle(NotificationMessage message, Runnable deliveryAction) {
-        NotificationLog notificationLog = notificationLogRepository.findById(message.notificationLogId())
-                .orElseThrow(() -> new IllegalStateException(
-                        "NotificationLog " + message.notificationLogId() + " not found for queued message"));
+        notificationLogUpdateService.assertExists(message.notificationLogId());
 
         try {
             deliveryAction.run();
-            notificationLog.markSent();
+            notificationLogUpdateService.markSent(message.notificationLogId());
             log.info("Delivered notification {} via {} to {}",
-                    notificationLog.getId(), message.channel(), message.recipientAddress());
+                    message.notificationLogId(), message.channel(), message.recipientAddress());
         } catch (Exception e) {
-            notificationLog.markFailed(e.getMessage());
+            notificationLogUpdateService.markFailed(message.notificationLogId(), e.getMessage());
             log.error("Delivery failed for notification {} via {}: {}",
-                    notificationLog.getId(), message.channel(), e.getMessage());
+                    message.notificationLogId(), message.channel(), e.getMessage());
             throw e;
         }
     }
