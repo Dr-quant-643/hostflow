@@ -6,6 +6,7 @@ import com.hostflow.notification.entity.NotificationChannel;
 import com.hostflow.notification.entity.NotificationLog;
 import com.hostflow.notification.entity.NotificationTemplate;
 import com.hostflow.notification.messaging.NotificationPublisher;
+import com.hostflow.notification.repository.NotificationLogRepository;
 import com.hostflow.notification.repository.NotificationTemplateRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,12 +31,14 @@ class NotificationServiceTest {
     private NotificationTemplateRepository templateRepository;
     @Mock
     private NotificationPublisher publisher;
+    @Mock
+    private NotificationLogRepository logRepository;
 
     private NotificationService service;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        service = new NotificationService(templateRepository, publisher);
+        service = new NotificationService(templateRepository, publisher, logRepository);
     }
 
     @Test

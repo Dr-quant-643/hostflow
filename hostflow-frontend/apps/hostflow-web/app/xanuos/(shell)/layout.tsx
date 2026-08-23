@@ -12,7 +12,7 @@ export default function ShellLayout({
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <AppTopbar />
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-sapphire-50/40 via-background to-purple-50/30 p-6 dark:from-sapphire-950/10 dark:via-background dark:to-purple-950/10">
           <Stack gap="lg">{children}</Stack>
         </main>
       </div>

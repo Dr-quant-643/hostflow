@@ -5,10 +5,14 @@ import com.hostflow.notification.dto.SendNotificationRequest;
 import com.hostflow.notification.entity.NotificationLog;
 import com.hostflow.notification.entity.NotificationTemplate;
 import com.hostflow.notification.messaging.NotificationPublisher;
+import com.hostflow.notification.repository.NotificationLogRepository;
 import com.hostflow.notification.repository.NotificationTemplateRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,10 +23,18 @@ public class NotificationService {
 
     private final NotificationTemplateRepository templateRepository;
     private final NotificationPublisher publisher;
+    private final NotificationLogRepository logRepository;
 
-    public NotificationService(NotificationTemplateRepository templateRepository, NotificationPublisher publisher) {
+    public NotificationService(NotificationTemplateRepository templateRepository, NotificationPublisher publisher,
+                                NotificationLogRepository logRepository) {
         this.templateRepository = templateRepository;
         this.publisher = publisher;
+        this.logRepository = logRepository;
+    }
+
+    /** Backs the notification inbox — a user's own notification history. */
+    public Page<NotificationLog> myNotifications(UUID recipientUserId, int limit, int offset) {
+        return logRepository.findByRecipientUserId(recipientUserId, PageRequest.of(offset / Math.max(limit, 1), limit));
     }
 
     /** UPDATED: request now carries recipientAddress explicitly — see

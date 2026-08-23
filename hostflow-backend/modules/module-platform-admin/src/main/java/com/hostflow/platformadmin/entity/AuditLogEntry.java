@@ -18,7 +18,8 @@ import java.util.UUID;
 @Table(name = "audit_log_entries")
 public class AuditLogEntry extends BaseEntity {
 
-    @Column(name = "actor_user_id", nullable = false)
+    /** Null for system-initiated events with no human actor, e.g. TENANT_CREATED. */
+    @Column(name = "actor_user_id")
     private UUID actorUserId;
 
     @Column(name = "actor_tenant_id")
