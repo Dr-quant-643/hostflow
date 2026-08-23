@@ -29,14 +29,22 @@ public class PublicPropertyPhotoQueries {
     }
 
     public List<String> listPhotoUrls(UUID propertyId) {
+        return listUrlsByType(propertyId, "PHOTO");
+    }
+
+    public List<String> listVideoUrls(UUID propertyId) {
+        return listUrlsByType(propertyId, "VIDEO");
+    }
+
+    private List<String> listUrlsByType(UUID propertyId, String documentType) {
         String sql = """
                 SELECT pd.object_key FROM property_documents pd
                 JOIN properties p ON p.id = pd.property_id
-                WHERE pd.property_id = ? AND pd.document_type = 'PHOTO' AND p.status = 'ACTIVE'
+                WHERE pd.property_id = ? AND pd.document_type = ? AND p.status = 'ACTIVE'
                 ORDER BY pd.created_at ASC
                 """;
         List<String> objectKeys = jdbcTemplate.query(sql,
-                (rs, rowNum) -> rs.getString("object_key"), propertyId);
+                (rs, rowNum) -> rs.getString("object_key"), propertyId, documentType);
 
         return objectKeys.stream().map(storageService::generatePresignedGetUrl).toList();
     }

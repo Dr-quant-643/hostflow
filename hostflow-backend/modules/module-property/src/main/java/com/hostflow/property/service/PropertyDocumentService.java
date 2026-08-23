@@ -27,10 +27,12 @@ import java.util.UUID;
 public class PropertyDocumentService {
 
     private static final Set<String> IMAGE_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
+    private static final Set<String> VIDEO_TYPES = Set.of("video/mp4", "video/quicktime", "video/webm");
     private static final Set<String> DOCUMENT_TYPES_ALLOWED = Set.of(
             "image/jpeg", "image/png", "image/webp", "application/pdf");
 
     private static final long IMAGE_MAX_SIZE_BYTES = 10L * 1024 * 1024;
+    private static final long VIDEO_MAX_SIZE_BYTES = 200L * 1024 * 1024;
     private static final long DOCUMENT_MAX_SIZE_BYTES = 25L * 1024 * 1024;
 
     private final PropertyRepository propertyRepository;
@@ -98,9 +100,10 @@ public class PropertyDocumentService {
 
         boolean isImageOnlyType = documentType == PropertyDocument.DocumentType.PHOTO
                 || documentType == PropertyDocument.DocumentType.FLOOR_PLAN;
+        boolean isVideoType = documentType == PropertyDocument.DocumentType.VIDEO;
 
-        long maxSize = isImageOnlyType ? IMAGE_MAX_SIZE_BYTES : DOCUMENT_MAX_SIZE_BYTES;
-        Set<String> allowedTypes = isImageOnlyType ? IMAGE_TYPES : DOCUMENT_TYPES_ALLOWED;
+        long maxSize = isVideoType ? VIDEO_MAX_SIZE_BYTES : isImageOnlyType ? IMAGE_MAX_SIZE_BYTES : DOCUMENT_MAX_SIZE_BYTES;
+        Set<String> allowedTypes = isVideoType ? VIDEO_TYPES : isImageOnlyType ? IMAGE_TYPES : DOCUMENT_TYPES_ALLOWED;
 
         if (file.getSize() > maxSize) {
             throw new BusinessRuleException("File exceeds the " + (maxSize / (1024 * 1024)) + "MB size limit");

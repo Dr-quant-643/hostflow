@@ -14,11 +14,13 @@ import { Star, MapPin, BedDouble, Bath, Users, Sparkles } from "lucide-react";
 import {
   usePublicProperty,
   usePropertyPhotos,
+  usePropertyVideos,
 } from "@hostflow/api-client/src/hooks/use-public-properties";
 import { demoAvatarUrl, type DemoProperty } from "@/lib/demo-data";
 import type { PublicPropertySummary } from "@hostflow/types";
 import { formatKES } from "@/lib/currency";
 import { PhotoGallery } from "@/components/nazilco/property/photo-gallery";
+import { PropertyVideoSection } from "@/components/nazilco/property/video-section";
 import { AvailabilityCalendar } from "@/components/nazilco/property/availability-calendar";
 import { ReviewsSection } from "@/components/nazilco/property/reviews-section";
 
@@ -41,6 +43,7 @@ function PropertyDetailPageContent() {
   const searchParams = useSearchParams();
   const { data, isLoading, isError } = usePublicProperty(id);
   const { data: photoUrls } = usePropertyPhotos(id);
+  const { data: videoUrls } = usePropertyVideos(id);
   const property = data as Property | undefined;
 
   if (isLoading) return <Skeleton className="h-96 w-full" />;
@@ -128,6 +131,8 @@ function PropertyDetailPageContent() {
               {property.description}
             </motion.p>
           )}
+
+          <PropertyVideoSection videoUrls={videoUrls ?? []} />
 
           {property.highlights && property.highlights.length > 0 && (
             <motion.div

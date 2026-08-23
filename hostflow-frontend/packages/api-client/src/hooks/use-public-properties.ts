@@ -64,6 +64,15 @@ export function usePropertyPhotos(id: string) {
   });
 }
 
+export function usePropertyVideos(id: string) {
+  return useQuery({
+    queryKey: ["public", "properties", id, "videos"],
+    queryFn: () => api.get<string[]>(`/properties/public/${id}/videos`),
+    enabled: !!id,
+    refetchInterval: PRESIGNED_URL_REFRESH_INTERVAL_MS,
+  });
+}
+
 // Real backend only supports "is this exact range free" (a single boolean),
 // not a month-grid of per-day availability — there is no day-by-day
 // availability endpoint anywhere in PublicPropertyController/

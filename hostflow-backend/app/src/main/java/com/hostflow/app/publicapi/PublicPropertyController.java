@@ -57,6 +57,11 @@ public class PublicPropertyController {
         return ResponseEntity.ok(ApiResponse.success(photoQueries.listPhotoUrls(id)));
     }
 
+    @GetMapping("/api/v1/properties/public/{id}/videos")
+    public ResponseEntity<ApiResponse<List<String>>> videos(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(photoQueries.listVideoUrls(id)));
+    }
+
     @GetMapping("/api/v1/bookings/public/availability")
     public ResponseEntity<ApiResponse<Boolean>> availability(
             @RequestParam UUID propertyId,

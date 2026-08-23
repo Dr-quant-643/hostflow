@@ -69,6 +69,6 @@ public class PropertyDocument extends TenantScopedEntity {
     }
 
     public enum DocumentType {
-        PHOTO, FLOOR_PLAN, CONTRACT, INSURANCE, OTHER
+        PHOTO, VIDEO, FLOOR_PLAN, CONTRACT, INSURANCE, OTHER
     }
 }

@@ -7,11 +7,21 @@ import type { PropertyDocumentType } from "@hostflow/types";
 
 const DOCUMENT_TYPE_OPTIONS: { value: PropertyDocumentType; label: string }[] = [
   { value: "PHOTO", label: "Photo" },
+  { value: "VIDEO", label: "Video" },
   { value: "FLOOR_PLAN", label: "Floor Plan" },
   { value: "CONTRACT", label: "Contract" },
   { value: "INSURANCE", label: "Insurance" },
   { value: "OTHER", label: "Other" },
 ];
+
+const ACCEPT_BY_TYPE: Record<PropertyDocumentType, string> = {
+  PHOTO: "image/jpeg,image/png,image/webp",
+  VIDEO: "video/mp4,video/quicktime,video/webm",
+  FLOOR_PLAN: "image/jpeg,image/png,image/webp",
+  CONTRACT: "image/jpeg,image/png,image/webp,application/pdf",
+  INSURANCE: "image/jpeg,image/png,image/webp,application/pdf",
+  OTHER: "image/jpeg,image/png,image/webp,application/pdf",
+};
 
 export function DocumentUploadForm({ propertyId }: { propertyId: string }) {
   const [file, setFile] = useState<File | null>(null);
@@ -29,7 +39,9 @@ export function DocumentUploadForm({ propertyId }: { propertyId: string }) {
       toast.error(
         documentType === "PHOTO" || documentType === "FLOOR_PLAN"
           ? "Upload failed — photos and floor plans must be JPEG/PNG/WebP under 10MB"
-          : "Upload failed — documents must be an image or PDF under 25MB",
+          : documentType === "VIDEO"
+            ? "Upload failed — videos must be MP4/MOV/WebM under 200MB"
+            : "Upload failed — documents must be an image or PDF under 25MB",
       );
     }
   };
@@ -46,6 +58,7 @@ export function DocumentUploadForm({ propertyId }: { propertyId: string }) {
         <Input
           label="File"
           type="file"
+          accept={ACCEPT_BY_TYPE[documentType]}
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
         />
         <Button type="submit" disabled={!file} loading={upload.isPending}>

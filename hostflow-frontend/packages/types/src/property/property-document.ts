@@ -2,6 +2,7 @@
 
 export type PropertyDocumentType =
   | "PHOTO"
+  | "VIDEO"
   | "FLOOR_PLAN"
   | "CONTRACT"
   | "INSURANCE"

@@ -1,4 +1,14 @@
 spring:
+  servlet:
+    multipart:
+      # Spring Boot's own defaults (1MB per file, 10MB per request) are well
+      # under PropertyDocumentService's own 10MB photo / 25MB document caps,
+      # so uploads were being rejected at the servlet layer before that
+      # validation ever ran. Sized here for property videos specifically
+      # (200MB cap enforced in PropertyDocumentService), with headroom above it.
+      max-file-size: 210MB
+      max-request-size: 210MB
+
   datasource:
     url: ${DB_URL}
     username: ${APP_USERNAME:hostflow_app}
