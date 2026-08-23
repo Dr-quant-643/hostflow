@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -61,6 +62,12 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(ErrorCode.VALIDATION_FAILED,
                 "Parameter '" + ex.getName() + "' must be a valid " + requiredType);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.failure(error));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        ApiError error = new ApiError(ErrorCode.FORBIDDEN, "You do not have permission to perform this action");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.failure(error));
     }
 
     @ExceptionHandler(Exception.class)
