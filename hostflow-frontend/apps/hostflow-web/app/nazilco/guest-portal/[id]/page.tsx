@@ -4,20 +4,19 @@ import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { PageHeader, Skeleton, EmptyState, Badge, Stack, Card, Button, toast } from "@hostflow/ui";
 import { MapPin } from "lucide-react";
-import {
-  usePublicProperty,
-  useDemoMyBooking,
-  useDemoCancelBooking,
-} from "@/lib/demo-hooks";
+import { usePublicProperty, usePropertyPhotos } from "@hostflow/api-client/src/hooks/use-public-properties";
+import { useMyBooking } from "@hostflow/api-client/src/hooks/use-guest-portal";
+import { useCancelGuestBooking } from "@hostflow/api-client/src/hooks/use-cancel-guest-booking";
 import { formatKES } from "@/lib/currency";
 import { LeaveReviewForm } from "@/components/nazilco/guest-portal/leave-review-form";
 
 export default function TripDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { data: booking, isLoading, isError } = useDemoMyBooking(id);
+  const { data: booking, isLoading, isError } = useMyBooking(id);
   const { data: property } = usePublicProperty(booking?.propertyId ?? "");
-  const cancel = useDemoCancelBooking(id);
+  const { data: photoUrls } = usePropertyPhotos(booking?.propertyId ?? "");
+  const cancel = useCancelGuestBooking(id);
 
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !booking) return <EmptyState title="Trip not found" />;
@@ -34,9 +33,9 @@ export default function TripDetailPage() {
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <Card className="overflow-hidden p-6">
-          {property?.photos?.[0] && (
+          {photoUrls?.[0] && (
             <div className="-mx-6 -mt-6 mb-6 h-48">
-              <img src={property.photos[0]} alt="" className="h-full w-full object-cover" />
+              <img src={photoUrls[0]} alt="" className="h-full w-full object-cover" />
             </div>
           )}
           <Stack gap="sm">

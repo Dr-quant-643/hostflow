@@ -22,7 +22,8 @@ import {
 import { useSession } from "@hostflow/auth/src/use-session";
 import { useDiscoverProperties } from "@hostflow/api-client/src/hooks/use-public-properties";
 import { demoAvatarUrl } from "@/lib/demo-data";
-import { useDemoMyTrips, useDemoMyNotifications } from "@/lib/demo-hooks";
+import { useMyTrips } from "@hostflow/api-client/src/hooks/use-guest-portal";
+import { useMyNotifications } from "@hostflow/api-client/src/hooks/use-guest-notifications";
 import { useSavedProperties } from "@/lib/use-saved-properties";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 import { PropertyGrid } from "@/components/nazilco/discover/property-grid";
@@ -87,8 +88,8 @@ function QuickLink({
 
 export default function ProfilePage() {
   const { user } = useSession();
-  const { upcoming } = useDemoMyTrips();
-  const { data: notifications } = useDemoMyNotifications();
+  const { upcoming } = useMyTrips();
+  const { data: notifications } = useMyNotifications();
   const { savedIds } = useSavedProperties();
   const { data: catalog } = useDiscoverProperties(50);
 

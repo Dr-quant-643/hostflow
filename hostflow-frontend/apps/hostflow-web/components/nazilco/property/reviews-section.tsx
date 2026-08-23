@@ -3,11 +3,11 @@
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { Skeleton } from "@hostflow/ui";
-import { useDemoReviews } from "@/lib/demo-hooks";
+import { usePropertyReviews } from "@hostflow/api-client/src/hooks/use-public-properties";
 import { demoAvatarUrl } from "@/lib/demo-data";
 
 export function ReviewsSection({ propertyId }: { propertyId: string }) {
-  const { data, isLoading } = useDemoReviews(propertyId);
+  const { data, isLoading } = usePropertyReviews(propertyId);
 
   if (isLoading) return <Skeleton className="h-40 w-full" />;
   if (!data || data.length === 0) return null;
@@ -25,13 +25,15 @@ export function ReviewsSection({ propertyId }: { propertyId: string }) {
         >
           <div className="flex items-center gap-3">
             <img
-              src={demoAvatarUrl(review.avatarSeed)}
+              src={demoAvatarUrl(review.guestName)}
               alt=""
               className="h-10 w-10 rounded-full bg-muted"
             />
             <div>
               <p className="text-sm font-medium">{review.guestName}</p>
-              <p className="text-xs text-muted-foreground">{review.stayedAt}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(review.createdAt).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+              </p>
             </div>
           </div>
           <div className="mt-2 flex gap-0.5">

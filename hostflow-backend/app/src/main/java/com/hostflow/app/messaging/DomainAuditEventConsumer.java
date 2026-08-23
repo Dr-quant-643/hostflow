@@ -50,9 +50,12 @@ public class DomainAuditEventConsumer {
         this.platformAdminJdbcTemplate = platformAdminJdbcTemplate;
     }
 
+    /** Same non-@Transactional reasoning as bookingConfirmed() below. */
     @RabbitListener(queues = QueueNames.BOOKING_CREATED)
-    @Transactional
-    public void bookingCreated(DomainEventMessage event) { auditOnly(event); }
+    public void bookingCreated(DomainEventMessage event) {
+        auditOnly(event);
+        attemptNewBookingOwnerNotification(event);
+    }
 
     /**
      * Deliberately NOT @Transactional at this level: attemptBookingConfirmedNotification
@@ -142,6 +145,45 @@ public class DomainAuditEventConsumer {
             // Best-effort only — a missing template or email lookup failure must
             // never break the audit trail or crash this consumer.
             log.warn("Could not send booking-confirmed notification: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * The property OWNER's counterpart to attemptBookingConfirmedNotification —
+     * fires as soon as a guest places a booking (not on confirmation), since an
+     * owner needs to know about a new booking to prepare regardless of whether
+     * the guest has completed checkout yet. Same best-effort, never-crash-the-
+     * consumer contract as the guest notification.
+     */
+    private void attemptNewBookingOwnerNotification(DomainEventMessage event) {
+        try {
+            UUID bookingId = event.resourceId();
+            Map<String, Object> row = platformAdminJdbcTemplate.queryForMap(
+                    "SELECT p.owner_user_id, p.name AS property_name, b.check_in, b.check_out " +
+                            "FROM bookings b JOIN properties p ON p.id = b.property_id WHERE b.id = ?",
+                    bookingId);
+            UUID ownerUserId = UUID.fromString(row.get("owner_user_id").toString());
+
+            String recipientAddress = resolveGuestEmail(ownerUserId);
+            if (recipientAddress == null) {
+                log.warn("No email found for property owner {}, skipping new-booking notification", ownerUserId);
+                return;
+            }
+
+            TenantContext.set(event.tenantId());
+            try {
+                notificationService.send(new SendNotificationRequest(ownerUserId, recipientAddress, "new_booking_owner",
+                        Map.of(
+                                "property_name", row.get("property_name").toString(),
+                                "check_in", row.get("check_in").toString(),
+                                "check_out", row.get("check_out").toString())));
+            } finally {
+                TenantContext.clear();
+            }
+        } catch (Exception e) {
+            // Best-effort only — a missing template or email lookup failure must
+            // never break the audit trail or crash this consumer.
+            log.warn("Could not send new-booking owner notification: {}", e.getMessage());
         }
     }
 

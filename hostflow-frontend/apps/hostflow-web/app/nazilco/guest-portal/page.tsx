@@ -4,12 +4,12 @@ import { motion } from "framer-motion";
 import { PageHeader, Stack, Skeleton, EmptyState } from "@hostflow/ui";
 import { Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
-import { useDemoMyTrips } from "@/lib/demo-hooks";
+import { useMyTrips } from "@hostflow/api-client/src/hooks/use-guest-portal";
 import { TripCard } from "@/components/nazilco/guest-portal/trip-card";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 
 export default function GuestPortalPage() {
-  const { upcoming, past, isLoading, isError } = useDemoMyTrips();
+  const { upcoming, past, isLoading, isError } = useMyTrips();
 
   if (isLoading)
     return (

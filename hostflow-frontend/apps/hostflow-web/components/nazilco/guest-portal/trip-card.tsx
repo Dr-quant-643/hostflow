@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Card, Badge, Stack } from "@hostflow/ui";
 import { ChevronRight, MapPin, Navigation } from "lucide-react";
-import { usePublicProperty } from "@/lib/demo-hooks";
+import { usePublicProperty, usePropertyPhotos } from "@hostflow/api-client/src/hooks/use-public-properties";
 import { formatKES } from "@/lib/currency";
 import { externalDirectionsUrlToDestination } from "@/lib/geo";
 import type { BookingResponse } from "@hostflow/types";
@@ -34,6 +34,7 @@ function checkInCountdown(checkIn: string): string | null {
 // propertyId, so the display name/photo is looked up per card.
 export function TripCard({ booking }: { booking: BookingResponse }) {
   const { data: property } = usePublicProperty(booking.propertyId);
+  const { data: photoUrls } = usePropertyPhotos(booking.propertyId);
   const countdown = checkInCountdown(booking.checkIn);
   const hasCoords = property && "latitude" in property && property.latitude != null && property.longitude != null;
 
@@ -43,8 +44,8 @@ export function TripCard({ booking }: { booking: BookingResponse }) {
         <motion.div whileHover={{ y: -2 }} transition={{ type: "spring", stiffness: 300, damping: 22 }}>
           <Stack direction="row" gap="md">
             <div className="relative h-24 w-32 shrink-0 bg-muted">
-              {property && "photos" in property && property.photos?.[0] && (
-                <img src={property.photos[0]} alt="" className="h-full w-full object-cover" />
+              {photoUrls?.[0] && (
+                <img src={photoUrls[0]} alt="" className="h-full w-full object-cover" />
               )}
               {countdown && (
                 <span className="absolute bottom-1 left-1 rounded-full bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white">

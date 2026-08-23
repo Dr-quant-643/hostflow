@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { PageHeader, Stack, Card, Badge, Skeleton, EmptyState } from "@hostflow/ui";
 import { Receipt, CheckCircle2, RotateCcw, Clock } from "lucide-react";
-import { useDemoMyInvoices } from "@/lib/demo-hooks";
+import { useMyInvoices } from "@hostflow/api-client/src/hooks/use-guest-invoices";
 import { formatKES } from "@/lib/currency";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 
@@ -14,7 +14,7 @@ const STATUS_META: Record<string, { variant: "success" | "warning" | "secondary"
 };
 
 export default function InvoicesPage() {
-  const { data, isLoading, isError } = useDemoMyInvoices();
+  const { data, isLoading, isError } = useMyInvoices();
 
   const totalDue = (data ?? [])
     .filter((i) => i.status === "PENDING")

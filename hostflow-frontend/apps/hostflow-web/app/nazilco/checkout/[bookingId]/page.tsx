@@ -13,11 +13,8 @@ import {
   toast,
 } from "@hostflow/ui";
 import { CheckCircle2, ShieldCheck, MapPin } from "lucide-react";
-import {
-  usePublicProperty,
-  useDemoMyBooking,
-  useDemoConfirmBooking,
-} from "@/lib/demo-hooks";
+import { usePublicProperty, usePropertyPhotos } from "@hostflow/api-client/src/hooks/use-public-properties";
+import { useBookingForCheckout, useConfirmCheckout } from "@hostflow/api-client/src/hooks/use-checkout";
 import { formatKES } from "@/lib/currency";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 import { BookingSteps } from "@/components/nazilco/property/booking-steps";
@@ -29,9 +26,10 @@ export default function CheckoutPage() {
     data: booking,
     isLoading,
     isError,
-  } = useDemoMyBooking(bookingId);
+  } = useBookingForCheckout(bookingId);
   const { data: property } = usePublicProperty(booking?.propertyId ?? "");
-  const confirmCheckout = useDemoConfirmBooking(bookingId);
+  const { data: photoUrls } = usePropertyPhotos(booking?.propertyId ?? "");
+  const confirmCheckout = useConfirmCheckout(bookingId);
 
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !booking) return <EmptyState title="Booking not found" />;
@@ -47,9 +45,9 @@ export default function CheckoutPage() {
         <BookingSteps current={booking.status === "PENDING" ? 1 : 2} />
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <Card className="overflow-hidden p-6">
-            {property?.photos?.[0] && (
+            {photoUrls?.[0] && (
               <div className="-mx-6 -mt-6 mb-6 h-44 overflow-hidden">
-                <img src={property.photos[0]} alt="" className="h-full w-full object-cover" />
+                <img src={photoUrls[0]} alt="" className="h-full w-full object-cover" />
               </div>
             )}
             <Stack gap="md">

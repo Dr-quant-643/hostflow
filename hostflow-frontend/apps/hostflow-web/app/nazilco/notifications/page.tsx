@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { PageHeader, Stack, Card, Badge, Skeleton, EmptyState } from "@hostflow/ui";
 import { CalendarCheck, BellRing, Star, Receipt as ReceiptIcon, Mail, Smartphone, MessageSquare } from "lucide-react";
-import { useDemoMyNotifications } from "@/lib/demo-hooks";
+import { useMyNotifications } from "@hostflow/api-client/src/hooks/use-guest-notifications";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 
 const TEMPLATE_META: Record<string, { icon: typeof BellRing; title: string }> = {
@@ -32,7 +32,7 @@ function formatRelativeTime(iso: string): string {
 }
 
 export default function NotificationsPage() {
-  const { data, isLoading, isError } = useDemoMyNotifications();
+  const { data, isLoading, isError } = useMyNotifications();
 
   return (
     <>

@@ -10,12 +10,12 @@ import {
   type GuestReviewFormValues,
 } from "@hostflow/validation";
 import { Button, Textarea, Stack, toast } from "@hostflow/ui";
-import { useDemoSubmitReview } from "@/lib/demo-hooks";
+import { useSubmitReview } from "@hostflow/api-client/src/hooks/use-guest-review";
 
 export function LeaveReviewForm({ bookingId }: { bookingId: string }) {
   const [submitted, setSubmitted] = useState(false);
   const [hovered, setHovered] = useState(0);
-  const submitReview = useDemoSubmitReview();
+  const submitReview = useSubmitReview();
   const form = useForm<GuestReviewFormValues>({
     resolver: zodResolver(guestReviewFormSchema),
     defaultValues: { rating: 5, comment: "" },

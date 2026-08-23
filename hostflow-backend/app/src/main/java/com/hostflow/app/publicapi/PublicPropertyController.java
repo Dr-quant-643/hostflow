@@ -19,13 +19,16 @@ public class PublicPropertyController {
     private final PublicPropertyQueries propertyQueries;
     private final PublicAvailabilityQueries availabilityQueries;
     private final PublicPropertyPhotoQueries photoQueries;
+    private final PublicPropertyReviewQueries reviewQueries;
 
     public PublicPropertyController(PublicPropertyQueries propertyQueries,
             PublicAvailabilityQueries availabilityQueries,
-            PublicPropertyPhotoQueries photoQueries) {
+            PublicPropertyPhotoQueries photoQueries,
+            PublicPropertyReviewQueries reviewQueries) {
         this.propertyQueries = propertyQueries;
         this.availabilityQueries = availabilityQueries;
         this.photoQueries = photoQueries;
+        this.reviewQueries = reviewQueries;
     }
 
     @GetMapping("/api/v1/properties/public")
@@ -60,6 +63,11 @@ public class PublicPropertyController {
     @GetMapping("/api/v1/properties/public/{id}/videos")
     public ResponseEntity<ApiResponse<List<String>>> videos(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(photoQueries.listVideoUrls(id)));
+    }
+
+    @GetMapping("/api/v1/properties/public/{id}/reviews")
+    public ResponseEntity<ApiResponse<List<PublicPropertyReviewQueries.PublicReviewRow>>> reviews(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(reviewQueries.listForProperty(id)));
     }
 
     @GetMapping("/api/v1/bookings/public/availability")

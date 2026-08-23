@@ -19,8 +19,8 @@ import {
   EmptyState,
   toast,
 } from "@hostflow/ui";
-import { nightsBetween } from "@hostflow/api-client/src/hooks/use-public-booking";
-import { usePublicProperty, useDemoCreateBooking } from "@/lib/demo-hooks";
+import { nightsBetween, useCreateGuestBooking } from "@hostflow/api-client/src/hooks/use-public-booking";
+import { usePublicProperty, usePropertyPhotos } from "@hostflow/api-client/src/hooks/use-public-properties";
 import { formatKES } from "@/lib/currency";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 import { BookingSteps } from "@/components/nazilco/property/booking-steps";
@@ -42,7 +42,8 @@ function BookPropertyPageContent() {
   const router = useRouter();
 
   const { data: property, isLoading } = usePublicProperty(id);
-  const createBooking = useDemoCreateBooking(id);
+  const { data: photoUrls } = usePropertyPhotos(id);
+  const createBooking = useCreateGuestBooking(id);
 
   const form = useForm<GuestBookingFormValues>({
     resolver: zodResolver(guestBookingFormSchema),
@@ -83,10 +84,10 @@ function BookPropertyPageContent() {
         <BookingSteps current={0} />
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <Card className="overflow-hidden">
-          {property.photos?.[0] && (
+          {photoUrls?.[0] && (
             <div className="-m-6 mb-6 h-48 w-[calc(100%+3rem)] overflow-hidden">
               <motion.img
-                src={property.photos[0]}
+                src={photoUrls[0]}
                 alt=""
                 className="h-full w-full object-cover"
                 initial={{ scale: 1.05 }}

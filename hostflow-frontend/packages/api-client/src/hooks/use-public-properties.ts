@@ -73,6 +73,22 @@ export function usePropertyVideos(id: string) {
   });
 }
 
+export interface PublicPropertyReview {
+  id: string;
+  rating: number;
+  comment: string | null;
+  guestName: string;
+  createdAt: string;
+}
+
+export function usePropertyReviews(id: string) {
+  return useQuery({
+    queryKey: ["public", "properties", id, "reviews"],
+    queryFn: () => api.get<PublicPropertyReview[]>(`/properties/public/${id}/reviews`),
+    enabled: !!id,
+  });
+}
+
 // Real backend only supports "is this exact range free" (a single boolean),
 // not a month-grid of per-day availability — there is no day-by-day
 // availability endpoint anywhere in PublicPropertyController/
