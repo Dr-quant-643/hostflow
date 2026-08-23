@@ -41,7 +41,16 @@ public class TenantAwareJpaTransactionManager extends JpaTransactionManager {
 
         Connection connection = resolveCurrentConnection();
         if (connection == null) {
-            return;
+            // A tenant IS set, so this transaction must be scoped — silently
+            // proceeding unscoped would mean current_tenant_id() returns NULL and
+            // RLS policies evaluate `tenant_id = NULL`, which Postgres treats as
+            // unknown/false and fails closed (denies all rows) for a correctly
+            // written policy. That's the safe failure mode, but relying on every
+            // future RLS policy being written that carefully is not a bet worth
+            // making — fail loudly here instead so a connection-resolution bug
+            // surfaces immediately instead of silently degrading isolation.
+            throw new IllegalStateException(
+                    "Tenant context is set (" + tenantId + ") but no JDBC connection was resolvable to scope it to");
         }
 
         try (Statement statement = connection.createStatement()) {
