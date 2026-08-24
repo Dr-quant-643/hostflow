@@ -6,8 +6,11 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -37,6 +40,15 @@ public class RentalInquiryOwnerController {
             @RequestParam(defaultValue = "0") int offset) {
         return ResponseEntity.ok(ApiResponse.success(
                 orchestrator.listForProperty(propertyId, limit, offset).map(RentalInquiryResponse::from)));
+    }
+
+    // Global FIFO queue across all of the owner's properties -- backs the
+    // Notifications tab so an owner has one place to see every open/replied
+    // inquiry in the order it came in, instead of checking property-by-property.
+    @GetMapping("/mine-as-owner")
+    public ResponseEntity<ApiResponse<List<RentalInquiryOrchestrator.MyRentalInquiryRow>>> mineAsOwner(
+            @AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(ApiResponse.success(orchestrator.myInquiriesAsOwner(UUID.fromString(jwt.getSubject()))));
     }
 
     @PatchMapping("/{id}/reply")

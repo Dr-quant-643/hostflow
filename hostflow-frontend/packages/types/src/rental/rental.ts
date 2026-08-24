@@ -60,7 +60,8 @@ export interface RentalInquiryResponse {
 }
 
 // Guest-facing shape (RentalInquiryOrchestrator.MyRentalInquiryRow) -- spans
-// multiple properties, so includes propertyName.
+// multiple properties, so includes propertyName. Also reused for the owner's
+// global FIFO queue (/mine-as-owner), which returns the identical row shape.
 export interface MyRentalInquiry {
   id: string;
   propertyId: string;

@@ -142,13 +142,26 @@ export function useRentalInquiries(propertyId: string, limit = 20, offset = 0) {
   });
 }
 
-export function useReplyToRentalInquiry(propertyId: string) {
+// Owner-facing global FIFO queue across ALL of their properties -- backs the
+// Notifications tab so replying doesn't require hunting down which property
+// an inquiry came from first.
+export function useOwnerRentalInquiries() {
+  return useQuery({
+    queryKey: ["rental", "inquiries", "mine-as-owner"],
+    queryFn: () => api.get<MyRentalInquiry[]>("/rental/inquiries/mine-as-owner"),
+  });
+}
+
+export function useReplyToRentalInquiry(propertyId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, message }: { id: string; message: string }) =>
       api.patch<RentalInquiryResponse>(`/rental/inquiries/${id}/reply`, { message }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rental", "inquiries", propertyId] });
+      if (propertyId) {
+        queryClient.invalidateQueries({ queryKey: ["rental", "inquiries", propertyId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["rental", "inquiries", "mine-as-owner"] });
     },
   });
 }

@@ -91,7 +91,7 @@ public class RentalInquiryOrchestrator {
                 FROM rental_inquiries i
                 JOIN properties p ON p.id = i.property_id
                 WHERE i.guest_user_id = ?
-                ORDER BY i.created_at DESC
+                ORDER BY i.created_at ASC
                 """;
         return platformAdminJdbcTemplate.query(sql, (rs, rowNum) -> new MyRentalInquiryRow(
                 UUID.fromString(rs.getString("id")), UUID.fromString(rs.getString("property_id")),
@@ -106,6 +106,28 @@ public class RentalInquiryOrchestrator {
      */
     public Page<RentalInquiry> listForProperty(UUID propertyId, int limit, int offset) {
         return rentalInquiryService.listByProperty(propertyId, limit, offset);
+    }
+
+    /**
+     * Owner-facing FIFO queue across ALL of their properties -- the Notifications
+     * tab reads this so an owner has one place to triage "who asked about what"
+     * each morning instead of hunting through individual property pages. Reuses
+     * platformAdminJdbcTemplate purely for the properties join convenience (same
+     * as myInquiries() above); the owner_user_id filter already scopes results to
+     * their own data regardless of tenant context.
+     */
+    public List<MyRentalInquiryRow> myInquiriesAsOwner(UUID ownerUserId) {
+        String sql = """
+                SELECT i.id, i.property_id, p.name AS property_name, i.message, i.status, i.reply_message
+                FROM rental_inquiries i
+                JOIN properties p ON p.id = i.property_id
+                WHERE i.owner_user_id = ?
+                ORDER BY i.created_at ASC
+                """;
+        return platformAdminJdbcTemplate.query(sql, (rs, rowNum) -> new MyRentalInquiryRow(
+                UUID.fromString(rs.getString("id")), UUID.fromString(rs.getString("property_id")),
+                rs.getString("property_name"), rs.getString("message"), rs.getString("status"),
+                rs.getString("reply_message")), ownerUserId);
     }
 
     /**

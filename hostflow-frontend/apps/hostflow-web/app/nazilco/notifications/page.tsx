@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { PageHeader, Stack, Card, Badge, Skeleton, EmptyState } from "@hostflow/ui";
 import { CalendarCheck, BellRing, Star, Receipt as ReceiptIcon, Mail, Smartphone, MessageSquare } from "lucide-react";
 import { useMyNotifications } from "@hostflow/api-client/src/hooks/use-guest-notifications";
+import { MyInquiries } from "@/components/nazilco/notifications/my-inquiries";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 
 const TEMPLATE_META: Record<string, { icon: typeof BellRing; title: string }> = {
@@ -39,8 +40,10 @@ export default function NotificationsPage() {
       <BrandBackground />
       <Stack gap="lg" className="mx-auto max-w-3xl p-6">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-          <PageHeader title="Notifications" description="Booking updates and account alerts" />
+          <PageHeader title="Notifications" description="Booking updates, rental inquiry replies, and account alerts" />
         </motion.div>
+
+        <MyInquiries />
 
         {isLoading && <Skeleton className="h-64 w-full" />}
         {!isLoading && isError && (

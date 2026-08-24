@@ -1,14 +1,18 @@
-import { PageHeader } from "@hostflow/ui";
+import { PageHeader, Stack } from "@hostflow/ui";
 import { NotificationList } from "@/components/xanuos/notifications/notification-list";
+import { InquiryQueue } from "@/components/xanuos/notifications/inquiry-queue";
 
 export default function NotificationsPage() {
   return (
     <div>
       <PageHeader
         title="Notifications"
-        description="Delivery log across channels"
+        description="Rental inquiries awaiting your reply, plus the delivery log across channels"
       />
-      <NotificationList />
+      <Stack gap="lg">
+        <InquiryQueue />
+        <NotificationList />
+      </Stack>
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useMyTrips } from "@hostflow/api-client/src/hooks/use-guest-portal";
 import { TripCard } from "@/components/nazilco/guest-portal/trip-card";
-import { MyInquiries } from "@/components/nazilco/guest-portal/my-inquiries";
 import { BrandBackground } from "@/components/nazilco/layout/brand-background";
 
 export default function GuestPortalPage() {
@@ -90,8 +89,6 @@ export default function GuestPortalPage() {
             </Stack>
           )}
         </Stack>
-
-        <MyInquiries />
       </Stack>
     </>
   );
