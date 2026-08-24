@@ -82,6 +82,14 @@ public class PropertyService {
     }
 
     @Transactional
+    public Property unarchive(UUID propertyId, UUID actorUserId) {
+        Property property = getById(propertyId);
+        property.unarchive();
+        eventPublisher.updated(property, actorUserId);
+        return property;
+    }
+
+    @Transactional
     public Property setManualOccupancy(UUID propertyId, UUID actorUserId, Instant until) {
         Property property = getById(propertyId);
         property.markOccupiedUntil(until);

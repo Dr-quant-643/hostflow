@@ -76,6 +76,13 @@ public class PropertyController {
         return ResponseEntity.ok(ApiResponse.success(PropertyResponse.from(property)));
     }
 
+    @PatchMapping("/{id}/unarchive")
+    @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
+    public ResponseEntity<ApiResponse<PropertyResponse>> unarchive(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        Property property = propertyService.unarchive(id, UUID.fromString(jwt.getSubject()));
+        return ResponseEntity.ok(ApiResponse.success(PropertyResponse.from(property)));
+    }
+
     @PatchMapping("/{id}/occupancy")
     @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
     public ResponseEntity<ApiResponse<PropertyResponse>> setOccupancy(@PathVariable UUID id,

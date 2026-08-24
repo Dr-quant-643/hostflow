@@ -1,5 +1,6 @@
 package com.hostflow.property.entity;
 
+import com.hostflow.common.exception.BusinessRuleException;
 import com.hostflow.tenancy.entity.TenantScopedEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -107,12 +108,36 @@ public class Property extends TenantScopedEntity {
         this.longitude = longitude;
     }
 
+    /**
+     * A property with no price published fine (no validation ever stopped
+     * it), then guests hit a dead end on NazilCo -- the booking/inquiry card
+     * has nothing to compute a total from. Blocking publish here is cheaper
+     * than every downstream consumer having to guess why a listing is
+     * unbookable.
+     */
     public void publish() {
+        if (basePrice == null) {
+            String label = rentalModel == RentalModel.MONTHLY ? "a monthly rent" : "a nightly rate";
+            throw new BusinessRuleException("Set " + label + " before publishing this property");
+        }
         this.status = PropertyStatus.ACTIVE;
     }
 
     public void archive() {
         this.status = PropertyStatus.ARCHIVED;
+    }
+
+    /**
+     * The only way back from ARCHIVED -- lands on DRAFT (not straight back to
+     * ACTIVE) so the owner can review/update details before the existing
+     * publish() flow re-validates and re-publishes it.
+     */
+    public void unarchive() {
+        if (status != PropertyStatus.ARCHIVED) {
+            throw new BusinessRuleException(
+                    "Cannot unarchive a property with status " + status + " (expected ARCHIVED)");
+        }
+        this.status = PropertyStatus.DRAFT;
     }
 
     public void updateDescription(String description) {
