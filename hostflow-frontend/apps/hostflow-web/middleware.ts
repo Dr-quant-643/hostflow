@@ -32,6 +32,15 @@ const NAZILCO_PROTECTED_PATHS = [
   "/nazilco/notifications",
   "/nazilco/support",
 ];
+// /properties/:id/book must require login (booking creation is
+// PRODUCT_NAZILCO-gated server-side) while /properties/:id itself (the
+// detail page) stays anonymous-browsable -- a prefix match on
+// "/nazilco/properties" would wrongly gate the detail page too, so this is a
+// suffix match instead. Without this, an anonymous guest could view a
+// property, check availability, and fill out the whole booking form only to
+// have it silently fail with no path forward once they hit "Continue to
+// Checkout".
+const NAZILCO_PROTECTED_PATH_SUFFIXES = ["/book"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -75,6 +84,7 @@ export async function middleware(request: NextRequest) {
       {
         publicPaths: NAZILCO_PUBLIC_PATHS,
         protectedPaths: NAZILCO_PROTECTED_PATHS,
+        protectedPathSuffixes: NAZILCO_PROTECTED_PATH_SUFFIXES,
         requireAnyAuthority: ["PRODUCT_NAZILCO"],
       },
       nazilcoConfig,

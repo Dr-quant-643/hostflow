@@ -3,6 +3,7 @@ import { exchangeCodeForTokens, decodeUserInfo } from "../keycloak-client";
 import { decodeJwtPayload } from "../jwt-decode";
 import { encryptSession, sessionCookieOptions, oauthFlowCookieName } from "../session";
 import { createAuthConfig, type AuthConfig } from "../config";
+import { base64UrlDecodeString } from "../pkce";
 
 // Mount per product at e.g. app/xanuos/api/auth/callback/route.ts as:
 //   export const GET = createCallbackRoute(createAuthConfig("XANUOS", "/xanuos"));
@@ -12,7 +13,7 @@ export function createCallbackRoute(config: AuthConfig) {
     const code = url.searchParams.get("code");
     const state = url.searchParams.get("state");
     const flowCookie = request.cookies.get(oauthFlowCookieName(config.prefix))?.value;
-    const [expectedState, verifier] = flowCookie?.split(".") ?? [];
+    const [expectedState, verifier, encodedReturnTo] = flowCookie?.split(".") ?? [];
 
     if (!code || !state || !verifier || state !== expectedState) {
       return NextResponse.redirect(
@@ -48,9 +49,17 @@ export function createCallbackRoute(config: AuthConfig) {
       // already needs to both set the session cookie AND (implicitly)
       // leave oauth_flow to expire on its own. One more redirect hop keeps
       // every response down to a single Set-Cookie.
-      const response = NextResponse.redirect(
-        new URL(`${config.basePath}/api/auth/finish`, request.url),
-      );
+      const finishUrl = new URL(`${config.basePath}/api/auth/finish`, request.url);
+      if (encodedReturnTo) {
+        const returnTo = base64UrlDecodeString(encodedReturnTo);
+        // Defense in depth against an open redirect: returnTo only ever
+        // originates from our own middleware (always a same-product path),
+        // but re-validate here since it round-tripped through a cookie.
+        if (returnTo.startsWith(config.basePath)) {
+          finishUrl.searchParams.set("returnTo", returnTo);
+        }
+      }
+      const response = NextResponse.redirect(finishUrl);
       response.cookies.set(config.sessionCookieName, sessionCookie, sessionCookieOptions);
       return response;
     } catch {

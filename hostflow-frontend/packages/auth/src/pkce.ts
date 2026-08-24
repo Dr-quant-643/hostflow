@@ -27,3 +27,15 @@ export function generateState(): string {
   crypto.getRandomValues(bytes);
   return base64UrlEncode(bytes.buffer);
 }
+
+// For packing an arbitrary returnTo path into the oauth_flow cookie alongside
+// state/verifier (see login.ts/callback.ts) without colliding with the "."
+// delimiter those two already use -- base64url's alphabet never contains ".".
+export function base64UrlEncodeString(value: string): string {
+  return base64UrlEncode(new TextEncoder().encode(value).buffer as ArrayBuffer);
+}
+
+export function base64UrlDecodeString(value: string): string {
+  const padded = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
+  return Buffer.from(padded, "base64").toString("utf-8");
+}

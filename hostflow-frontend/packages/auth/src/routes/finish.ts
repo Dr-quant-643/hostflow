@@ -10,7 +10,9 @@ import { createAuthConfig, type AuthConfig } from "../config";
 // for why no response here ever sets more than one cookie at a time.
 export function createFinishRoute(config: AuthConfig) {
   return async function GET(request: NextRequest) {
-    const response = NextResponse.redirect(new URL(config.basePath, request.url));
+    const returnTo = new URL(request.url).searchParams.get("returnTo");
+    const target = returnTo && returnTo.startsWith(config.basePath) ? returnTo : config.basePath;
+    const response = NextResponse.redirect(new URL(target, request.url));
     response.cookies.set(csrfCookieName(config.prefix), generateCsrfToken(), {
       httpOnly: false, // must be readable by client JS to echo back per synchronizer pattern
       secure: process.env.NODE_ENV === "production",

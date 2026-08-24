@@ -34,6 +34,15 @@ export interface AuthorityGateOptions {
    * (public-by-default — nazilco-web's anonymous browsing).
    */
   protectedPaths?: string[];
+  /**
+   * Path suffixes that require auth+authority, checked in addition to
+   * protectedPaths. Exists for dynamic routes where a prefix would also
+   * swallow a sibling public page -- e.g. NazilCo's
+   * /properties/:id/book must be gated while /properties/:id itself (the
+   * anonymous-browsable detail page) stays public, so a prefix match on
+   * /properties isn't usable here.
+   */
+  protectedPathSuffixes?: string[];
   /** User must hold at least one of these authorities to proceed. */
   requireAnyAuthority: Authority[];
 }
@@ -62,13 +71,18 @@ export async function authorityGate(
   config: AuthConfig = createAuthConfig(),
 ): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
-  const { publicPaths = [], protectedPaths, requireAnyAuthority } = options;
+  const { publicPaths = [], protectedPaths, protectedPathSuffixes, requireAnyAuthority } = options;
 
   if (publicPaths.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
-  if (protectedPaths && !protectedPaths.some((p) => pathname.startsWith(p))) {
-    return NextResponse.next();
+  if (protectedPaths || protectedPathSuffixes) {
+    const matches =
+      (protectedPaths?.some((p) => pathname.startsWith(p)) ?? false) ||
+      (protectedPathSuffixes?.some((s) => pathname.endsWith(s)) ?? false);
+    if (!matches) {
+      return NextResponse.next();
+    }
   }
 
   // TEMPORARY dev-only preview aid — see packages/auth/src/server.ts. Never
