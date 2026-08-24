@@ -64,11 +64,13 @@ export function NightlyBookingCard({
   return (
     <Card className="shadow-lg">
       <Stack gap="md">
-        {basePrice && (
+        {basePrice ? (
           <p className="text-xl font-semibold">
             {formatKES(basePrice)}
             <span className="text-sm font-normal text-muted-foreground"> / night</span>
           </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">Price on request</p>
         )}
         <Input
           type="date"
@@ -121,16 +123,23 @@ export function NightlyBookingCard({
                     <span className="font-medium text-foreground">{availability.availableFrom}</span>.
                   </p>
                 )}
-                {availability.available && totalPrice && (
-                  <>
-                    <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-                      {nights} night{nights === 1 ? "" : "s"} × {formatKES(basePrice)} ={" "}
-                      <span className="font-medium text-foreground">{formatKES(totalPrice)}</span>
+                {availability.available && (
+                  totalPrice ? (
+                    <>
+                      <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
+                        {nights} night{nights === 1 ? "" : "s"} × {formatKES(basePrice)} ={" "}
+                        <span className="font-medium text-foreground">{formatKES(totalPrice)}</span>
+                      </p>
+                      <Button onClick={onBookNow} loading={createBooking.isPending}>
+                        Book Now
+                      </Button>
+                    </>
+                  ) : (
+                    <p className="text-sm text-destructive">
+                      This property doesn&apos;t have a rate set yet, so it can&apos;t be booked online.
+                      Please contact the owner directly.
                     </p>
-                    <Button onClick={onBookNow} loading={createBooking.isPending}>
-                      Book Now
-                    </Button>
-                  </>
+                  )
                 )}
               </Stack>
             </motion.div>
