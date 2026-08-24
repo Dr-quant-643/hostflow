@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../http-client";
-import type { RentalTenantResponse, LeaseResponse, RentPaymentResponse } from "@hostflow/types";
+import type {
+  RentalTenantResponse,
+  LeaseResponse,
+  RentPaymentResponse,
+  RentalInquiryResponse,
+  MyRentalInquiry,
+} from "@hostflow/types";
 import type { RentalTenantFormValues, LeaseFormValues } from "@hostflow/validation";
 
 export function useRentalTenants(limit = 20, offset = 0) {
@@ -110,5 +116,39 @@ export function useSendRentalInquiry(propertyId: string) {
   return useMutation({
     mutationFn: (message?: string) =>
       api.post<void>("/rental/inquiries", { propertyId, message }),
+  });
+}
+
+// Guest's own sent inquiries + any owner reply -- the in-app alternative to
+// finding out "did they answer" only via email.
+export function useMyRentalInquiries() {
+  return useQuery({
+    queryKey: ["rental", "inquiries", "mine"],
+    queryFn: () => api.get<MyRentalInquiry[]>("/rental/inquiries/mine"),
+  });
+}
+
+// Owner-facing: inquiries received on one of their properties, with the full
+// message text (unlike the generic /notifications inbox, which only ever
+// carried template code/channel/status).
+export function useRentalInquiries(propertyId: string, limit = 20, offset = 0) {
+  return useQuery({
+    queryKey: ["rental", "inquiries", propertyId, limit, offset],
+    queryFn: () =>
+      api.get<{ content: RentalInquiryResponse[] }>("/rental/inquiries", {
+        params: { propertyId, limit, offset },
+      }),
+    enabled: !!propertyId,
+  });
+}
+
+export function useReplyToRentalInquiry(propertyId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, message }: { id: string; message: string }) =>
+      api.patch<RentalInquiryResponse>(`/rental/inquiries/${id}/reply`, { message }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rental", "inquiries", propertyId] });
+    },
   });
 }

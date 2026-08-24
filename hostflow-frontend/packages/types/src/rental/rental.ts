@@ -44,3 +44,28 @@ export interface RentPaymentResponse {
   status: RentPaymentStatus;
   paidDate: string | null;
 }
+
+export type RentalInquiryStatus = "OPEN" | "REPLIED";
+
+// Owner-facing shape (RentalInquiryResponse.java) -- scoped to a single
+// property via ?propertyId=, so no propertyName field.
+export interface RentalInquiryResponse {
+  id: string;
+  propertyId: string;
+  guestUserId: string;
+  message: string;
+  status: RentalInquiryStatus;
+  replyMessage: string | null;
+  repliedAt: string | null;
+}
+
+// Guest-facing shape (RentalInquiryOrchestrator.MyRentalInquiryRow) -- spans
+// multiple properties, so includes propertyName.
+export interface MyRentalInquiry {
+  id: string;
+  propertyId: string;
+  propertyName: string;
+  message: string;
+  status: RentalInquiryStatus;
+  replyMessage: string | null;
+}
