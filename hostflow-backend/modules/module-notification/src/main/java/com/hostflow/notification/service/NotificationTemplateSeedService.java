@@ -32,6 +32,8 @@ public class NotificationTemplateSeedService {
                 "You have a new booking on {{property_name}} for check-in {{check_in}} and check-out {{check_out}}.");
         seedIfMissing("rental_inquiry_owner", NotificationChannel.EMAIL, "New rental inquiry on {{property_name}}",
                 "A prospective tenant is interested in renting {{property_name}}. Message: {{message}}");
+        seedIfMissing("rental_inquiry_reply_guest", NotificationChannel.EMAIL, "The owner replied about {{property_name}}",
+                "The owner of {{property_name}} replied to your inquiry: {{reply_message}}");
     }
 
     private void seedIfMissing(String code, NotificationChannel channel, String subject, String body) {
