@@ -7,10 +7,8 @@ import {
   Skeleton,
   EmptyState,
   Stack,
-  Card,
-  Button,
 } from "@hostflow/ui";
-import { Star, MapPin, BedDouble, Bath, Users, Sparkles } from "lucide-react";
+import { Star, MapPin, BedDouble, Bath, Users, Sparkles, Clock } from "lucide-react";
 import {
   usePublicProperty,
   usePropertyPhotos,
@@ -21,7 +19,7 @@ import type { PublicPropertySummary } from "@hostflow/types";
 import { formatKES } from "@/lib/currency";
 import { PhotoGallery } from "@/components/nazilco/property/photo-gallery";
 import { PropertyVideoSection } from "@/components/nazilco/property/video-section";
-import { AvailabilityCalendar } from "@/components/nazilco/property/availability-calendar";
+import { NightlyBookingCard } from "@/components/nazilco/property/nightly-booking-card";
 import { RentalInquiryCard } from "@/components/nazilco/property/rental-inquiry-card";
 import { ReviewsSection } from "@/components/nazilco/property/reviews-section";
 
@@ -51,6 +49,13 @@ function PropertyDetailPageContent() {
 
   const tripCheckIn = searchParams.get("checkIn");
   const tripCheckOut = searchParams.get("checkOut");
+
+  // Owner/manager-set "in use" override (see Property.manualOccupiedUntil) --
+  // purely informational logistics context, independent of and layered on
+  // top of the Booking/Lease-derived availability shown below it. Only
+  // rendered while it's actually still in the future.
+  const occupiedUntil = property.manualOccupiedUntil ? new Date(property.manualOccupiedUntil) : null;
+  const isManuallyOccupied = occupiedUntil != null && occupiedUntil.getTime() > Date.now();
 
   return (
     <Stack gap="lg" className="mx-auto max-w-6xl p-6">
@@ -179,43 +184,28 @@ function PropertyDetailPageContent() {
           transition={{ duration: 0.45, delay: 0.2 }}
           className="lg:sticky lg:top-24 lg:h-fit"
         >
+          {isManuallyOccupied && occupiedUntil && (
+            <div className="mb-3 flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              <Clock className="h-4 w-4 shrink-0" />
+              In use until{" "}
+              {occupiedUntil.toLocaleString(undefined, {
+                hour: "numeric",
+                minute: "2-digit",
+                ...(occupiedUntil.toDateString() !== new Date().toDateString()
+                  ? { month: "short", day: "numeric" }
+                  : {}),
+              })}
+            </div>
+          )}
           {property.rentalModel === "MONTHLY" ? (
             <RentalInquiryCard propertyId={property.id} basePrice={property.basePrice} />
           ) : (
-            <Card className="shadow-lg">
-              <Stack gap="md">
-                {property.basePrice && (
-                  <p className="text-xl font-semibold">
-                    {formatKES(property.basePrice)}
-                    <span className="text-sm font-normal text-muted-foreground"> / night</span>
-                  </p>
-                )}
-                {tripCheckIn && tripCheckOut && (
-                  <Button
-                    onClick={() => {
-                      const params = new URLSearchParams({ checkIn: tripCheckIn, checkOut: tripCheckOut });
-                      // Full-page navigation, not router.push: /book may require
-                      // an auth redirect through Keycloak and back (see
-                      // middleware.ts's NAZILCO_PROTECTED_PATH_SUFFIXES) --
-                      // that multi-hop external round trip only works via a
-                      // real browser navigation. A Next.js client-side nav
-                      // can't follow it and was silently bouncing users back
-                      // to this page instead of reaching the booking form.
-                      window.location.href = `/nazilco/properties/${property.id}/book?${params.toString()}`;
-                    }}
-                  >
-                    Book {tripCheckIn} → {tripCheckOut}
-                  </Button>
-                )}
-                <AvailabilityCalendar
-                  propertyId={property.id}
-                  onSelectRange={(checkIn, checkOut) => {
-                    const params = new URLSearchParams({ checkIn, checkOut });
-                    window.location.href = `/nazilco/properties/${property.id}/book?${params.toString()}`;
-                  }}
-                />
-              </Stack>
-            </Card>
+            <NightlyBookingCard
+              propertyId={property.id}
+              basePrice={property.basePrice}
+              initialCheckIn={tripCheckIn ?? undefined}
+              initialCheckOut={tripCheckOut ?? undefined}
+            />
           )}
 
           {property.propertyType === "RETAIL_MALL" && (

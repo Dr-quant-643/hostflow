@@ -11,6 +11,7 @@ import { DocumentUploadForm } from "@/components/xanuos/properties/document-uplo
 import { DocumentList } from "@/components/xanuos/properties/document-list";
 import { ReviewList } from "@/components/xanuos/properties/review-list";
 import { PropertyDetailsForm } from "@/components/xanuos/properties/property-details-form";
+import { OccupancyControl } from "@/components/xanuos/properties/occupancy-control";
 import { formatKES } from "@/lib/currency";
 
 export default function PropertyDetailPage() {
@@ -88,10 +89,18 @@ export default function PropertyDetailPage() {
           <h3 className="font-medium">Listing details</h3>
           {property.basePrice && (
             <p className="text-sm text-muted-foreground">
-              Current rate: <span className="font-medium text-foreground">{formatKES(property.basePrice)}</span> / night
+              Current rate: <span className="font-medium text-foreground">{formatKES(property.basePrice)}</span>{" "}
+              / {property.rentalModel === "MONTHLY" ? "month" : "night"}
             </p>
           )}
           <PropertyDetailsForm property={property} />
+        </Stack>
+      </Card>
+
+      <Card>
+        <Stack gap="md">
+          <h3 className="font-medium">Occupancy</h3>
+          <OccupancyControl property={property} />
         </Stack>
       </Card>
 

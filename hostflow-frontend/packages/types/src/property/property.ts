@@ -32,6 +32,8 @@ export interface PropertyResponse {
   latitude: number | null;
   longitude: number | null;
   basePrice: string | null;
+  /** Owner/manager-set "in use" override, independent of Booking/Lease data. */
+  manualOccupiedUntil: string | null;
 }
 
 export interface CreatePropertyRequest {
@@ -71,4 +73,5 @@ export interface PublicPropertySummary {
   latitude: number | null;
   longitude: number | null;
   basePrice: string | null;
+  manualOccupiedUntil: string | null;
 }

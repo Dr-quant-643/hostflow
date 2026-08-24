@@ -67,3 +67,27 @@ export function useArchiveProperty(id: string) {
     },
   });
 }
+
+// Owner/manager-set "in use" override, independent of Booking/Lease data --
+// see Property.manualOccupiedUntil's javadoc. Purely informational on
+// NazilCo, doesn't affect publish status.
+export function useSetPropertyOccupancy(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (until: string) =>
+      api.patch<PropertyResponse>(`/properties/${id}/occupancy`, { until }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["properties", "detail", id] });
+    },
+  });
+}
+
+export function useClearPropertyOccupancy(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.delete<PropertyResponse>(`/properties/${id}/occupancy`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["properties", "detail", id] });
+    },
+  });
+}

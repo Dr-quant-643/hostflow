@@ -93,7 +93,14 @@ export function usePropertyReviews(id: string) {
 // Real backend only supports "is this exact range free" (a single boolean),
 // not a month-grid of per-day availability — there is no day-by-day
 // availability endpoint anywhere in PublicPropertyController/
-// GuestBookingController.
+// GuestBookingController. When unavailable, availableFrom is the day the
+// property actually frees up (the overlapping booking's checkout date),
+// computed by PublicAvailabilityQueries.checkAvailability server-side.
+export interface AvailabilityResult {
+  available: boolean;
+  availableFrom: string | null;
+}
+
 export function useCheckAvailability(
   propertyId: string,
   checkIn: string,
@@ -102,9 +109,25 @@ export function useCheckAvailability(
   return useQuery({
     queryKey: ["public", "bookings", "availability", propertyId, checkIn, checkOut],
     queryFn: () =>
-      api.get<boolean>("/bookings/public/availability", {
+      api.get<AvailabilityResult>("/bookings/public/availability", {
         params: { propertyId, checkIn, checkOut },
       }),
     enabled: !!propertyId && !!checkIn && !!checkOut,
+  });
+}
+
+// MONTHLY-only signal: "occupied" means an active Lease covers today (see
+// module-rental). occupancyRatePercent is a live-computed historical rate,
+// not module-analytics's periodically-refreshed all-time rollup.
+export interface RentalOccupancyResult {
+  occupied: boolean;
+  occupancyRatePercent: number;
+}
+
+export function usePropertyOccupancy(propertyId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ["public", "properties", propertyId, "occupancy"],
+    queryFn: () => api.get<RentalOccupancyResult>(`/properties/public/${propertyId}/occupancy`),
+    enabled: enabled && !!propertyId,
   });
 }
