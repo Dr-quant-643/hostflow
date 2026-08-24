@@ -22,6 +22,7 @@ import { formatKES } from "@/lib/currency";
 import { PhotoGallery } from "@/components/nazilco/property/photo-gallery";
 import { PropertyVideoSection } from "@/components/nazilco/property/video-section";
 import { AvailabilityCalendar } from "@/components/nazilco/property/availability-calendar";
+import { RentalInquiryCard } from "@/components/nazilco/property/rental-inquiry-card";
 import { ReviewsSection } from "@/components/nazilco/property/reviews-section";
 
 type Property = PublicPropertySummary & Partial<DemoProperty>;
@@ -179,33 +180,37 @@ function PropertyDetailPageContent() {
           transition={{ duration: 0.45, delay: 0.2 }}
           className="lg:sticky lg:top-24 lg:h-fit"
         >
-          <Card className="shadow-lg">
-            <Stack gap="md">
-              {property.basePrice && (
-                <p className="text-xl font-semibold">
-                  {formatKES(property.basePrice)}
-                  <span className="text-sm font-normal text-muted-foreground"> / night</span>
-                </p>
-              )}
-              {tripCheckIn && tripCheckOut && (
-                <Button
-                  onClick={() => {
-                    const params = new URLSearchParams({ checkIn: tripCheckIn, checkOut: tripCheckOut });
+          {property.rentalModel === "MONTHLY" ? (
+            <RentalInquiryCard propertyId={property.id} basePrice={property.basePrice} />
+          ) : (
+            <Card className="shadow-lg">
+              <Stack gap="md">
+                {property.basePrice && (
+                  <p className="text-xl font-semibold">
+                    {formatKES(property.basePrice)}
+                    <span className="text-sm font-normal text-muted-foreground"> / night</span>
+                  </p>
+                )}
+                {tripCheckIn && tripCheckOut && (
+                  <Button
+                    onClick={() => {
+                      const params = new URLSearchParams({ checkIn: tripCheckIn, checkOut: tripCheckOut });
+                      router.push(`/nazilco/properties/${property.id}/book?${params.toString()}`);
+                    }}
+                  >
+                    Book {tripCheckIn} → {tripCheckOut}
+                  </Button>
+                )}
+                <AvailabilityCalendar
+                  propertyId={property.id}
+                  onSelectRange={(checkIn, checkOut) => {
+                    const params = new URLSearchParams({ checkIn, checkOut });
                     router.push(`/nazilco/properties/${property.id}/book?${params.toString()}`);
                   }}
-                >
-                  Book {tripCheckIn} → {tripCheckOut}
-                </Button>
-              )}
-              <AvailabilityCalendar
-                propertyId={property.id}
-                onSelectRange={(checkIn, checkOut) => {
-                  const params = new URLSearchParams({ checkIn, checkOut });
-                  router.push(`/nazilco/properties/${property.id}/book?${params.toString()}`);
-                }}
-              />
-            </Stack>
-          </Card>
+                />
+              </Stack>
+            </Card>
+          )}
 
           {property.propertyType === "RETAIL_MALL" && (
             <a href={`/nazilco/properties/${property.id}/mall`} className="mt-3 block text-center text-sm underline">

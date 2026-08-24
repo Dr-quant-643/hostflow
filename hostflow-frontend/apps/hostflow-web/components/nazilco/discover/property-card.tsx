@@ -152,7 +152,9 @@ export function PropertyCard({
             {property.basePrice ? (
               <>
                 <span className="font-semibold text-foreground">{formatKES(property.basePrice)}</span>{" "}
-                <span className="text-muted-foreground">/ night</span>
+                <span className="text-muted-foreground">
+                  / {property.rentalModel === "MONTHLY" ? "month" : "night"}
+                </span>
               </>
             ) : (
               <span className="text-muted-foreground">Price on request</span>

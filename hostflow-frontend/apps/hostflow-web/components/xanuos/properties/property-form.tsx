@@ -8,9 +8,23 @@ import {
   propertyFormSchema,
   type PropertyFormValues,
 } from "@hostflow/validation";
+import type { PropertyType } from "@hostflow/types";
 import { Button, Input, Select, Stack, toast } from "@hostflow/ui";
 import { useCreateProperty } from "@hostflow/api-client/src/hooks/use-properties";
 import { apiUpload } from "@hostflow/api-client/src/http-client";
+
+// A suggested default only -- the owner is the only one who actually knows
+// whether e.g. an OFFICE listing is a day-rate conference space or a
+// monthly-rent workspace lease, so this never locks the field, just
+// pre-selects a sensible starting point when propertyType changes.
+const SUGGESTED_RENTAL_MODEL: Record<PropertyType, "NIGHTLY" | "MONTHLY"> = {
+  RESIDENTIAL: "MONTHLY",
+  HOTEL: "NIGHTLY",
+  VACATION_RENTAL: "NIGHTLY",
+  OFFICE: "NIGHTLY",
+  RETAIL_MALL: "MONTHLY",
+  MIXED_USE: "NIGHTLY",
+};
 
 export function PropertyForm() {
   const router = useRouter();
@@ -22,6 +36,7 @@ export function PropertyForm() {
     defaultValues: {
       name: "",
       propertyType: "RESIDENTIAL",
+      rentalModel: "MONTHLY",
       addressLine: "",
       city: "",
       country: "",
@@ -61,7 +76,12 @@ export function PropertyForm() {
         />
         <Select
           label="Property Type"
-          {...form.register("propertyType")}
+          {...form.register("propertyType", {
+            onChange: (e) => {
+              const type = e.target.value as PropertyType;
+              form.setValue("rentalModel", SUGGESTED_RENTAL_MODEL[type]);
+            },
+          })}
           options={[
             { value: "RESIDENTIAL", label: "Residential" },
             { value: "HOTEL", label: "Hotel" },
@@ -71,6 +91,21 @@ export function PropertyForm() {
             { value: "MIXED_USE", label: "Mixed Use" },
           ]}
         />
+        <Select
+          label="Rental Model"
+          {...form.register("rentalModel")}
+          options={[
+            { value: "NIGHTLY", label: "Short-term (nightly / daily rate)" },
+            { value: "MONTHLY", label: "Long-term (monthly rent)" },
+          ]}
+        />
+        <p className="text-sm text-muted-foreground">
+          Short-term properties (hotels, Airbnbs, event halls, day-rate offices) use
+          check-in/check-out dates and guests can book instantly. Long-term properties
+          (apartments, houses, bedsitters, leased offices) are rented by the month —
+          guests send an inquiry instead of booking dates, and you follow up to arrange
+          the lease.
+        </p>
         <Input
           label="Address"
           {...form.register("addressLine")}

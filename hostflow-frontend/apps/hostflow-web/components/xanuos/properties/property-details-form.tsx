@@ -44,7 +44,7 @@ export function PropertyDetailsForm({ property }: { property: PropertyResponse }
           onChange={(e) => setDescription(e.target.value)}
         />
         <Input
-          label="Nightly rate (KSh)"
+          label={property.rentalModel === "MONTHLY" ? "Monthly rent (KSh)" : "Nightly rate (KSh)"}
           type="number"
           min={0}
           step="0.01"

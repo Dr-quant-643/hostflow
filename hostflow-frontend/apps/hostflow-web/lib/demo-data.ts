@@ -28,6 +28,7 @@ export const DEMO_PROPERTIES: DemoProperty[] = [
     description:
       "Perched above the coastline with uninterrupted ocean views, this villa pairs sun-bleached stone with floor-to-ceiling glass. Wake up to the sound of waves and take breakfast on the infinity-edge terrace.",
     propertyType: "VACATION_RENTAL",
+    rentalModel: "NIGHTLY",
     addressLine: "14 Marina Point Road",
     city: "Santorini",
     country: "Greece",
@@ -55,6 +56,7 @@ export const DEMO_PROPERTIES: DemoProperty[] = [
     description:
       "A luxury tented camp on the edge of the Maasai Mara, where the sound of the savanna replaces any alarm clock. Canvas suites with private decks, a plunge pool, and front-row seats to the Great Migration.",
     propertyType: "VACATION_RENTAL",
+    rentalModel: "NIGHTLY",
     addressLine: "Mara Triangle Conservancy Road",
     city: "Narok",
     country: "Kenya",
@@ -81,6 +83,7 @@ export const DEMO_PROPERTIES: DemoProperty[] = [
     description:
       "A designer apartment on the 18th floor overlooking Nairobi's skyline and the Ngong Hills beyond. Walk to Yaya Centre and Kilimani's best cafés, or unwind by the rooftop pool at sunset.",
     propertyType: "RESIDENTIAL",
+    rentalModel: "NIGHTLY",
     addressLine: "12 Wood Avenue, Kilimani",
     city: "Nairobi",
     country: "Kenya",
@@ -107,6 +110,7 @@ export const DEMO_PROPERTIES: DemoProperty[] = [
     description:
       "A hacienda-style courtyard home draped in bougainvillea, with hand-painted tile, a plunge pool, and a rooftop dining terrace looking over the old town.",
     propertyType: "VACATION_RENTAL",
+    rentalModel: "NIGHTLY",
     addressLine: "22 Calle de las Flores",
     city: "Oaxaca",
     country: "Mexico",
@@ -133,6 +137,7 @@ export const DEMO_PROPERTIES: DemoProperty[] = [
     description:
       "Barefoot luxury steps from the white sand of Diani. Palm-shaded terraces, an outdoor rain shower, and a rooftop deck built for long sundowners over the Indian Ocean.",
     propertyType: "VACATION_RENTAL",
+    rentalModel: "NIGHTLY",
     addressLine: "7 Beach Road, Diani",
     city: "Diani Beach",
     country: "Kenya",
@@ -159,6 +164,7 @@ export const DEMO_PROPERTIES: DemoProperty[] = [
     description:
       "A restored 1920s machiya townhouse with a private tsubo-niwa garden, tatami rooms, and a modern cedar soaking tub. A five-minute walk to Gion.",
     propertyType: "VACATION_RENTAL",
+    rentalModel: "NIGHTLY",
     addressLine: "3 Higashiyama Lane",
     city: "Kyoto",
     country: "Japan",
@@ -185,6 +191,7 @@ export const DEMO_PROPERTIES: DemoProperty[] = [
     description:
       "A boutique hotel in the heart of Westlands, built around a courtyard of acacia trees. Rooftop infinity pool, an all-day restaurant, and easy access to Nairobi's business and nightlife districts.",
     propertyType: "HOTEL",
+    rentalModel: "NIGHTLY",
     addressLine: "45 Waiyaki Way, Westlands",
     city: "Nairobi",
     country: "Kenya",

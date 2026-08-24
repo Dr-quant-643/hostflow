@@ -11,9 +11,13 @@ export const propertyTypeSchema = z.enum([
   "MIXED_USE",
 ]);
 
+// Mirrors module-property's RentalModel enum exactly.
+export const rentalModelSchema = z.enum(["NIGHTLY", "MONTHLY"]);
+
 export const propertyFormSchema = z.object({
   name: nonEmptyString("Property name", 150),
   propertyType: propertyTypeSchema,
+  rentalModel: rentalModelSchema,
   addressLine: nonEmptyString("Address", 200),
   city: nonEmptyString("City", 100),
   country: nonEmptyString("Country", 100),

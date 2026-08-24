@@ -99,3 +99,16 @@ export function useMarkRentPaid(leaseId: string) {
 export function useWaiveRentPayment(leaseId: string) {
   return useUpdateRentPaymentStatus("waive", leaseId);
 }
+
+// Guest-initiated inquiry on a MONTHLY-classified property -- distinct from
+// the Lease CRUD hooks above, which are staff-facing. Mirrors
+// useCreateGuestBooking's shape in use-public-booking.ts: hits the guest
+// PRODUCT_NAZILCO-gated endpoint, notifies the owner server-side, and does
+// not create any booking/lease record itself -- the owner follows up and
+// creates the formal Lease through the existing staff flow.
+export function useSendRentalInquiry(propertyId: string) {
+  return useMutation({
+    mutationFn: (message?: string) =>
+      api.post<void>("/rental/inquiries", { propertyId, message }),
+  });
+}

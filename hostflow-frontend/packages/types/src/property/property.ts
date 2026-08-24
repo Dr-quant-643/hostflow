@@ -12,11 +12,19 @@ export type PropertyType =
   | "RETAIL_MALL"
   | "MIXED_USE";
 
+// Set explicitly by the owner at creation, never derived purely from
+// PropertyType -- OFFICE/RETAIL_MALL listings are genuinely ambiguous (a hall
+// might be a day-rate conference venue or a monthly-rent workspace lease).
+// NIGHTLY keeps the existing check-in/check-out Booking flow; MONTHLY drops
+// it in favor of module-rental's Lease-based system (see RentalInquiry*).
+export type RentalModel = "NIGHTLY" | "MONTHLY";
+
 export interface PropertyResponse {
   id: string;
   name: string;
   description: string | null;
   propertyType: PropertyType;
+  rentalModel: RentalModel;
   status: PropertyStatus;
   addressLine: string;
   city: string;
@@ -29,6 +37,7 @@ export interface PropertyResponse {
 export interface CreatePropertyRequest {
   name: string;
   propertyType: PropertyType;
+  rentalModel: RentalModel;
   addressLine: string;
   city: string;
   country: string;
@@ -55,6 +64,7 @@ export interface PublicPropertySummary {
   name: string;
   description: string | null;
   propertyType: PropertyType;
+  rentalModel: RentalModel;
   addressLine: string;
   city: string;
   country: string;
