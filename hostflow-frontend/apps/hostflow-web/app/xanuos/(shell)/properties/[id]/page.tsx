@@ -6,7 +6,9 @@ import {
   useProperty,
   usePublishProperty,
   useArchiveProperty,
+  useUnarchiveProperty,
 } from "@hostflow/api-client/src/hooks/use-properties";
+import { ApiError } from "@hostflow/api-client/src/errors";
 import { DocumentUploadForm } from "@/components/xanuos/properties/document-upload-form";
 import { DocumentList } from "@/components/xanuos/properties/document-list";
 import { ReviewList } from "@/components/xanuos/properties/review-list";
@@ -19,6 +21,7 @@ export default function PropertyDetailPage() {
   const { data: property, isLoading, isError } = useProperty(id);
   const publish = usePublishProperty(id);
   const archive = useArchiveProperty(id);
+  const unarchive = useUnarchiveProperty(id);
 
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   if (isError || !property) {
@@ -40,8 +43,8 @@ export default function PropertyDetailPage() {
                   try {
                     await publish.mutateAsync();
                     toast.success("Property published");
-                  } catch {
-                    toast.error("Failed to publish");
+                  } catch (err) {
+                    toast.error(err instanceof ApiError ? err.message : "Failed to publish");
                   }
                 }}
               >
@@ -64,6 +67,22 @@ export default function PropertyDetailPage() {
                 Archive
               </Button>
             )}
+            {property.status === "ARCHIVED" && (
+              <Button
+                variant="outline"
+                loading={unarchive.isPending}
+                onClick={async () => {
+                  try {
+                    await unarchive.mutateAsync();
+                    toast.success("Property restored to draft — publish it again when ready");
+                  } catch {
+                    toast.error("Failed to unarchive");
+                  }
+                }}
+              >
+                Unarchive
+              </Button>
+            )}
           </Stack>
         }
       />
@@ -78,8 +97,9 @@ export default function PropertyDetailPage() {
       {property.status === "DRAFT" && (!property.basePrice || property.latitude == null) && (
         <Card className="border-warning/30 bg-warning/5 p-4">
           <p className="text-sm text-muted-foreground">
-            <span className="font-medium text-warning">Not ready to publish yet</span> — add a
-            nightly rate and location below so guests can find and book it once published.
+            <span className="font-medium text-warning">Not ready to publish yet</span> — add a{" "}
+            {property.rentalModel === "MONTHLY" ? "monthly rent" : "nightly rate"} and location below
+            (a price is required before you can publish).
           </p>
         </Card>
       )}

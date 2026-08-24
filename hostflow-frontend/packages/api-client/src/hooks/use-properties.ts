@@ -68,6 +68,19 @@ export function useArchiveProperty(id: string) {
   });
 }
 
+// Lands on DRAFT, not straight back to ACTIVE -- the owner reviews/updates
+// details, then uses the existing Publish action to re-publish.
+export function useUnarchiveProperty(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.patch<PropertyResponse>(`/properties/${id}/unarchive`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["properties", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["properties", "detail", id] });
+    },
+  });
+}
+
 // Owner/manager-set "in use" override, independent of Booking/Lease data --
 // see Property.manualOccupiedUntil's javadoc. Purely informational on
 // NazilCo, doesn't affect publish status.
