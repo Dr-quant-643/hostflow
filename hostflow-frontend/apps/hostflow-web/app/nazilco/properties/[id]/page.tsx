@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Skeleton,
@@ -40,7 +40,6 @@ export default function PropertyDetailPage() {
 // prerendering this route entirely.
 function PropertyDetailPageContent() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { data, isLoading, isError } = usePublicProperty(id);
   const { data: photoUrls } = usePropertyPhotos(id);
@@ -195,7 +194,14 @@ function PropertyDetailPageContent() {
                   <Button
                     onClick={() => {
                       const params = new URLSearchParams({ checkIn: tripCheckIn, checkOut: tripCheckOut });
-                      router.push(`/nazilco/properties/${property.id}/book?${params.toString()}`);
+                      // Full-page navigation, not router.push: /book may require
+                      // an auth redirect through Keycloak and back (see
+                      // middleware.ts's NAZILCO_PROTECTED_PATH_SUFFIXES) --
+                      // that multi-hop external round trip only works via a
+                      // real browser navigation. A Next.js client-side nav
+                      // can't follow it and was silently bouncing users back
+                      // to this page instead of reaching the booking form.
+                      window.location.href = `/nazilco/properties/${property.id}/book?${params.toString()}`;
                     }}
                   >
                     Book {tripCheckIn} → {tripCheckOut}
@@ -205,7 +211,7 @@ function PropertyDetailPageContent() {
                   propertyId={property.id}
                   onSelectRange={(checkIn, checkOut) => {
                     const params = new URLSearchParams({ checkIn, checkOut });
-                    router.push(`/nazilco/properties/${property.id}/book?${params.toString()}`);
+                    window.location.href = `/nazilco/properties/${property.id}/book?${params.toString()}`;
                   }}
                 />
               </Stack>
