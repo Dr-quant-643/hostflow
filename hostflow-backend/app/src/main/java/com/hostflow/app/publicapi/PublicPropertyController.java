@@ -20,15 +20,18 @@ public class PublicPropertyController {
     private final PublicAvailabilityQueries availabilityQueries;
     private final PublicPropertyPhotoQueries photoQueries;
     private final PublicPropertyReviewQueries reviewQueries;
+    private final PublicRentalOccupancyQueries occupancyQueries;
 
     public PublicPropertyController(PublicPropertyQueries propertyQueries,
             PublicAvailabilityQueries availabilityQueries,
             PublicPropertyPhotoQueries photoQueries,
-            PublicPropertyReviewQueries reviewQueries) {
+            PublicPropertyReviewQueries reviewQueries,
+            PublicRentalOccupancyQueries occupancyQueries) {
         this.propertyQueries = propertyQueries;
         this.availabilityQueries = availabilityQueries;
         this.photoQueries = photoQueries;
         this.reviewQueries = reviewQueries;
+        this.occupancyQueries = occupancyQueries;
     }
 
     @GetMapping("/api/v1/properties/public")
@@ -71,11 +74,16 @@ public class PublicPropertyController {
         return ResponseEntity.ok(ApiResponse.success(reviewQueries.listForProperty(id)));
     }
 
+    @GetMapping("/api/v1/properties/public/{id}/occupancy")
+    public ResponseEntity<ApiResponse<PublicRentalOccupancyQueries.OccupancyResult>> occupancy(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(occupancyQueries.forProperty(id)));
+    }
+
     @GetMapping("/api/v1/bookings/public/availability")
-    public ResponseEntity<ApiResponse<Boolean>> availability(
+    public ResponseEntity<ApiResponse<PublicAvailabilityQueries.AvailabilityResult>> availability(
             @RequestParam UUID propertyId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkIn,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut) {
-        return ResponseEntity.ok(ApiResponse.success(availabilityQueries.isAvailable(propertyId, checkIn, checkOut)));
+        return ResponseEntity.ok(ApiResponse.success(availabilityQueries.checkAvailability(propertyId, checkIn, checkOut)));
     }
 }

@@ -3,6 +3,7 @@ package com.hostflow.property.controller;
 import com.hostflow.common.response.ApiResponse;
 import com.hostflow.property.dto.CreatePropertyRequest;
 import com.hostflow.property.dto.PropertyResponse;
+import com.hostflow.property.dto.SetOccupancyRequest;
 import com.hostflow.property.dto.UpdatePropertyDetailsRequest;
 import com.hostflow.property.entity.Property;
 import com.hostflow.property.service.PropertyService;
@@ -72,6 +73,21 @@ public class PropertyController {
     @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
     public ResponseEntity<ApiResponse<PropertyResponse>> archive(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         Property property = propertyService.archive(id, UUID.fromString(jwt.getSubject()));
+        return ResponseEntity.ok(ApiResponse.success(PropertyResponse.from(property)));
+    }
+
+    @PatchMapping("/{id}/occupancy")
+    @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
+    public ResponseEntity<ApiResponse<PropertyResponse>> setOccupancy(@PathVariable UUID id,
+            @Valid @RequestBody SetOccupancyRequest request, @AuthenticationPrincipal Jwt jwt) {
+        Property property = propertyService.setManualOccupancy(id, UUID.fromString(jwt.getSubject()), request.until());
+        return ResponseEntity.ok(ApiResponse.success(PropertyResponse.from(property)));
+    }
+
+    @DeleteMapping("/{id}/occupancy")
+    @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
+    public ResponseEntity<ApiResponse<PropertyResponse>> clearOccupancy(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
+        Property property = propertyService.clearManualOccupancy(id, UUID.fromString(jwt.getSubject()));
         return ResponseEntity.ok(ApiResponse.success(PropertyResponse.from(property)));
     }
 }

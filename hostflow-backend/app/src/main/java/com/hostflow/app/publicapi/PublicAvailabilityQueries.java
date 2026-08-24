@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,15 +26,29 @@ public class PublicAvailabilityQueries {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public boolean isAvailable(UUID propertyId, LocalDate checkIn, LocalDate checkOut) {
+    public record AvailabilityResult(boolean available, LocalDate availableFrom) {
+    }
+
+    /**
+     * When unavailable, availableFrom is the latest check_out among the
+     * overlapping bookings -- the day the property actually frees up, since
+     * checkout dates are already known data that just wasn't surfaced before.
+     */
+    public AvailabilityResult checkAvailability(UUID propertyId, LocalDate checkIn, LocalDate checkOut) {
         String sql = """
-                SELECT COUNT(*) FROM bookings
+                SELECT check_out FROM bookings
                 WHERE property_id = ?
                   AND status IN ('PENDING', 'CONFIRMED', 'CHECKED_IN')
                   AND check_in < ?
                   AND ? < check_out
+                ORDER BY check_out DESC
+                LIMIT 1
                 """;
-        Integer overlapCount = jdbcTemplate.queryForObject(sql, Integer.class, propertyId, checkOut, checkIn);
-        return overlapCount == null || overlapCount == 0;
+        List<Date> overlapping = jdbcTemplate.query(sql,
+                (rs, rowNum) -> rs.getDate("check_out"), propertyId, checkOut, checkIn);
+        if (overlapping.isEmpty()) {
+            return new AvailabilityResult(true, null);
+        }
+        return new AvailabilityResult(false, overlapping.get(0).toLocalDate());
     }
 }

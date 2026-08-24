@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,6 +78,22 @@ public class PropertyService {
         Property property = getById(propertyId);
         property.archive();
         eventPublisher.archived(property, actorUserId);
+        return property;
+    }
+
+    @Transactional
+    public Property setManualOccupancy(UUID propertyId, UUID actorUserId, Instant until) {
+        Property property = getById(propertyId);
+        property.markOccupiedUntil(until);
+        eventPublisher.updated(property, actorUserId);
+        return property;
+    }
+
+    @Transactional
+    public Property clearManualOccupancy(UUID propertyId, UUID actorUserId) {
+        Property property = getById(propertyId);
+        property.clearOccupied();
+        eventPublisher.updated(property, actorUserId);
         return property;
     }
 }

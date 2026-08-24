@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -75,6 +76,17 @@ public class Property extends TenantScopedEntity {
     @Column(name = "base_price", precision = 12, scale = 2)
     private BigDecimal basePrice;
 
+    /**
+     * Owner/manager-set "in use" override, independent of the Booking/Lease
+     * system -- for cases those don't know about (e.g. a walk-in meeting in
+     * an office hall). Purely informational on NazilCo: it does not block
+     * date-level Booking availability, it just tells other guests when the
+     * space frees up for logistics purposes. Null or in the past means
+     * "not overridden" -- normal Booking/Lease-derived availability applies.
+     */
+    @Column(name = "manual_occupied_until")
+    private Instant manualOccupiedUntil;
+
     protected Property() {
     }
 
@@ -109,6 +121,14 @@ public class Property extends TenantScopedEntity {
 
     public void updateBasePrice(BigDecimal basePrice) {
         this.basePrice = basePrice;
+    }
+
+    public void markOccupiedUntil(Instant until) {
+        this.manualOccupiedUntil = until;
+    }
+
+    public void clearOccupied() {
+        this.manualOccupiedUntil = null;
     }
 
     public void setName(String name) {
@@ -193,5 +213,9 @@ public class Property extends TenantScopedEntity {
 
     public BigDecimal getBasePrice() {
         return basePrice;
+    }
+
+    public Instant getManualOccupiedUntil() {
+        return manualOccupiedUntil;
     }
 }

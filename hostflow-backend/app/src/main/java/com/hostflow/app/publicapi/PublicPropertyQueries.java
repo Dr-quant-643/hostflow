@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,7 +43,7 @@ public class PublicPropertyQueries {
 
     public record PublicPropertyRow(UUID id, String name, String description, String propertyType,
             String rentalModel, String addressLine, String city, String country,
-            Double latitude, Double longitude, BigDecimal basePrice) {
+            Double latitude, Double longitude, BigDecimal basePrice, Instant manualOccupiedUntil) {
     }
 
     private static final RowMapper<PublicPropertyRow> ROW_MAPPER = (rs, rowNum) -> new PublicPropertyRow(
@@ -51,11 +52,13 @@ public class PublicPropertyQueries {
             rs.getString("city"), rs.getString("country"),
             rs.getObject("latitude") != null ? rs.getDouble("latitude") : null,
             rs.getObject("longitude") != null ? rs.getDouble("longitude") : null,
-            rs.getBigDecimal("base_price"));
+            rs.getBigDecimal("base_price"),
+            rs.getTimestamp("manual_occupied_until") != null
+                    ? rs.getTimestamp("manual_occupied_until").toInstant() : null);
 
     public List<PublicPropertyRow> list(int limit, int offset) {
         String sql = "SELECT id, name, description, property_type, rental_model, address_line, city, country, " +
-                "latitude, longitude, base_price FROM properties WHERE status = 'ACTIVE' " +
+                "latitude, longitude, base_price, manual_occupied_until FROM properties WHERE status = 'ACTIVE' " +
                 "ORDER BY created_at DESC LIMIT ? OFFSET ?";
         return jdbcTemplate.query(sql, ROW_MAPPER, limit, offset);
     }
@@ -65,7 +68,7 @@ public class PublicPropertyQueries {
             int limit, int offset) {
         String sql = """
                 SELECT id, name, description, property_type, rental_model, address_line, city, country,
-                       latitude, longitude, base_price
+                       latitude, longitude, base_price, manual_occupied_until
                 FROM properties
                 WHERE status = 'ACTIVE'
                   AND (?::text IS NULL OR city ILIKE '%' || ? || '%')
@@ -88,7 +91,7 @@ public class PublicPropertyQueries {
      */
     public PublicPropertyRow findPublicById(UUID propertyId) {
         String sql = "SELECT id, name, description, property_type, rental_model, address_line, city, country, " +
-                "latitude, longitude, base_price FROM properties WHERE id = ? AND status = 'ACTIVE'";
+                "latitude, longitude, base_price, manual_occupied_until FROM properties WHERE id = ? AND status = 'ACTIVE'";
         List<PublicPropertyRow> results = jdbcTemplate.query(sql, ROW_MAPPER, propertyId);
         if (results.isEmpty()) {
             throw new ResourceNotFoundException("Property", propertyId);
