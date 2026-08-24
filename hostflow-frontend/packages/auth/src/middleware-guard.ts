@@ -53,7 +53,10 @@ function redirectToLogin(
   config: AuthConfig,
 ): NextResponse {
   const loginUrl = new URL(`${config.basePath}/api/auth/login`, request.url);
-  loginUrl.searchParams.set("returnTo", pathname);
+  // Include the query string too (e.g. NazilCo's ?checkIn=&checkOut= on the
+  // booking page) -- pathname alone would silently drop the guest's selected
+  // dates on the round trip through login.
+  loginUrl.searchParams.set("returnTo", pathname + request.nextUrl.search);
   return NextResponse.redirect(loginUrl);
 }
 
