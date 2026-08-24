@@ -42,12 +42,13 @@ public class PublicPropertyController {
     public ResponseEntity<ApiResponse<List<PublicPropertyQueries.PublicPropertyRow>>> search(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String propertyType,
+            @RequestParam(required = false) String rentalModel,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(defaultValue = "20") int limit,
             @RequestParam(defaultValue = "0") int offset) {
         return ResponseEntity.ok(ApiResponse.success(
-                propertyQueries.search(city, propertyType, minPrice, maxPrice, limit, offset)));
+                propertyQueries.search(city, propertyType, rentalModel, minPrice, maxPrice, limit, offset)));
     }
 
     @GetMapping("/api/v1/properties/public/{id}")

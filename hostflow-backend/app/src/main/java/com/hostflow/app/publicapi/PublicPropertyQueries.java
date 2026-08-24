@@ -60,7 +60,7 @@ public class PublicPropertyQueries {
         return jdbcTemplate.query(sql, ROW_MAPPER, limit, offset);
     }
 
-    public List<PublicPropertyRow> search(String city, String propertyType,
+    public List<PublicPropertyRow> search(String city, String propertyType, String rentalModel,
             BigDecimal minPrice, BigDecimal maxPrice,
             int limit, int offset) {
         String sql = """
@@ -70,13 +70,15 @@ public class PublicPropertyQueries {
                 WHERE status = 'ACTIVE'
                   AND (?::text IS NULL OR city ILIKE '%' || ? || '%')
                   AND (?::text IS NULL OR property_type = ?)
+                  AND (?::text IS NULL OR rental_model = ?)
                   AND (?::numeric IS NULL OR base_price >= ?)
                   AND (?::numeric IS NULL OR base_price <= ?)
                 ORDER BY created_at DESC
                 LIMIT ? OFFSET ?
                 """;
         return jdbcTemplate.query(sql, ROW_MAPPER,
-                city, city, propertyType, propertyType, minPrice, minPrice, maxPrice, maxPrice, limit, offset);
+                city, city, propertyType, propertyType, rentalModel, rentalModel,
+                minPrice, minPrice, maxPrice, maxPrice, limit, offset);
     }
 
     /**
