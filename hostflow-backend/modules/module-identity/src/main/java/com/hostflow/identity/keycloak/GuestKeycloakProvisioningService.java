@@ -94,7 +94,11 @@ public class GuestKeycloakProvisioningService {
      * Google") that has no product_scope yet. No tenant_id involved -- same
      * reasoning as provisionGuest(). Merges into the existing attribute map
      * rather than overwriting it, so provider-supplied attributes like
-     * "picture" survive.
+     * "picture" survive. Also merges product_scope itself: a user who already
+     * carries e.g. product_scope=[XANUOS] (an existing XanuOS owner signing
+     * up as a NazilCo guest with the same identity) must end up with
+     * [XANUOS, NAZILCO], not have XANUOS silently clobbered -- that previously
+     * broke XanuOS login for any account that later attached as a guest.
      */
     public void attachExistingUserAsGuest(String keycloakUserId) {
         var usersResource = keycloakAdminClient.realm(properties.getRealm()).users();
@@ -104,7 +108,12 @@ public class GuestKeycloakProvisioningService {
         Map<String, List<String>> attributes = representation.getAttributes() != null
                 ? new HashMap<>(representation.getAttributes())
                 : new HashMap<>();
-        attributes.put("product_scope", List.of("NAZILCO"));
+        List<String> existingScopes = attributes.getOrDefault("product_scope", List.of());
+        if (!existingScopes.contains("NAZILCO")) {
+            List<String> mergedScopes = new java.util.ArrayList<>(existingScopes);
+            mergedScopes.add("NAZILCO");
+            attributes.put("product_scope", mergedScopes);
+        }
         representation.setAttributes(attributes);
         userResource.update(representation);
 

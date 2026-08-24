@@ -93,7 +93,10 @@ public class HostKeycloakProvisioningService {
      * newly created organization -- the counterpart to provisionHostOwner()
      * for a user who already has a Keycloak account but no workspace. Merges
      * into the existing attribute map (never overwrites) so provider-supplied
-     * attributes like "picture" survive.
+     * attributes like "picture" survive. Also merges product_scope itself: a
+     * user who already carries e.g. product_scope=[NAZILCO] (an existing
+     * NazilCo guest becoming a XanuOS owner with the same identity) must end
+     * up with [NAZILCO, XANUOS], not have NAZILCO silently clobbered.
      */
     public void attachExistingUserToOrganization(String keycloakUserId, UUID tenantId) {
         var usersResource = keycloakAdminClient.realm(properties.getRealm()).users();
@@ -104,7 +107,12 @@ public class HostKeycloakProvisioningService {
                 ? new java.util.HashMap<>(representation.getAttributes())
                 : new java.util.HashMap<>();
         attributes.put("tenant_id", List.of(tenantId.toString()));
-        attributes.put("product_scope", List.of("XANUOS"));
+        List<String> existingScopes = attributes.getOrDefault("product_scope", List.of());
+        if (!existingScopes.contains("XANUOS")) {
+            List<String> mergedScopes = new java.util.ArrayList<>(existingScopes);
+            mergedScopes.add("XANUOS");
+            attributes.put("product_scope", mergedScopes);
+        }
         representation.setAttributes(attributes);
         userResource.update(representation);
 
