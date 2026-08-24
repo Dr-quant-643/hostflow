@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, MapPin, Calendar, Users, LocateFixed } from "lucide-react";
+import type { RentalModel } from "@hostflow/types";
 
 export function HeroSearchBar() {
   const router = useRouter();
   const [destination, setDestination] = useState("");
+  const [rentalModel, setRentalModel] = useState<RentalModel>("NIGHTLY");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
@@ -15,16 +17,36 @@ export function HeroSearchBar() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams({
-      checkIn: checkIn || defaultDate(14),
-      checkOut: checkOut || defaultDate(17),
+      rentalModel,
       guests: String(guests),
       ...(destination ? { destination } : {}),
+      // A monthly rental has no "dates" to search by -- only send
+      // checkIn/checkOut for a short-stay search.
+      ...(rentalModel === "NIGHTLY"
+        ? { checkIn: checkIn || defaultDate(14), checkOut: checkOut || defaultDate(17) }
+        : {}),
     });
     router.push(`/nazilco/search?${params.toString()}`);
   };
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-3">
+      <div className="mx-auto flex w-fit gap-1 rounded-full bg-white/15 p-1 backdrop-blur-sm">
+        {(["NIGHTLY", "MONTHLY"] as const).map((model) => (
+          <button
+            key={model}
+            type="button"
+            onClick={() => setRentalModel(model)}
+            className={`rounded-full px-4 py-1.5 text-xs font-medium transition-colors ${
+              rentalModel === model
+                ? "bg-white text-foreground shadow-sm"
+                : "text-white/90 hover:bg-white/10"
+            }`}
+          >
+            {model === "NIGHTLY" ? "Short stays" : "Long-term rentals"}
+          </button>
+        ))}
+      </div>
     <form
       onSubmit={onSubmit}
       className="flex w-full flex-col gap-2 rounded-2xl bg-white/95 p-2 text-foreground shadow-2xl backdrop-blur-sm sm:flex-row sm:items-stretch sm:rounded-full"
@@ -46,31 +68,35 @@ export function HeroSearchBar() {
 
       <div className="hidden w-px self-stretch bg-border sm:block" />
 
-      <label className="flex flex-1 items-center gap-2 rounded-full px-4 py-2.5 hover:bg-black/[0.03]">
-        <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <div className="flex flex-col text-left">
-          <span className="text-[11px] font-medium text-muted-foreground">
-            Check in — Check out
-          </span>
-          <div className="flex gap-1.5">
-            <input
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none"
-            />
-            <span className="text-muted-foreground">–</span>
-            <input
-              type="date"
-              value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none"
-            />
-          </div>
-        </div>
-      </label>
+      {rentalModel === "NIGHTLY" && (
+        <>
+          <label className="flex flex-1 items-center gap-2 rounded-full px-4 py-2.5 hover:bg-black/[0.03]">
+            <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <div className="flex flex-col text-left">
+              <span className="text-[11px] font-medium text-muted-foreground">
+                Check in — Check out
+              </span>
+              <div className="flex gap-1.5">
+                <input
+                  type="date"
+                  value={checkIn}
+                  onChange={(e) => setCheckIn(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none"
+                />
+                <span className="text-muted-foreground">–</span>
+                <input
+                  type="date"
+                  value={checkOut}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none"
+                />
+              </div>
+            </div>
+          </label>
 
-      <div className="hidden w-px self-stretch bg-border sm:block" />
+          <div className="hidden w-px self-stretch bg-border sm:block" />
+        </>
+      )}
 
       <label className="flex items-center gap-2 rounded-full px-4 py-2.5 hover:bg-black/[0.03]">
         <Users className="h-4 w-4 shrink-0 text-muted-foreground" />

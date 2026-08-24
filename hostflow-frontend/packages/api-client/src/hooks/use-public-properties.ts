@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../http-client";
-import type { PublicPropertySummary, PropertyType } from "@hostflow/types";
+import type { PublicPropertySummary, PropertyType, RentalModel } from "@hostflow/types";
 
 // All /properties/public/** endpoints return plain arrays (limit/offset,
 // not page/size) — PublicPropertyQueries is a flat cross-tenant JDBC
@@ -22,6 +22,7 @@ export function useDiscoverProperties(limit = 20, offset = 0) {
 export interface PropertySearchParams {
   city?: string;
   propertyType?: PropertyType;
+  rentalModel?: RentalModel;
   minPrice?: string;
   maxPrice?: string;
   limit?: number;

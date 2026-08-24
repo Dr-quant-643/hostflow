@@ -7,6 +7,7 @@ import type { GeolocationStatus } from "@/lib/use-geolocation";
 export interface DiscoverFilterState {
   query: string;
   propertyType: string;
+  rentalModel: "" | "NIGHTLY" | "MONTHLY";
   city: string;
   minPrice: string;
   maxPrice: string;
@@ -17,6 +18,7 @@ export interface DiscoverFilterState {
 export const DEFAULT_FILTERS: DiscoverFilterState = {
   query: "",
   propertyType: "",
+  rentalModel: "",
   city: "",
   minPrice: "",
   maxPrice: "",
@@ -100,6 +102,16 @@ export function DiscoverFilters({
               {PROPERTY_TYPE_LABELS[t] ?? t}
             </option>
           ))}
+        </select>
+
+        <select
+          value={filters.rentalModel}
+          onChange={(e) => set("rentalModel", e.target.value as DiscoverFilterState["rentalModel"])}
+          className={selectClass()}
+        >
+          <option value="">Short stays &amp; long-term</option>
+          <option value="NIGHTLY">Short stays only</option>
+          <option value="MONTHLY">Long-term rentals only</option>
         </select>
 
         <select
@@ -208,7 +220,7 @@ export function DiscoverFilters({
         )}
 
         <span className="ml-auto text-sm text-muted-foreground">
-          {resultCount} stay{resultCount === 1 ? "" : "s"}
+          {resultCount} listing{resultCount === 1 ? "" : "s"}
         </span>
       </div>
     </motion.div>

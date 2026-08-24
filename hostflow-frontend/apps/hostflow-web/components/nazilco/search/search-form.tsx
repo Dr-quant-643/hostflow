@@ -22,6 +22,7 @@ export function SearchForm() {
     resolver: zodResolver(propertySearchFormSchema),
     defaultValues: {
       destination: searchParams.get("destination") ?? "",
+      rentalModel: (searchParams.get("rentalModel") as "NIGHTLY" | "MONTHLY" | null) ?? "NIGHTLY",
       checkIn: searchParams.get("checkIn") ?? "",
       checkOut: searchParams.get("checkOut") ?? "",
       guests: Number(searchParams.get("guests")) || 1,
@@ -30,13 +31,17 @@ export function SearchForm() {
 
   const guests = form.watch("guests");
   const destination = form.watch("destination");
+  const rentalModel = form.watch("rentalModel");
 
   const onSubmit = form.handleSubmit((values) => {
     const params = new URLSearchParams({
-      checkIn: values.checkIn,
-      checkOut: values.checkOut,
+      rentalModel: values.rentalModel,
       guests: String(values.guests),
       ...(values.destination ? { destination: values.destination } : {}),
+      // A monthly rental has no "dates" to search by.
+      ...(values.rentalModel === "NIGHTLY" && values.checkIn && values.checkOut
+        ? { checkIn: values.checkIn, checkOut: values.checkOut }
+        : {}),
     });
     router.push(`/nazilco/search?${params.toString()}`);
   });
@@ -49,6 +54,22 @@ export function SearchForm() {
         transition={{ duration: 0.35 }}
         className="relative rounded-2xl border border-border/60 bg-background/70 p-4 shadow-sm backdrop-blur-md"
       >
+        <div className="mb-3 flex w-fit gap-1 rounded-full border border-border bg-muted/40 p-1">
+          {(["NIGHTLY", "MONTHLY"] as const).map((model) => (
+            <button
+              key={model}
+              type="button"
+              onClick={() => form.setValue("rentalModel", model)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                rentalModel === model
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-background/60"
+              }`}
+            >
+              {model === "NIGHTLY" ? "Short stays" : "Long-term rentals"}
+            </button>
+          ))}
+        </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
           <div className="relative flex-[1.4]">
             <label className="mb-1 block text-xs font-medium text-muted-foreground">Destination</label>
@@ -88,33 +109,37 @@ export function SearchForm() {
             )}
           </div>
 
-          <div className="flex-1">
-            <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-              <CalendarDays className="h-3 w-3" /> Check In
-            </label>
-            <input
-              type="date"
-              {...form.register("checkIn")}
-              className="w-full rounded-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-            />
-            {form.formState.errors.checkIn && (
-              <p className="mt-1 text-xs text-destructive">{form.formState.errors.checkIn.message}</p>
-            )}
-          </div>
+          {rentalModel === "NIGHTLY" && (
+            <>
+              <div className="flex-1">
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                  <CalendarDays className="h-3 w-3" /> Check In
+                </label>
+                <input
+                  type="date"
+                  {...form.register("checkIn")}
+                  className="w-full rounded-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+                />
+                {form.formState.errors.checkIn && (
+                  <p className="mt-1 text-xs text-destructive">{form.formState.errors.checkIn.message}</p>
+                )}
+              </div>
 
-          <div className="flex-1">
-            <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
-              <CalendarDays className="h-3 w-3" /> Check Out
-            </label>
-            <input
-              type="date"
-              {...form.register("checkOut")}
-              className="w-full rounded-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
-            />
-            {form.formState.errors.checkOut && (
-              <p className="mt-1 text-xs text-destructive">{form.formState.errors.checkOut.message}</p>
-            )}
-          </div>
+              <div className="flex-1">
+                <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+                  <CalendarDays className="h-3 w-3" /> Check Out
+                </label>
+                <input
+                  type="date"
+                  {...form.register("checkOut")}
+                  className="w-full rounded-full border border-border bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+                />
+                {form.formState.errors.checkOut && (
+                  <p className="mt-1 text-xs text-destructive">{form.formState.errors.checkOut.message}</p>
+                )}
+              </div>
+            </>
+          )}
 
           <div className="flex-1">
             <label className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">

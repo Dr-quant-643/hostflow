@@ -1,16 +1,35 @@
 import { z } from "zod";
 import { isoDateSchema } from "../common";
+import { rentalModelSchema } from "../property/property.schema";
 
+// checkIn/checkOut are only meaningful for a NIGHTLY search -- a monthly
+// rental has no "dates" to search by (see RentalModel's javadoc on the
+// backend). Both stay optional at the object level so a MONTHLY search never
+// has to fill in dates at all; superRefine enforces them only when searching
+// NIGHTLY stays, same UX as before this field existed.
 export const propertySearchFormSchema = z
   .object({
     destination: z.string().optional(),
-    checkIn: isoDateSchema,
-    checkOut: isoDateSchema,
+    rentalModel: rentalModelSchema.default("NIGHTLY"),
+    checkIn: isoDateSchema.optional().or(z.literal("")),
+    checkOut: isoDateSchema.optional().or(z.literal("")),
     guests: z.number().int().min(1).max(16),
   })
-  .refine((data) => data.checkOut > data.checkIn, {
-    message: "Check-out must be after check-in",
-    path: ["checkOut"],
+  .superRefine((data, ctx) => {
+    if (data.rentalModel !== "NIGHTLY") return;
+    if (!data.checkIn) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Check-in is required", path: ["checkIn"] });
+    }
+    if (!data.checkOut) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Check-out is required", path: ["checkOut"] });
+    }
+    if (data.checkIn && data.checkOut && data.checkOut <= data.checkIn) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Check-out must be after check-in",
+        path: ["checkOut"],
+      });
+    }
   });
 
 export type PropertySearchFormValues = z.infer<typeof propertySearchFormSchema>;

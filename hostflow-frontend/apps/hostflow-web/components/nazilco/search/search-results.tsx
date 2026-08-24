@@ -31,9 +31,17 @@ export function SearchResults() {
   const checkOut = searchParams.get("checkOut");
   const guests = searchParams.get("guests");
   const destination = searchParams.get("destination") ?? undefined;
+  const rentalModel = (searchParams.get("rentalModel") as "NIGHTLY" | "MONTHLY" | null) ?? "NIGHTLY";
+  const isMonthly = rentalModel === "MONTHLY";
 
-  const params: PropertySearchParams | null =
-    checkIn && checkOut ? { city: destination } : null;
+  // A monthly rental has no "dates" to search by, so it's never gated on
+  // checkIn/checkOut being present -- only the NIGHTLY (short-stay) search
+  // keeps requiring dates before running, same as before this field existed.
+  const params: PropertySearchParams | null = isMonthly
+    ? { city: destination, rentalModel }
+    : checkIn && checkOut
+      ? { city: destination, rentalModel }
+      : null;
 
   const { data, isLoading, isError } = useSearchProperties(params);
 
@@ -79,6 +87,7 @@ export function SearchResults() {
       />
     );
   }
+  const unitLabel = isMonthly ? "rental" : "stay";
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -98,7 +107,11 @@ export function SearchResults() {
     return (
       <EmptyState
         title="No properties match your search"
-        description="Try different dates or a broader destination."
+        description={
+          isMonthly
+            ? "Try a broader destination — long-term rentals are listed by month, not by date."
+            : "Try different dates or a broader destination."
+        }
       />
     );
   }
@@ -107,14 +120,15 @@ export function SearchResults() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
-          {sorted.length} stay{sorted.length === 1 ? "" : "s"}
+          {sorted.length} {unitLabel}
+          {sorted.length === 1 ? "" : "s"}
           {destination ? (
             <>
               {" "}
               in <span className="font-medium text-foreground">{destination}</span>
             </>
           ) : null}
-          {checkIn && checkOut && (
+          {!isMonthly && checkIn && checkOut && (
             <>
               {" "}
               · {checkIn} → {checkOut}

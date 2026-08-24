@@ -42,6 +42,9 @@ function applyFilters(
   if (filters.propertyType) {
     result = result.filter((p) => p.propertyType === filters.propertyType);
   }
+  if (filters.rentalModel) {
+    result = result.filter((p) => p.rentalModel === filters.rentalModel);
+  }
   if (filters.city) {
     result = result.filter((p) => p.city === filters.city);
   }
