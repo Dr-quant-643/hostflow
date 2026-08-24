@@ -100,18 +100,6 @@ spring:
           multiplier: 2.0
           max-interval: 10000ms
 
-  mail:
-    host: ${SMTP_HOST}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
   security:
     oauth2:
       resourceserver:
@@ -124,6 +112,8 @@ hostflow:
       email:
         from-address: ${NOTIFICATION_FROM_EMAIL:no-reply@hostflow.app}
         from-name: HostFlow
+        api-url: ${RESEND_API_URL:https://api.resend.com/emails}
+        api-key: ${RESEND_API_KEY}
       sms:
         api-url: https://api.africastalking.com/version1/messaging
         username: ${AFRICASTALKING_USERNAME}
@@ -270,18 +260,6 @@ hostflow:
       tenant:
         created: tenant.created
         updated: tenant.updated
-
-# SMTP/SMS/push aren't configured with real credentials yet (see
-# PROJECT_STATE.md gap #6) -- spring.mail.host being merely non-null (even
-# an empty string) still activates Spring Boot's built-in MailHealthIndicator,
-# which then fails an actual SMTP connection test on every /actuator/health
-# call. That made the app's own healthcheck endpoint return DOWN and Railway
-# kill the deployment as unhealthy, even though the application itself was
-# running fine.
-management:
-  health:
-    mail:
-      enabled: false
 
 logging:
   level:

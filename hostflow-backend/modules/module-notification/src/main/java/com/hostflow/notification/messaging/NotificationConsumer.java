@@ -79,8 +79,9 @@ public class NotificationConsumer {
                     message.notificationLogId(), message.channel(), message.recipientAddress());
         } catch (Exception e) {
             notificationLogUpdateService.markFailed(message.notificationLogId(), e.getMessage());
-            log.error("Delivery failed for notification {} via {}: {}",
-                    message.notificationLogId(), message.channel(), e.getMessage());
+            log.error("Delivery failed for notification {} via {}: {} (cause: {})",
+                    message.notificationLogId(), message.channel(), e.getMessage(),
+                    e.getCause() != null ? e.getCause().getMessage() : "none", e);
             throw e;
         }
     }

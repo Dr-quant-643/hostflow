@@ -88,18 +88,6 @@ spring:
           multiplier: 2.0
           max-interval: 10000ms
 
-  mail:
-    host: ${SMTP_HOST:smtp.gmail.com}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME:changeme_in_env}
-    password: ${SMTP_PASSWORD:changeme_in_env}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-
   security:
     oauth2:
       resourceserver:
@@ -113,6 +101,8 @@ hostflow:
       email:
         from-address: ${NOTIFICATION_FROM_EMAIL:no-reply@hostflow.app}
         from-name: HostFlow
+        api-url: ${RESEND_API_URL:https://api.resend.com/emails}
+        api-key: ${RESEND_API_KEY:changeme_in_env}
       sms:
         api-url: https://api.africastalking.com/version1/messaging
         username: ${AFRICASTALKING_USERNAME:sandbox}

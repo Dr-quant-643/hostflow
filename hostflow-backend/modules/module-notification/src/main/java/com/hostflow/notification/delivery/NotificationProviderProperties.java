@@ -27,11 +27,22 @@ public class NotificationProviderProperties {
     public static class Email {
         private String fromAddress = "no-reply@hostflow.app";
         private String fromName = "HostFlow";
+        // Resend's HTTP API, not raw SMTP -- Railway (and most PaaS hosts)
+        // block outbound SMTP ports (25/465/587) by default to prevent spam
+        // abuse, which silently connection-timed-out every send in
+        // production while working fine from a local machine's unrestricted
+        // network. An HTTP API on port 443 sidesteps that entirely.
+        private String apiUrl = "https://api.resend.com/emails";
+        private String apiKey;
 
         public String getFromAddress() { return fromAddress; }
         public void setFromAddress(String fromAddress) { this.fromAddress = fromAddress; }
         public String getFromName() { return fromName; }
         public void setFromName(String fromName) { this.fromName = fromName; }
+        public String getApiUrl() { return apiUrl; }
+        public void setApiUrl(String apiUrl) { this.apiUrl = apiUrl; }
+        public String getApiKey() { return apiKey; }
+        public void setApiKey(String apiKey) { this.apiKey = apiKey; }
     }
 
     public static class Sms {
