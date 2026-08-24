@@ -34,7 +34,7 @@ public class PropertyService {
     @Transactional
     public Property create(UUID ownerUserId, CreatePropertyRequest request) {
         Property property = new Property(
-                ownerUserId, request.name(), request.propertyType(),
+                ownerUserId, request.name(), request.propertyType(), request.rentalModel(),
                 request.addressLine(), request.city(), request.country()
         );
         property = propertyRepository.save(property);

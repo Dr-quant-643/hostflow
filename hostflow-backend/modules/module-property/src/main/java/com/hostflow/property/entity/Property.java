@@ -50,6 +50,10 @@ public class Property extends TenantScopedEntity {
     private PropertyType propertyType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "rental_model", nullable = false)
+    private RentalModel rentalModel;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PropertyStatus status;
 
@@ -74,11 +78,12 @@ public class Property extends TenantScopedEntity {
     protected Property() {
     }
 
-    public Property(UUID ownerUserId, String name, PropertyType propertyType,
+    public Property(UUID ownerUserId, String name, PropertyType propertyType, RentalModel rentalModel,
             String addressLine, String city, String country) {
         this.ownerUserId = ownerUserId;
         this.name = name;
         this.propertyType = propertyType;
+        this.rentalModel = rentalModel;
         this.status = PropertyStatus.DRAFT;
         this.addressLine = addressLine;
         this.city = city;
@@ -152,6 +157,10 @@ public class Property extends TenantScopedEntity {
 
     public PropertyType getType() {
         return propertyType;
+    }
+
+    public RentalModel getRentalModel() {
+        return rentalModel;
     }
 
     public PropertyStatus getStatus() {

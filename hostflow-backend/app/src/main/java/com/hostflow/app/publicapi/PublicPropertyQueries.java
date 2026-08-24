@@ -41,20 +41,20 @@ public class PublicPropertyQueries {
     }
 
     public record PublicPropertyRow(UUID id, String name, String description, String propertyType,
-            String addressLine, String city, String country,
+            String rentalModel, String addressLine, String city, String country,
             Double latitude, Double longitude, BigDecimal basePrice) {
     }
 
     private static final RowMapper<PublicPropertyRow> ROW_MAPPER = (rs, rowNum) -> new PublicPropertyRow(
             UUID.fromString(rs.getString("id")), rs.getString("name"), rs.getString("description"),
-            rs.getString("property_type"), rs.getString("address_line"), rs.getString("city"),
-            rs.getString("country"),
+            rs.getString("property_type"), rs.getString("rental_model"), rs.getString("address_line"),
+            rs.getString("city"), rs.getString("country"),
             rs.getObject("latitude") != null ? rs.getDouble("latitude") : null,
             rs.getObject("longitude") != null ? rs.getDouble("longitude") : null,
             rs.getBigDecimal("base_price"));
 
     public List<PublicPropertyRow> list(int limit, int offset) {
-        String sql = "SELECT id, name, description, property_type, address_line, city, country, " +
+        String sql = "SELECT id, name, description, property_type, rental_model, address_line, city, country, " +
                 "latitude, longitude, base_price FROM properties WHERE status = 'ACTIVE' " +
                 "ORDER BY created_at DESC LIMIT ? OFFSET ?";
         return jdbcTemplate.query(sql, ROW_MAPPER, limit, offset);
@@ -64,7 +64,7 @@ public class PublicPropertyQueries {
             BigDecimal minPrice, BigDecimal maxPrice,
             int limit, int offset) {
         String sql = """
-                SELECT id, name, description, property_type, address_line, city, country,
+                SELECT id, name, description, property_type, rental_model, address_line, city, country,
                        latitude, longitude, base_price
                 FROM properties
                 WHERE status = 'ACTIVE'
@@ -85,7 +85,7 @@ public class PublicPropertyQueries {
      * the existence of DRAFT/ARCHIVED properties belonging to other tenants.
      */
     public PublicPropertyRow findPublicById(UUID propertyId) {
-        String sql = "SELECT id, name, description, property_type, address_line, city, country, " +
+        String sql = "SELECT id, name, description, property_type, rental_model, address_line, city, country, " +
                 "latitude, longitude, base_price FROM properties WHERE id = ? AND status = 'ACTIVE'";
         List<PublicPropertyRow> results = jdbcTemplate.query(sql, ROW_MAPPER, propertyId);
         if (results.isEmpty()) {

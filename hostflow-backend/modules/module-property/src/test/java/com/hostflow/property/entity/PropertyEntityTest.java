@@ -47,7 +47,8 @@ class PropertyEntityTest {
         TenantContext.set(tenantId);
         UUID ownerId = UUID.randomUUID();
 
-        Property property = new Property(ownerId, "Ocean View", PropertyType.HOTEL, "5 Shore Ave", "Mombasa", "Kenya");
+        Property property = new Property(ownerId, "Ocean View", PropertyType.HOTEL, RentalModel.NIGHTLY, "5 Shore Ave",
+                "Mombasa", "Kenya");
         Property persisted = entityManager.persistFlushFind(property);
 
         assertThat(persisted.getTenantId()).isEqualTo(tenantId);
@@ -63,8 +64,8 @@ class PropertyEntityTest {
         UUID tenantId = UUID.randomUUID();
         TenantContext.set(tenantId);
 
-        Property property = new Property(UUID.randomUUID(), "Hilltop House", PropertyType.RESIDENTIAL, "9 Hill Rd",
-                "Nairobi", "Kenya");
+        Property property = new Property(UUID.randomUUID(), "Hilltop House", PropertyType.RESIDENTIAL,
+                RentalModel.MONTHLY, "9 Hill Rd", "Nairobi", "Kenya");
         Property persisted = entityManager.persistFlushFind(property);
 
         persisted.updateLocation(-1.2921, 36.8219);
@@ -87,8 +88,8 @@ class PropertyEntityTest {
         TenantContext.set(tenantId);
         UUID ownerId = UUID.randomUUID();
 
-        Property property = new Property(ownerId, "Original Property", PropertyType.HOTEL, "123 Main St", "Nairobi",
-                "Kenya");
+        Property property = new Property(ownerId, "Original Property", PropertyType.HOTEL, RentalModel.NIGHTLY,
+                "123 Main St", "Nairobi", "Kenya");
         Property persisted = entityManager.persistFlushFind(property);
         UUID originalTenantId = persisted.getTenantId();
 
@@ -111,8 +112,8 @@ class PropertyEntityTest {
         TenantContext.set(tenantId);
         UUID ownerId = UUID.randomUUID();
 
-        Property property = new Property(ownerId, "Beachfront Villa", PropertyType.RESIDENTIAL, "456 Beach Rd",
-                "Mombasa", "Kenya");
+        Property property = new Property(ownerId, "Beachfront Villa", PropertyType.RESIDENTIAL, RentalModel.MONTHLY,
+                "456 Beach Rd", "Mombasa", "Kenya");
         property.setDescription("Beautiful beachfront villa with ocean views");
         property.setStatus(PropertyStatus.PUBLISHED);
         property.updateLocation(-4.0435, 39.6682);
@@ -143,8 +144,8 @@ class PropertyEntityTest {
         TenantContext.set(tenantId);
         UUID ownerId = UUID.randomUUID();
 
-        Property property = new Property(ownerId, "Audit Property", PropertyType.HOTEL, "789 Audit St", "Nairobi",
-                "Kenya");
+        Property property = new Property(ownerId, "Audit Property", PropertyType.HOTEL, RentalModel.NIGHTLY,
+                "789 Audit St", "Nairobi", "Kenya");
         Property persisted = entityManager.persistFlushFind(property);
 
         assertThat(persisted.getCreatedAt()).isNotNull();
@@ -158,7 +159,8 @@ class PropertyEntityTest {
         TenantContext.set(tenantId);
         UUID ownerId = UUID.randomUUID();
 
-        Property property = new Property(ownerId, "Status Test", PropertyType.HOTEL, "123 Test St", "Nairobi", "Kenya");
+        Property property = new Property(ownerId, "Status Test", PropertyType.HOTEL, RentalModel.NIGHTLY,
+                "123 Test St", "Nairobi", "Kenya");
         Property persisted = entityManager.persistFlushFind(property);
 
         // Initial status should be DRAFT
