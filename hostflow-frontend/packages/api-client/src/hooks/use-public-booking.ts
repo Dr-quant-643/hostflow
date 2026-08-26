@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../http-client";
 import type { BookingResponse } from "@hostflow/types";
 import type { GuestBookingFormValues } from "@hostflow/validation";
-import { ApiError } from "../errors";
 
 // Guest-initiated booking creation, hitting GuestBookingController's separate
 // /bookings/public path (not module-booking's staff-facing /bookings —
@@ -28,10 +27,6 @@ export function useCreateGuestBooking(propertyId: string) {
       queryClient.invalidateQueries({ queryKey: ["guest-portal", "my-bookings"] });
     },
   });
-}
-
-export function isOverlapConflict(err: unknown): boolean {
-  return err instanceof ApiError && err.isValidationError;
 }
 
 export function nightsBetween(checkIn: string, checkOut: string): number {

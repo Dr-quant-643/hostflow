@@ -2,10 +2,9 @@ import type { PublicPropertySummary } from "@hostflow/types";
 
 // Demo-only content for a populated, screenshot-ready nazilco-web preview
 // while the backend/Docker stack isn't running. Shapes match the real
-// PublicPropertySummary/GuestInvoiceRow/etc. contracts exactly so swapping
-// demo-hooks.ts back to the real @hostflow/api-client hooks is a pure
-// import-path change, nothing else. Kenya-weighted lineup (Maasai Mara,
-// Nairobi x2, Diani Beach) with a few international stays for variety.
+// PublicPropertySummary/GuestInvoiceRow/etc. contracts exactly. Kenya-weighted
+// lineup (Maasai Mara, Nairobi x2, Diani Beach) with a few international
+// stays for variety.
 
 export interface DemoProperty extends PublicPropertySummary {
   photos: string[];

@@ -79,17 +79,3 @@ export async function getValidAccessToken(
   // Kept simple here; refresh orchestration lives in routes/refresh.ts.
   return null;
 }
-
-export function hasAuthority(
-  user: SessionUser | null,
-  authority: string,
-): boolean {
-  return !!user?.authorities?.includes(authority as any);
-}
-
-export function hasProductScope(
-  user: SessionUser | null,
-  scope: "PRODUCT_XANUOS" | "PRODUCT_NAZILCO",
-): boolean {
-  return !!user?.productScope?.includes(scope);
-}

@@ -4,7 +4,6 @@ import type {
   WorkOrderResponse,
   AssetResponse,
   CreateMaintenanceRequestRequest,
-  MyMaintenanceRequestRow,
   OwnerWorkOrderRow,
 } from "@hostflow/types";
 import type {
@@ -48,13 +47,6 @@ export function useSendMaintenanceRequest() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["maintenance", "requests", "mine"] });
     },
-  });
-}
-
-export function useMyMaintenanceRequests() {
-  return useQuery({
-    queryKey: ["maintenance", "requests", "mine"],
-    queryFn: () => api.get<MyMaintenanceRequestRow[]>("/maintenance/requests/mine"),
   });
 }
 
