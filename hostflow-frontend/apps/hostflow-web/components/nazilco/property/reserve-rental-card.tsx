@@ -7,6 +7,7 @@ import { CheckCircle2, XCircle, Clock, Wrench } from "lucide-react";
 import { useReserveRental, useMyLeases } from "@hostflow/api-client/src/hooks/use-rental";
 import type { MyLeaseRow } from "@hostflow/types";
 import { formatKES } from "@/lib/currency";
+import { LoyaltyBadge } from "./loyalty-badge";
 
 const DURATION_OPTIONS = [6, 12, 24];
 
@@ -116,6 +117,7 @@ function ReservationStatusCard({ lease }: { lease: MyLeaseRow }) {
         <p className="text-sm text-muted-foreground">
           Your lease runs from {lease.startDate} to {lease.endDate}.
         </p>
+        <LoyaltyBadge propertyId={lease.propertyId} />
         <Link
           href={`/nazilco/support?propertyId=${lease.propertyId}`}
           className="flex items-center gap-1.5 text-xs text-muted-foreground underline hover:text-foreground"

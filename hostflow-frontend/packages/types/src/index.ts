@@ -22,6 +22,7 @@ export * from "./rental/rental";
 export * from "./office/office";
 export * from "./mall/mall";
 export * from "./identity/org-user";
+export * from "./identity/developer";
 export * from "./identity/guest";
 export * from "./review/review";
 export * from "./analytics/analytics";

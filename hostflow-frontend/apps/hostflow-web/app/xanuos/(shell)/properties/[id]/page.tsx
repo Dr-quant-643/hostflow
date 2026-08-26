@@ -15,6 +15,7 @@ import { ReviewList } from "@/components/xanuos/properties/review-list";
 import { PropertyDetailsForm } from "@/components/xanuos/properties/property-details-form";
 import { OccupancyControl } from "@/components/xanuos/properties/occupancy-control";
 import { InquiryList } from "@/components/xanuos/properties/inquiry-list";
+import { ExternalCalendarPanel } from "@/components/xanuos/properties/external-calendar-panel";
 import { formatKES } from "@/lib/currency";
 
 export default function PropertyDetailPage() {
@@ -124,6 +125,18 @@ export default function PropertyDetailPage() {
           <OccupancyControl property={property} />
         </Stack>
       </Card>
+
+      {property.rentalModel === "NIGHTLY" && (
+        <Card>
+          <Stack gap="md">
+            <h3 className="font-medium">Channel Sync</h3>
+            <p className="text-sm text-muted-foreground">
+              Keep this property&apos;s availability in sync with other platforms, free -- no partner API needed.
+            </p>
+            <ExternalCalendarPanel propertyId={id} />
+          </Stack>
+        </Card>
+      )}
 
       {property.rentalModel === "MONTHLY" && (
         <Card>

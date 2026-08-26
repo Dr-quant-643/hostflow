@@ -56,3 +56,18 @@ export interface CreateSegmentCampaignRequest {
   subject: string;
   body: string;
 }
+
+// Mirrors PricingSuggestionQueries.PricingSuggestionRow -- a self-contained,
+// no-external-service demand-based pricing heuristic. A suggestion only,
+// never auto-applied; the owner applies it via the existing property
+// basePrice update.
+export interface PricingSuggestionRow {
+  propertyId: string;
+  propertyName: string;
+  currentPrice: string;
+  suggestedPrice: string;
+  changePercent: number;
+  forwardOccupancyPercent: number;
+  trailingOccupancyPercent: number;
+  reason: string;
+}

@@ -21,3 +21,19 @@ export interface CreateBookingRequest {
   checkOut: string;
   totalPrice: string;
 }
+
+// Mirrors ExternalCalendarLinkResponse -- the free iCal channel-sync feature.
+export interface ExternalCalendarLinkResponse {
+  id: string;
+  propertyId: string;
+  icsUrl: string;
+  label: string | null;
+  lastSyncedAt: string | null;
+  lastSyncError: string | null;
+}
+
+export interface CreateExternalCalendarLinkRequest {
+  propertyId: string;
+  icsUrl: string;
+  label?: string;
+}

@@ -55,6 +55,18 @@ public class GuestSegmentQueries {
      * there is no "zero stays" case to classify.
      */
     public List<GuestSegmentRow> segmentsForOwner(UUID ownerUserId) {
+        return segments("p.owner_user_id = ?", ownerUserId);
+    }
+
+    /** Same segmentation, scoped to every property in a tenant rather than
+     *  one owner's -- a tenant/org can have multiple owner users, so this is
+     *  what the public API (authenticated by an org-level ApiKey, not a
+     *  specific user) needs instead of segmentsForOwner. */
+    public List<GuestSegmentRow> segmentsForTenant(UUID tenantId) {
+        return segments("p.tenant_id = ?", tenantId);
+    }
+
+    private List<GuestSegmentRow> segments(String propertyFilter, UUID filterValue) {
         String sql = """
                 WITH guest_bookings AS (
                     SELECT b.guest_user_id,
@@ -64,7 +76,7 @@ public class GuestSegmentQueries {
                            MIN(b.check_in) FILTER (WHERE b.status IN ('CONFIRMED','CHECKED_IN','CHECKED_OUT')) AS first_booking_date
                     FROM bookings b
                     JOIN properties p ON p.id = b.property_id
-                    WHERE p.owner_user_id = ?
+                    WHERE %1$s
                     GROUP BY b.guest_user_id
                 ),
                 guest_leases AS (
@@ -79,7 +91,7 @@ public class GuestSegmentQueries {
                     FROM leases l
                     JOIN rental_tenants rt ON rt.id = l.tenant_id_ref
                     JOIN properties p ON p.id = l.property_id
-                    WHERE p.owner_user_id = ? AND rt.linked_user_id IS NOT NULL
+                    WHERE %1$s AND rt.linked_user_id IS NOT NULL
                     GROUP BY rt.linked_user_id
                 ),
                 combined AS (
@@ -113,7 +125,7 @@ public class GuestSegmentQueries {
                     END AS segment
                 FROM ranked r
                 ORDER BY r.total_spend DESC
-                """;
+                """.formatted(propertyFilter);
         List<GuestSegmentRow> rows = platformAdminJdbcTemplate.query(sql, (rs, rowNum) -> {
             UUID guestUserId = UUID.fromString(rs.getString("guest_user_id"));
             return new GuestSegmentRow(guestUserId, null, null,
@@ -122,7 +134,7 @@ public class GuestSegmentQueries {
                     rs.getDate("last_activity_date") != null ? rs.getDate("last_activity_date").toLocalDate() : null,
                     (Integer) rs.getObject("recency_days"), rs.getBoolean("has_active_lease"),
                     rs.getString("segment"));
-        }, ownerUserId, ownerUserId);
+        }, filterValue, filterValue);
 
         return rows.stream().map(this::withIdentity).toList();
     }

@@ -10,6 +10,7 @@ import { nightsBetween, useCreateGuestBooking } from "@hostflow/api-client/src/h
 import { useMyBookings } from "@hostflow/api-client/src/hooks/use-guest-portal";
 import type { BookingResponse } from "@hostflow/types";
 import { formatKES } from "@/lib/currency";
+import { LoyaltyBadge } from "./loyalty-badge";
 
 // Consolidates what used to be three separate steps across two pages
 // (AvailabilityCalendar on the property page -> navigate to /book -> submit
@@ -210,6 +211,7 @@ function BookingStatusCard({ booking }: { booking: BookingResponse }) {
         <p className="text-sm text-muted-foreground">
           {booking.checkIn} → {booking.checkOut} · {formatKES(booking.totalPrice)}
         </p>
+        <LoyaltyBadge propertyId={booking.propertyId} />
         <ReportIssueLink propertyId={booking.propertyId} />
       </Stack>
     </Card>

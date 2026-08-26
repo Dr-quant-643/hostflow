@@ -10,9 +10,14 @@ export default function AnalyticsPage() {
         title="Analytics"
         description="Portfolio performance over time"
         actions={
-          <Button asChild variant="outline">
-            <Link href="/xanuos/analytics/customers">Customer Segments</Link>
-          </Button>
+          <Stack direction="row" gap="sm">
+            <Button asChild variant="outline">
+              <Link href="/xanuos/analytics/pricing">Pricing Suggestions</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/xanuos/analytics/customers">Customer Segments</Link>
+            </Button>
+          </Stack>
         }
       />
       <RevenueTrendChart />

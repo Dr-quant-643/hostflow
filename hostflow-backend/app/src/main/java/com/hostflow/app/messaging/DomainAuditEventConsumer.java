@@ -1,5 +1,8 @@
 package com.hostflow.app.messaging;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hostflow.identity.entity.WebhookSubscription;
+import com.hostflow.identity.repository.WebhookSubscriptionRepository;
 import com.hostflow.messaging.DomainEventMessage;
 import com.hostflow.messaging.QueueNames;
 import com.hostflow.notification.dto.SendNotificationRequest;
@@ -15,6 +18,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -39,15 +51,22 @@ public class DomainAuditEventConsumer {
     private final NotificationService notificationService;
     private final NotificationTemplateSeedService templateSeedService;
     private final JdbcTemplate platformAdminJdbcTemplate;
+    private final WebhookSubscriptionRepository webhookSubscriptionRepository;
+    private final ObjectMapper objectMapper;
+    private final HttpClient webhookHttpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
     public DomainAuditEventConsumer(AuditLogService auditLogService,
                                      NotificationService notificationService,
                                      NotificationTemplateSeedService templateSeedService,
-                                     @Qualifier("platformAdminJdbcTemplate") JdbcTemplate platformAdminJdbcTemplate) {
+                                     @Qualifier("platformAdminJdbcTemplate") JdbcTemplate platformAdminJdbcTemplate,
+                                     WebhookSubscriptionRepository webhookSubscriptionRepository,
+                                     ObjectMapper objectMapper) {
         this.auditLogService = auditLogService;
         this.notificationService = notificationService;
         this.templateSeedService = templateSeedService;
         this.platformAdminJdbcTemplate = platformAdminJdbcTemplate;
+        this.webhookSubscriptionRepository = webhookSubscriptionRepository;
+        this.objectMapper = objectMapper;
     }
 
     /** Same non-@Transactional reasoning as bookingConfirmed() below. */
@@ -55,6 +74,7 @@ public class DomainAuditEventConsumer {
     public void bookingCreated(DomainEventMessage event) {
         auditOnly(event);
         attemptNewBookingOwnerNotification(event);
+        attemptWebhookDelivery(event, "booking.created");
     }
 
     /**
@@ -71,6 +91,7 @@ public class DomainAuditEventConsumer {
     public void bookingConfirmed(DomainEventMessage event) {
         auditOnly(event);
         attemptBookingConfirmedNotification(event);
+        attemptWebhookDelivery(event, "booking.confirmed");
     }
 
     @RabbitListener(queues = QueueNames.BOOKING_CANCELLED)
@@ -185,6 +206,63 @@ public class DomainAuditEventConsumer {
             // never break the audit trail or crash this consumer.
             log.warn("Could not send new-booking owner notification: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Delivers `event` to every active WebhookSubscription this tenant has
+     * for `eventType` -- the foundation half of the public-API/webhooks
+     * feature (see PublicApiController/ApiKey doc comments for the "no
+     * rate limiting/billing yet" scope note). Best-effort per subscription:
+     * one owner's misconfigured endpoint must never affect another's
+     * delivery, the audit trail, or crash this consumer.
+     */
+    private void attemptWebhookDelivery(DomainEventMessage event, String eventType) {
+        TenantContext.set(event.tenantId());
+        List<WebhookSubscription> subscriptions;
+        try {
+            subscriptions = webhookSubscriptionRepository.findByEventTypeAndActiveTrue(eventType);
+        } catch (Exception e) {
+            log.warn("Could not look up webhook subscriptions for {}: {}", eventType, e.getMessage());
+            return;
+        } finally {
+            TenantContext.clear();
+        }
+        if (subscriptions.isEmpty()) {
+            return;
+        }
+
+        String payload;
+        try {
+            payload = objectMapper.writeValueAsString(Map.of(
+                    "event", eventType,
+                    "resourceType", event.resourceType(),
+                    "resourceId", event.resourceId().toString(),
+                    "detail", event.detail()));
+        } catch (Exception e) {
+            log.warn("Could not serialize webhook payload for {}: {}", eventType, e.getMessage());
+            return;
+        }
+
+        for (WebhookSubscription subscription : subscriptions) {
+            try {
+                String signature = hmacSha256(subscription.getSecret(), payload);
+                HttpRequest request = HttpRequest.newBuilder(URI.create(subscription.getUrl()))
+                        .timeout(Duration.ofSeconds(10))
+                        .header("Content-Type", "application/json")
+                        .header("X-RvanaFlow-Signature", signature)
+                        .POST(HttpRequest.BodyPublishers.ofString(payload))
+                        .build();
+                webhookHttpClient.send(request, HttpResponse.BodyHandlers.discarding());
+            } catch (Exception e) {
+                log.warn("Webhook delivery failed for subscription {}: {}", subscription.getId(), e.getMessage());
+            }
+        }
+    }
+
+    private String hmacSha256(String secret, String payload) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        return Base64.getEncoder().encodeToString(mac.doFinal(payload.getBytes(StandardCharsets.UTF_8)));
     }
 
     private void attemptTemplateSeeding(DomainEventMessage event) {

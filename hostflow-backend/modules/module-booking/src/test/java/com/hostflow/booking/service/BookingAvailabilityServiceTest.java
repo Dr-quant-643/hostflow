@@ -2,7 +2,9 @@ package com.hostflow.booking.service;
 
 import com.hostflow.booking.entity.Booking;
 import com.hostflow.booking.entity.BookingStatus;
+import com.hostflow.booking.entity.ExternalCalendarBlock;
 import com.hostflow.booking.repository.BookingRepository;
+import com.hostflow.booking.repository.ExternalCalendarBlockRepository;
 import com.hostflow.common.exception.BusinessRuleException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,11 +26,14 @@ class BookingAvailabilityServiceTest {
     @Mock
     private BookingRepository bookingRepository;
 
+    @Mock
+    private ExternalCalendarBlockRepository externalCalendarBlockRepository;
+
     private BookingAvailabilityService service;
 
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
-        service = new BookingAvailabilityService(bookingRepository);
+        service = new BookingAvailabilityService(bookingRepository, externalCalendarBlockRepository);
     }
 
     @Test
@@ -50,5 +55,18 @@ class BookingAvailabilityServiceTest {
                 UUID.randomUUID(), LocalDate.of(2026, 9, 5), LocalDate.of(2026, 9, 8)))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("overlap");
+    }
+
+    @Test
+    void assertAvailable_throws_whenExternalCalendarBlockOverlaps() {
+        when(bookingRepository.findOverlapping(any(), any(), any(), any())).thenReturn(List.of());
+        ExternalCalendarBlock block = new ExternalCalendarBlock(UUID.randomUUID(), UUID.randomUUID(), "uid-1",
+                LocalDate.of(2026, 9, 1), LocalDate.of(2026, 9, 10));
+        when(externalCalendarBlockRepository.findOverlapping(any(), any(), any())).thenReturn(List.of(block));
+
+        assertThatThrownBy(() -> service.assertAvailable(
+                UUID.randomUUID(), LocalDate.of(2026, 9, 5), LocalDate.of(2026, 9, 8)))
+                .isInstanceOf(BusinessRuleException.class)
+                .hasMessageContaining("blocked");
     }
 }

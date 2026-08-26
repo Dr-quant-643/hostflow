@@ -31,6 +31,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/hosts/register").permitAll()
                         .requestMatchers("/api/v1/mall/public/**").permitAll()
                         .requestMatchers("/api/v1/office/public/**").permitAll()
+                        // Authenticated via X-Api-Key (PublicApiKeyAuth), not the normal JWT
+                        // flow -- see PublicApiController's own doc comment.
+                        .requestMatchers("/api/v1/public-api/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/reviews").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/mall/events").permitAll()
                         .anyRequest().authenticated()

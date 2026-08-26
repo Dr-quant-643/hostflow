@@ -30,22 +30,31 @@ public class PublicAvailabilityQueries {
     }
 
     /**
-     * When unavailable, availableFrom is the latest check_out among the
-     * overlapping bookings -- the day the property actually frees up, since
-     * checkout dates are already known data that just wasn't surfaced before.
+     * When unavailable, availableFrom is the latest check_out/end_date among
+     * the overlapping bookings AND synced external-calendar blocks -- the
+     * day the property actually frees up. Checking external_calendar_blocks
+     * here (not just at booking-creation time in BookingAvailabilityService)
+     * matters for UX: without it, a guest would see "Available" on this
+     * check, then get rejected only when they actually try to book.
      */
     public AvailabilityResult checkAvailability(UUID propertyId, LocalDate checkIn, LocalDate checkOut) {
         String sql = """
-                SELECT check_out FROM bookings
+                SELECT check_out AS blocked_until FROM bookings
                 WHERE property_id = ?
                   AND status IN ('PENDING', 'CONFIRMED', 'CHECKED_IN')
                   AND check_in < ?
                   AND ? < check_out
-                ORDER BY check_out DESC
+                UNION ALL
+                SELECT end_date AS blocked_until FROM external_calendar_blocks
+                WHERE property_id = ?
+                  AND start_date < ?
+                  AND ? < end_date
+                ORDER BY blocked_until DESC
                 LIMIT 1
                 """;
         List<Date> overlapping = jdbcTemplate.query(sql,
-                (rs, rowNum) -> rs.getDate("check_out"), propertyId, checkOut, checkIn);
+                (rs, rowNum) -> rs.getDate("blocked_until"),
+                propertyId, checkOut, checkIn, propertyId, checkOut, checkIn);
         if (overlapping.isEmpty()) {
             return new AvailabilityResult(true, null);
         }
