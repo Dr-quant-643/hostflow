@@ -35,10 +35,12 @@ import java.util.UUID;
  * Deliberately a different trust model from staff-created leases: normally
  * an owner vets a prospective tenant (via an inquiry or their own channels)
  * before creating a Lease themselves through LeaseController. This path
- * skips that vetting by design -- inquiry is meant to stay optional
- * support/engagement, not a gate in front of booking, so a guest confident
- * they want a specific unit can reserve it immediately and the owner is
- * simply notified afterward.
+ * skips the up-front inquiry step by design -- inquiry is meant to stay
+ * optional support/engagement, not a gate in front of booking, so a guest
+ * confident they want a specific unit can request it immediately without
+ * waiting on a reply. The Lease still starts DRAFT (not activated) and the
+ * owner is notified to approve or decline it -- self-service means "skip the
+ * back-and-forth," not "skip the owner's decision entirely."
  */
 @Component
 public class RentalReservationOrchestrator {
@@ -79,7 +81,6 @@ public class RentalReservationOrchestrator {
             rentalTenantService.linkToUser(tenant.getId(), guestUserId);
             Lease lease = leaseService.create(new CreateLeaseRequest(
                     request.propertyId(), tenant.getId(), request.moveInDate(), endDate, monthlyRent, null));
-            lease = leaseService.activate(lease.getId());
             notifyOwner(ownerUserId, propertyName, request, monthlyRent);
             return LeaseResponse.from(lease);
         } finally {

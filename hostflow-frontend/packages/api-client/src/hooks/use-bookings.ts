@@ -44,3 +44,24 @@ export function useCancelBooking(id: string) {
     },
   });
 }
+
+export function useDeclineBooking(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (reason: string) =>
+      api.patch<BookingResponse>(`/bookings/${id}/decline`, { reason }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookings", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["bookings", "detail", id] });
+    },
+  });
+}
+
+// Tenant-wide count of PENDING bookings -- backs the XanuOS Bookings nav
+// badge (combined with useLeasePendingCount for reservations).
+export function useBookingPendingCount() {
+  return useQuery({
+    queryKey: ["bookings", "pending-count"],
+    queryFn: () => api.get<number>("/bookings/pending-count"),
+  });
+}

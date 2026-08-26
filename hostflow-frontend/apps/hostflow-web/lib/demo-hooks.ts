@@ -97,6 +97,7 @@ const DEMO_BOOKINGS: BookingResponse[] = [
     checkOut: daysFromNow(28),
     status: "CONFIRMED",
     totalPrice: "378000.00",
+    declineReason: null,
   },
   {
     id: "d2000000-0000-0000-0000-000000000002",
@@ -106,6 +107,7 @@ const DEMO_BOOKINGS: BookingResponse[] = [
     checkOut: daysFromNow(-33),
     status: "CHECKED_OUT",
     totalPrice: "199500.00",
+    declineReason: null,
   },
   {
     id: "d2000000-0000-0000-0000-000000000003",
@@ -115,6 +117,7 @@ const DEMO_BOOKINGS: BookingResponse[] = [
     checkOut: daysFromNow(-86),
     status: "CANCELLED",
     totalPrice: "54000.00",
+    declineReason: null,
   },
 ];
 
@@ -149,6 +152,7 @@ export function useDemoCreateBooking(propertyId: string) {
             checkOut: values.checkOut,
             status: "PENDING",
             totalPrice: values.totalPrice,
+            declineReason: null,
           };
           DEMO_BOOKINGS.unshift(booking);
           resolve(booking);

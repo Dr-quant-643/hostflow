@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { XANUOS_NAV } from "@/lib/xanuos-nav-config";
-import { useOwnerRentalInquiries } from "@hostflow/api-client/src/hooks/use-rental";
+import { useOwnerRentalInquiries, useLeasePendingCount } from "@hostflow/api-client/src/hooks/use-rental";
+import { useBookingPendingCount } from "@hostflow/api-client/src/hooks/use-bookings";
+import { useOpenWorkOrderCount } from "@hostflow/api-client/src/hooks/use-maintenance";
 
 // Instagram-style unread count on the Notifications nav item -- an owner
 // should be able to tell "there's something waiting" before ever opening the
@@ -12,6 +14,19 @@ import { useOwnerRentalInquiries } from "@hostflow/api-client/src/hooks/use-rent
 function useNotificationBadgeCount() {
   const { data } = useOwnerRentalInquiries();
   return data?.filter((i) => i.status === "OPEN").length ?? 0;
+}
+
+// Same pattern for Bookings (PENDING nightly bookings + DRAFT reservations
+// awaiting approval) and Maintenance (OPEN, unassigned work orders).
+function useBookingsBadgeCount() {
+  const { data: pendingBookings } = useBookingPendingCount();
+  const { data: pendingLeases } = useLeasePendingCount();
+  return (pendingBookings ?? 0) + (pendingLeases ?? 0);
+}
+
+function useMaintenanceBadgeCount() {
+  const { data } = useOpenWorkOrderCount();
+  return data ?? 0;
 }
 
 function NavBadge({ count }: { count: number }) {
@@ -26,6 +41,8 @@ function NavBadge({ count }: { count: number }) {
 export function AppSidebar() {
   const pathname = usePathname();
   const badgeCount = useNotificationBadgeCount();
+  const bookingsBadgeCount = useBookingsBadgeCount();
+  const maintenanceBadgeCount = useMaintenanceBadgeCount();
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-border bg-card">
@@ -54,6 +71,8 @@ export function AppSidebar() {
               <Icon className="h-4 w-4 shrink-0" />
               <span className="truncate">{item.label}</span>
               {item.href === "/xanuos/notifications" && <NavBadge count={badgeCount} />}
+              {item.href === "/xanuos/bookings" && <NavBadge count={bookingsBadgeCount} />}
+              {item.href === "/xanuos/maintenance" && <NavBadge count={maintenanceBadgeCount} />}
             </Link>
           );
         })}

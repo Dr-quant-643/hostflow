@@ -29,6 +29,19 @@ public class BookingEventPublisher {
         publisher.publish(RoutingKeys.BOOKING_CANCELLED, event(booking, actorUserId, "BOOKING_CANCELLED"));
     }
 
+    /**
+     * Reuses the BOOKING_CANCELLED routing key/queue rather than adding a new
+     * one -- the only current consumer (DomainAuditEventConsumer.bookingCancelled)
+     * just writes an audit row keyed off event.action(), which "BOOKING_DECLINED"
+     * satisfies exactly as well as a dedicated queue would, with no new topology.
+     */
+    public void declined(Booking booking, UUID actorUserId, String reason) {
+        publisher.publish(RoutingKeys.BOOKING_CANCELLED,
+                new DomainEventMessage(booking.getTenantId(), actorUserId, "Booking", booking.getId(),
+                        "BOOKING_DECLINED",
+                        "property=" + booking.getPropertyId() + " reason=" + reason));
+    }
+
     public void expired(Booking booking) {
         publisher.publish(RoutingKeys.BOOKING_EXPIRED, event(booking, null, "BOOKING_EXPIRED"));
     }

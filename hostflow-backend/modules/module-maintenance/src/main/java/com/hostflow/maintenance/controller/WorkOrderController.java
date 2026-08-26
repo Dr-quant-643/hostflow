@@ -80,4 +80,11 @@ public class WorkOrderController {
     public ResponseEntity<ApiResponse<WorkOrderResponse>> cancel(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(WorkOrderResponse.from(workOrderService.cancel(id))));
     }
+
+    /** Tenant-wide count of OPEN (newly reported, unassigned) work orders --
+     *  backs the XanuOS Maintenance nav badge. */
+    @GetMapping("/open-count")
+    public ResponseEntity<ApiResponse<Long>> openCount() {
+        return ResponseEntity.ok(ApiResponse.success(workOrderService.countOpen()));
+    }
 }

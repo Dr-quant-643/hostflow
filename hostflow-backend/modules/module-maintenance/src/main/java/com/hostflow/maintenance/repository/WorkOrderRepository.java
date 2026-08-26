@@ -12,4 +12,5 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, UUID> {
     Page<WorkOrder> findByPropertyId(UUID propertyId, Pageable pageable);
     Page<WorkOrder> findByStatus(WorkOrderStatus status, Pageable pageable);
     Page<WorkOrder> findByAssignedTechnicianUserId(UUID technicianUserId, Pageable pageable);
+    long countByStatus(WorkOrderStatus status);
 }

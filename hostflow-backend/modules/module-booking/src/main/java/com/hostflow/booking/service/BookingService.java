@@ -2,6 +2,7 @@ package com.hostflow.booking.service;
 
 import com.hostflow.booking.dto.CreateBookingRequest;
 import com.hostflow.booking.entity.Booking;
+import com.hostflow.booking.entity.BookingStatus;
 import com.hostflow.booking.messaging.BookingEventPublisher;
 import com.hostflow.booking.repository.BookingRepository;
 import com.hostflow.common.exception.ResourceNotFoundException;
@@ -63,5 +64,18 @@ public class BookingService {
         booking.cancel();
         eventPublisher.cancelled(booking, actorUserId);
         return booking;
+    }
+
+    @Transactional
+    public Booking decline(UUID bookingId, UUID actorUserId, String reason) {
+        Booking booking = getById(bookingId);
+        booking.decline(reason);
+        eventPublisher.declined(booking, actorUserId, reason);
+        return booking;
+    }
+
+    @Transactional(readOnly = true)
+    public long countPending() {
+        return bookingRepository.countByStatus(BookingStatus.PENDING);
     }
 }

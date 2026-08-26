@@ -6,6 +6,7 @@ import type {
   RentPaymentResponse,
   RentalInquiryResponse,
   MyRentalInquiry,
+  MyLeaseRow,
 } from "@hostflow/types";
 import type { RentalTenantFormValues, LeaseFormValues } from "@hostflow/validation";
 
@@ -75,6 +76,35 @@ export function useTerminateLease(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["rental", "leases", "detail", id] });
     },
+  });
+}
+
+export function useDeclineLease(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (reason: string) => api.patch<LeaseResponse>(`/rental/leases/${id}/decline`, { reason }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rental", "leases", "detail", id] });
+    },
+  });
+}
+
+// Tenant-wide count of DRAFT leases -- backs the XanuOS Bookings nav badge
+// (combined with useBookingPendingCount for nightly bookings).
+export function useLeasePendingCount() {
+  return useQuery({
+    queryKey: ["rental", "leases", "pending-count"],
+    queryFn: () => api.get<number>("/rental/leases/pending-count"),
+  });
+}
+
+// Guest's own leases across all properties (RentalPortalController) --
+// resolved server-side via RentalTenant.linked_user_id, same identity the
+// self-service reservation flow links at creation time.
+export function useMyLeases() {
+  return useQuery({
+    queryKey: ["rental", "portal", "my-leases"],
+    queryFn: () => api.get<MyLeaseRow[]>("/rental/portal/my-leases"),
   });
 }
 

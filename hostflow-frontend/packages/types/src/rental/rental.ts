@@ -1,6 +1,6 @@
 // Mirrors module-rental's RentalTenantResponse / LeaseResponse / RentPaymentResponse.
 
-export type LeaseStatus = "DRAFT" | "ACTIVE" | "EXPIRED" | "TERMINATED";
+export type LeaseStatus = "DRAFT" | "ACTIVE" | "EXPIRED" | "TERMINATED" | "DECLINED";
 export type RentPaymentStatus = "DUE" | "PAID" | "LATE" | "WAIVED";
 
 export interface RentalTenantResponse {
@@ -25,6 +25,8 @@ export interface LeaseResponse {
   monthlyRent: string;
   securityDeposit: string | null;
   status: LeaseStatus;
+  /** Set only when status is DECLINED -- the owner's reason for not going ahead. */
+  declineReason: string | null;
 }
 
 export interface CreateLeaseRequest {
@@ -69,4 +71,16 @@ export interface MyRentalInquiry {
   message: string;
   status: RentalInquiryStatus;
   replyMessage: string | null;
+}
+
+// Guest's own leases (RentalPortalQueries.MyLeaseRow), resolved via
+// RentalTenant.linked_user_id -- GET /rental/portal/my-leases.
+export interface MyLeaseRow {
+  id: string;
+  propertyId: string;
+  startDate: string;
+  endDate: string;
+  monthlyRent: string;
+  status: LeaseStatus;
+  declineReason: string | null;
 }

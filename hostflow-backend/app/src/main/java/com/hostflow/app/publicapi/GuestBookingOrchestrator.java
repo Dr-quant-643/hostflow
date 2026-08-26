@@ -53,18 +53,6 @@ public class GuestBookingOrchestrator {
         }
     }
 
-    public BookingResponse confirmBooking(UUID bookingId, UUID guestUserId) {
-        UUID bookingTenantId = resolveBookingTenantAndVerifyOwnership(bookingId, guestUserId);
-
-        TenantContext.set(bookingTenantId);
-        try {
-            Booking booking = writer.confirm(bookingId);
-            return BookingResponse.from(booking);
-        } finally {
-            TenantContext.clear();
-        }
-    }
-
     public BookingResponse cancelBooking(UUID bookingId, UUID guestUserId) {
         UUID bookingTenantId = resolveBookingTenantAndVerifyOwnership(bookingId, guestUserId);
 
@@ -79,7 +67,7 @@ public class GuestBookingOrchestrator {
 
     public List<BookingResponse> myBookings(UUID guestUserId) {
         String sql = """
-                SELECT id, property_id, guest_user_id, check_in, check_out, status, total_price
+                SELECT id, property_id, guest_user_id, check_in, check_out, status, total_price, decline_reason
                 FROM bookings WHERE guest_user_id = ? ORDER BY check_in DESC
                 """;
         return platformAdminJdbcTemplate.query(sql, (rs, rowNum) -> new BookingResponse(
@@ -89,7 +77,8 @@ public class GuestBookingOrchestrator {
                 rs.getDate("check_in").toLocalDate(),
                 rs.getDate("check_out").toLocalDate(),
                 rs.getString("status"),
-                rs.getBigDecimal("total_price")), guestUserId);
+                rs.getBigDecimal("total_price"),
+                rs.getString("decline_reason")), guestUserId);
     }
 
     private UUID resolvePropertyTenant(UUID propertyId) {

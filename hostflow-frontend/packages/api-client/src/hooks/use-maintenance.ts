@@ -1,11 +1,48 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "../http-client";
-import type { WorkOrderResponse, AssetResponse } from "@hostflow/types";
+import type {
+  WorkOrderResponse,
+  AssetResponse,
+  CreateMaintenanceRequestRequest,
+  MyMaintenanceRequestRow,
+} from "@hostflow/types";
 import type {
   WorkOrderFormValues,
   AssetFormValues,
   MaintenanceScheduleFormValues,
 } from "@hostflow/validation";
+
+// Tenant-wide count of OPEN work orders -- backs the XanuOS Maintenance nav
+// badge, same Instagram-style "there's something waiting" pattern as
+// Notifications.
+export function useOpenWorkOrderCount() {
+  return useQuery({
+    queryKey: ["maintenance", "work-orders", "open-count"],
+    queryFn: () => api.get<number>("/maintenance/work-orders/open-count"),
+  });
+}
+
+// Guest-facing: reports an issue on a property they've booked/leased.
+// GuestMaintenanceRequestController has no staff authority requirement --
+// resolves the property's owner/tenant server-side, same cross-tenant
+// pattern as useSendRentalInquiry.
+export function useSendMaintenanceRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: CreateMaintenanceRequestRequest) =>
+      api.post<void>("/maintenance/requests", request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["maintenance", "requests", "mine"] });
+    },
+  });
+}
+
+export function useMyMaintenanceRequests() {
+  return useQuery({
+    queryKey: ["maintenance", "requests", "mine"],
+    queryFn: () => api.get<MyMaintenanceRequestRow[]>("/maintenance/requests/mine"),
+  });
+}
 
 export function useWorkOrders(propertyId: string, limit = 20, offset = 0) {
   return useQuery({

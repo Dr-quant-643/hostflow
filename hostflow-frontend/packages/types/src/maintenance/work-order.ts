@@ -33,3 +33,24 @@ export interface CreateWorkOrderRequest {
   description?: string;
   priority: WorkOrderPriority;
 }
+
+// Guest-facing counterpart -- no priority (server defaults it to MEDIUM) and
+// no assignedTechnicianUserId (GuestMaintenanceRequestController/Orchestrator).
+export interface CreateMaintenanceRequestRequest {
+  propertyId: string;
+  category: MaintenanceCategory;
+  title: string;
+  description?: string;
+}
+
+// GuestMaintenanceRequestOrchestrator.MyMaintenanceRequestRow
+export interface MyMaintenanceRequestRow {
+  id: string;
+  propertyId: string;
+  propertyName: string;
+  category: MaintenanceCategory;
+  title: string;
+  description: string | null;
+  status: WorkOrderStatus;
+  resolutionNotes: string | null;
+}

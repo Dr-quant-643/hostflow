@@ -1,48 +1,42 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card, Stack, Input, Select, Button, toast } from "@hostflow/ui";
-import { CheckCircle2 } from "lucide-react";
-import { useReserveRental } from "@hostflow/api-client/src/hooks/use-rental";
+import { CheckCircle2, XCircle, Clock, Wrench } from "lucide-react";
+import { useReserveRental, useMyLeases } from "@hostflow/api-client/src/hooks/use-rental";
+import type { MyLeaseRow } from "@hostflow/types";
 import { formatKES } from "@/lib/currency";
 
 const DURATION_OPTIONS = [6, 12, 24];
 
 // The direct-booking path for MONTHLY properties, alongside (not gated
 // behind) RentalInquiryCard -- some guests want to just reserve a unit
-// without waiting on an owner's reply to an inquiry. Creates an ACTIVE Lease
-// immediately; the owner is notified afterward rather than vetting first.
+// without waiting on an owner's reply to an inquiry. Creates a DRAFT Lease
+// immediately; the owner is notified and must approve or decline it before
+// it's ACTIVE (see LeaseController.decline/RentalReservationOrchestrator).
+// Shows the guest's own real, persisted lease status instead of a
+// page-local "confirmed" flash that reset on navigation.
 export function ReserveRentalCard({ propertyId, basePrice }: { propertyId: string; basePrice: string | null }) {
   const [moveInDate, setMoveInDate] = useState("");
   const [months, setMonths] = useState(12);
-  const [confirmed, setConfirmed] = useState<{ startDate: string; endDate: string } | null>(null);
   const reserve = useReserveRental(propertyId);
+
+  const { data: myLeases } = useMyLeases();
+  const existing = myLeases?.find((l) => l.propertyId === propertyId && l.status !== "TERMINATED" && l.status !== "EXPIRED");
 
   const onReserve = async () => {
     if (!moveInDate) return;
     try {
-      const lease = await reserve.mutateAsync({ moveInDate, months });
-      setConfirmed({ startDate: lease.startDate, endDate: lease.endDate });
-      toast.success("Your reservation is confirmed");
+      await reserve.mutateAsync({ moveInDate, months });
+      toast.success("Reservation request sent — awaiting the owner's approval");
     } catch {
-      toast.error("Couldn't complete your reservation. Please try again.");
+      toast.error("Couldn't submit your reservation. Please try again.");
     }
   };
 
-  if (confirmed) {
-    return (
-      <Card className="shadow-lg">
-        <Stack gap="sm">
-          <div className="flex items-center gap-2 text-emerald-600">
-            <CheckCircle2 className="h-5 w-5" />
-            <p className="font-medium">Reservation confirmed</p>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Your lease runs from {confirmed.startDate} to {confirmed.endDate}. The owner has been notified.
-          </p>
-        </Stack>
-      </Card>
-    );
+  if (existing) {
+    return <ReservationStatusCard lease={existing} />;
   }
 
   return (
@@ -75,6 +69,60 @@ export function ReserveRentalCard({ propertyId, basePrice }: { propertyId: strin
             This property doesn&apos;t have a rate set yet, so it can&apos;t be reserved online.
           </p>
         )}
+      </Stack>
+    </Card>
+  );
+}
+
+function ReservationStatusCard({ lease }: { lease: MyLeaseRow }) {
+  if (lease.status === "DRAFT") {
+    return (
+      <Card className="shadow-lg">
+        <Stack gap="sm">
+          <div className="flex items-center gap-2 text-amber-600">
+            <Clock className="h-5 w-5" />
+            <p className="font-medium">Awaiting approval</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {lease.startDate} → {lease.endDate} · {formatKES(lease.monthlyRent)}/mo
+          </p>
+          <p className="text-xs text-muted-foreground">The owner hasn&apos;t responded yet.</p>
+        </Stack>
+      </Card>
+    );
+  }
+  if (lease.status === "DECLINED") {
+    return (
+      <Card className="shadow-lg">
+        <Stack gap="sm">
+          <div className="flex items-center gap-2 text-destructive">
+            <XCircle className="h-5 w-5" />
+            <p className="font-medium">Declined</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {lease.declineReason ?? "The owner declined this reservation."}
+          </p>
+        </Stack>
+      </Card>
+    );
+  }
+  return (
+    <Card className="shadow-lg">
+      <Stack gap="sm">
+        <div className="flex items-center gap-2 text-emerald-600">
+          <CheckCircle2 className="h-5 w-5" />
+          <p className="font-medium">Reservation confirmed</p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Your lease runs from {lease.startDate} to {lease.endDate}.
+        </p>
+        <Link
+          href={`/nazilco/support?propertyId=${lease.propertyId}`}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground underline hover:text-foreground"
+        >
+          <Wrench className="h-3 w-3" />
+          Report a maintenance issue
+        </Link>
       </Stack>
     </Card>
   );

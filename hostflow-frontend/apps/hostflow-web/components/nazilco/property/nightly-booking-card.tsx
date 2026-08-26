@@ -1,18 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, Stack, Input, Button, Badge, toast } from "@hostflow/ui";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Wrench } from "lucide-react";
 import { useCheckAvailability } from "@hostflow/api-client/src/hooks/use-public-properties";
-import { nightsBetween, useCreateAndConfirmGuestBooking } from "@hostflow/api-client/src/hooks/use-public-booking";
+import { nightsBetween, useCreateGuestBooking } from "@hostflow/api-client/src/hooks/use-public-booking";
+import { useMyBookings } from "@hostflow/api-client/src/hooks/use-guest-portal";
+import type { BookingResponse } from "@hostflow/types";
 import { formatKES } from "@/lib/currency";
 
-// Consolidates what used to be four separate steps across two pages (check
-// availability -> navigate to /book -> submit -> navigate to /checkout to
-// confirm) into one inline flow entirely on the property page. Confirming is
-// a plain status flip with no payment/processor step in between, so there
-// was no real step for a separate /checkout page to justify.
+// Consolidates what used to be three separate steps across two pages
+// (AvailabilityCalendar on the property page -> navigate to /book -> submit
+// there) into one inline flow -- there is no reason a NIGHTLY booking can't
+// happen entirely on the property page. Booking itself now needs the
+// property owner's approval (see BookingController.decline/PENDING status),
+// so this shows the guest's own booking's real, persisted status instead of
+// a page-local "confirmed" flash that reset on navigation.
 export function NightlyBookingCard({
   propertyId,
   basePrice,
@@ -29,14 +34,16 @@ export function NightlyBookingCard({
   const [checked, setChecked] = useState<{ checkIn: string; checkOut: string } | null>(
     initialCheckIn && initialCheckOut ? { checkIn: initialCheckIn, checkOut: initialCheckOut } : null,
   );
-  const [confirmed, setConfirmed] = useState<{ checkIn: string; checkOut: string; totalPrice: string } | null>(null);
+
+  const { data: myBookings } = useMyBookings();
+  const existing = myBookings?.find((b) => b.propertyId === propertyId && b.status !== "CANCELLED");
 
   const { data: availability, isFetching } = useCheckAvailability(
     propertyId,
     checked?.checkIn ?? "",
     checked?.checkOut ?? "",
   );
-  const bookAndConfirm = useCreateAndConfirmGuestBooking(propertyId);
+  const createBooking = useCreateGuestBooking(propertyId);
 
   const canCheck = !!checkIn && !!checkOut && checkOut > checkIn;
   const nights = checked ? nightsBetween(checked.checkIn, checked.checkOut) : 0;
@@ -45,32 +52,19 @@ export function NightlyBookingCard({
   const onBookNow = async () => {
     if (!checked || !totalPrice) return;
     try {
-      await bookAndConfirm.mutateAsync({
+      await createBooking.mutateAsync({
         checkIn: checked.checkIn,
         checkOut: checked.checkOut,
         totalPrice,
       });
-      setConfirmed({ checkIn: checked.checkIn, checkOut: checked.checkOut, totalPrice });
-      toast.success("Booking confirmed");
+      toast.success("Booking request sent — awaiting the owner's approval");
     } catch {
-      toast.error("Couldn't complete your booking. Please try again.");
+      toast.error("Couldn't submit your booking. Please try again.");
     }
   };
 
-  if (confirmed) {
-    return (
-      <Card className="shadow-lg">
-        <Stack gap="sm">
-          <div className="flex items-center gap-2 text-emerald-600">
-            <CheckCircle2 className="h-5 w-5" />
-            <p className="font-medium">Booking confirmed</p>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {confirmed.checkIn} → {confirmed.checkOut} · {formatKES(confirmed.totalPrice)}
-          </p>
-        </Stack>
-      </Card>
-    );
+  if (existing) {
+    return <BookingStatusCard booking={existing} />;
   }
 
   return (
@@ -142,7 +136,7 @@ export function NightlyBookingCard({
                         {nights} night{nights === 1 ? "" : "s"} × {formatKES(basePrice)} ={" "}
                         <span className="font-medium text-foreground">{formatKES(totalPrice)}</span>
                       </p>
-                      <Button onClick={onBookNow} loading={bookAndConfirm.isPending}>
+                      <Button onClick={onBookNow} loading={createBooking.isPending}>
                         Book Now
                       </Button>
                     </>
@@ -157,6 +151,66 @@ export function NightlyBookingCard({
             </motion.div>
           )}
         </AnimatePresence>
+      </Stack>
+    </Card>
+  );
+}
+
+function ReportIssueLink({ propertyId }: { propertyId: string }) {
+  return (
+    <Link
+      href={`/nazilco/support?propertyId=${propertyId}`}
+      className="flex items-center gap-1.5 text-xs text-muted-foreground underline hover:text-foreground"
+    >
+      <Wrench className="h-3 w-3" />
+      Report a maintenance issue
+    </Link>
+  );
+}
+
+function BookingStatusCard({ booking }: { booking: BookingResponse }) {
+  if (booking.status === "PENDING") {
+    return (
+      <Card className="shadow-lg">
+        <Stack gap="sm">
+          <div className="flex items-center gap-2 text-amber-600">
+            <Clock className="h-5 w-5" />
+            <p className="font-medium">Awaiting approval</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {booking.checkIn} → {booking.checkOut} · {formatKES(booking.totalPrice)}
+          </p>
+          <p className="text-xs text-muted-foreground">The owner hasn&apos;t responded yet.</p>
+        </Stack>
+      </Card>
+    );
+  }
+  if (booking.status === "DECLINED") {
+    return (
+      <Card className="shadow-lg">
+        <Stack gap="sm">
+          <div className="flex items-center gap-2 text-destructive">
+            <XCircle className="h-5 w-5" />
+            <p className="font-medium">Declined</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {booking.declineReason ?? "The owner declined this booking."}
+          </p>
+        </Stack>
+      </Card>
+    );
+  }
+  return (
+    <Card className="shadow-lg">
+      <Stack gap="sm">
+        <div className="flex items-center gap-2 text-emerald-600">
+          <CheckCircle2 className="h-5 w-5" />
+          <p className="font-medium">Booking confirmed</p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {booking.checkIn} → {booking.checkOut} · {formatKES(booking.totalPrice)}
+        </p>
+        <ReportIssueLink propertyId={booking.propertyId} />
       </Stack>
     </Card>
   );

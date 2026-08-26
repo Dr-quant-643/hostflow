@@ -38,6 +38,9 @@ public class Lease extends TenantScopedEntity {
     @Column(name = "status", nullable = false)
     private LeaseStatus status;
 
+    @Column(name = "decline_reason", columnDefinition = "TEXT")
+    private String declineReason;
+
     protected Lease() {
     }
 
@@ -63,6 +66,17 @@ public class Lease extends TenantScopedEntity {
             throw new BusinessRuleException("Cannot activate a lease with status " + status + " (expected DRAFT)");
         }
         this.status = LeaseStatus.ACTIVE;
+    }
+
+    public void decline(String reason) {
+        if (status != LeaseStatus.DRAFT) {
+            throw new BusinessRuleException("Cannot decline a lease with status " + status + " (expected DRAFT)");
+        }
+        if (reason == null || reason.isBlank()) {
+            throw new BusinessRuleException("A reason is required to decline a lease");
+        }
+        this.status = LeaseStatus.DECLINED;
+        this.declineReason = reason;
     }
 
     public void terminate() {
@@ -105,5 +119,9 @@ public class Lease extends TenantScopedEntity {
 
     public LeaseStatus getStatus() {
         return status;
+    }
+
+    public String getDeclineReason() {
+        return declineReason;
     }
 }

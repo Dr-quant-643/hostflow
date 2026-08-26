@@ -2,6 +2,7 @@ package com.hostflow.booking.controller;
 
 import com.hostflow.booking.dto.BookingResponse;
 import com.hostflow.booking.dto.CreateBookingRequest;
+import com.hostflow.booking.dto.DeclineBookingRequest;
 import com.hostflow.booking.entity.Booking;
 import com.hostflow.booking.service.BookingService;
 import com.hostflow.common.response.ApiResponse;
@@ -63,5 +64,22 @@ public class BookingController {
     public ResponseEntity<ApiResponse<BookingResponse>> cancel(@PathVariable UUID id, @AuthenticationPrincipal Jwt jwt) {
         Booking booking = bookingService.cancel(id, UUID.fromString(jwt.getSubject()));
         return ResponseEntity.ok(ApiResponse.success(BookingResponse.from(booking)));
+    }
+
+    @PatchMapping("/{id}/decline")
+    @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
+    public ResponseEntity<ApiResponse<BookingResponse>> decline(@PathVariable UUID id,
+            @Valid @RequestBody DeclineBookingRequest request, @AuthenticationPrincipal Jwt jwt) {
+        Booking booking = bookingService.decline(id, UUID.fromString(jwt.getSubject()), request.reason());
+        return ResponseEntity.ok(ApiResponse.success(BookingResponse.from(booking)));
+    }
+
+    /** Tenant-wide, unlike listByProperty-shaped endpoints elsewhere -- backs
+     *  the XanuOS Bookings nav badge, which counts PENDING bookings across
+     *  every one of the owner's properties at once. */
+    @GetMapping("/pending-count")
+    @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
+    public ResponseEntity<ApiResponse<Long>> pendingCount() {
+        return ResponseEntity.ok(ApiResponse.success(bookingService.countPending()));
     }
 }

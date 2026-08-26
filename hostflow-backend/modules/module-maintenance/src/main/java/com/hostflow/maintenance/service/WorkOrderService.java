@@ -3,6 +3,7 @@ package com.hostflow.maintenance.service;
 import com.hostflow.common.exception.ResourceNotFoundException;
 import com.hostflow.maintenance.dto.CreateWorkOrderRequest;
 import com.hostflow.maintenance.entity.WorkOrder;
+import com.hostflow.maintenance.entity.WorkOrderStatus;
 import com.hostflow.maintenance.repository.WorkOrderRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -68,5 +69,10 @@ public class WorkOrderService {
         WorkOrder wo = getById(id);
         wo.cancel();
         return wo;
+    }
+
+    @Transactional(readOnly = true)
+    public long countOpen() {
+        return workOrderRepository.countByStatus(WorkOrderStatus.OPEN);
     }
 }

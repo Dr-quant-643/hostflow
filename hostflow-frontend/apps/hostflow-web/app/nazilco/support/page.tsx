@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -9,6 +10,7 @@ import {
 } from "@hostflow/validation";
 import { PageHeader, Stack, Card, Input, Textarea, Select, Button, toast } from "@hostflow/ui";
 import { useRaiseSupportTicket } from "@hostflow/api-client/src/hooks/use-guest-support-ticket";
+import { MaintenanceRequestForm } from "@/components/nazilco/support/maintenance-request-form";
 
 const PRIORITY_OPTIONS = [
   { value: "LOW", label: "Low" },
@@ -18,6 +20,18 @@ const PRIORITY_OPTIONS = [
 ];
 
 export default function SupportPage() {
+  return (
+    <Suspense fallback={null}>
+      <SupportPageContent />
+    </Suspense>
+  );
+}
+
+// useSearchParams() (used for the propertyId maintenance deep link) requires
+// a Suspense boundary during static generation, same reasoning as the
+// property detail page's checkIn/checkOut deep link.
+function SupportPageContent() {
+  const propertyId = useSearchParams().get("propertyId");
   const [submitted, setSubmitted] = useState(false);
   const raiseTicket = useRaiseSupportTicket();
   const form = useForm<RaiseTicketFormValues>({
@@ -45,7 +59,8 @@ export default function SupportPage() {
 
   return (
     <Stack gap="lg" className="mx-auto max-w-lg p-6">
-      <PageHeader title="Raise a Ticket" description="Get help from our support team" />
+      <PageHeader title="Support" description="Get help from our support team, or report an issue with your stay" />
+      {propertyId && <MaintenanceRequestForm propertyId={propertyId} />}
       <Card className="p-6">
         <form onSubmit={onSubmit}>
           <Stack gap="md">

@@ -8,12 +8,13 @@ import java.util.UUID;
 
 public record BookingResponse(
         UUID id, UUID propertyId, UUID guestUserId,
-        LocalDate checkIn, LocalDate checkOut, String status, BigDecimal totalPrice
+        LocalDate checkIn, LocalDate checkOut, String status, BigDecimal totalPrice, String declineReason
 ) {
     public static BookingResponse from(Booking booking) {
         return new BookingResponse(
                 booking.getId(), booking.getPropertyId(), booking.getGuestUserId(),
-                booking.getCheckIn(), booking.getCheckOut(), booking.getStatus().name(), booking.getTotalPrice()
+                booking.getCheckIn(), booking.getCheckOut(), booking.getStatus().name(), booking.getTotalPrice(),
+                booking.getDeclineReason()
         );
     }
 }

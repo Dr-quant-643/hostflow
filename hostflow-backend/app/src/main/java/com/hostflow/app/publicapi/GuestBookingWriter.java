@@ -35,14 +35,6 @@ public class GuestBookingWriter {
     }
 
     @Transactional
-    public Booking confirm(UUID bookingId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
-        booking.confirm();
-        eventPublisher.confirmed(booking, booking.getGuestUserId());
-        return booking;
-    }
-
-    @Transactional
     public Booking cancel(UUID bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow();
         booking.cancel();

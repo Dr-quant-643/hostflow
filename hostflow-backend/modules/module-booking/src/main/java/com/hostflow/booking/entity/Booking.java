@@ -42,6 +42,9 @@ public class Booking extends TenantScopedEntity {
     @Column(name = "total_price", precision = 12, scale = 2, nullable = false)
     private BigDecimal totalPrice;
 
+    @Column(name = "decline_reason", columnDefinition = "TEXT")
+    private String declineReason;
+
     protected Booking() {
     }
 
@@ -60,6 +63,15 @@ public class Booking extends TenantScopedEntity {
     public void confirm() {
         requireStatus(BookingStatus.PENDING, "confirm");
         this.status = BookingStatus.CONFIRMED;
+    }
+
+    public void decline(String reason) {
+        requireStatus(BookingStatus.PENDING, "decline");
+        if (reason == null || reason.isBlank()) {
+            throw new BusinessRuleException("A reason is required to decline a booking");
+        }
+        this.status = BookingStatus.DECLINED;
+        this.declineReason = reason;
     }
 
     public void checkIn() {
@@ -119,5 +131,9 @@ public class Booking extends TenantScopedEntity {
 
     public BigDecimal getTotalPrice() {
         return totalPrice;
+    }
+
+    public String getDeclineReason() {
+        return declineReason;
     }
 }

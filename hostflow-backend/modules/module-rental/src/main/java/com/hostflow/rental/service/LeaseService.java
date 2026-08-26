@@ -3,6 +3,7 @@ package com.hostflow.rental.service;
 import com.hostflow.common.exception.ResourceNotFoundException;
 import com.hostflow.rental.dto.CreateLeaseRequest;
 import com.hostflow.rental.entity.Lease;
+import com.hostflow.rental.entity.LeaseStatus;
 import com.hostflow.rental.entity.RentPayment;
 import com.hostflow.rental.repository.LeaseRepository;
 import com.hostflow.rental.repository.RentPaymentRepository;
@@ -24,6 +25,18 @@ public class LeaseService {
     public LeaseService(LeaseRepository leaseRepository, RentPaymentRepository rentPaymentRepository) {
         this.leaseRepository = leaseRepository;
         this.rentPaymentRepository = rentPaymentRepository;
+    }
+
+    @Transactional
+    public Lease decline(UUID id, String reason) {
+        Lease lease = getById(id);
+        lease.decline(reason);
+        return leaseRepository.save(lease);
+    }
+
+    @Transactional(readOnly = true)
+    public long countDraft() {
+        return leaseRepository.countByStatus(LeaseStatus.DRAFT);
     }
 
     @Transactional

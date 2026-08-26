@@ -25,7 +25,7 @@ public class RentalPortalQueries {
     }
 
     public record MyLeaseRow(UUID id, UUID propertyId, LocalDate startDate, LocalDate endDate,
-                              BigDecimal monthlyRent, String status) {
+                              BigDecimal monthlyRent, String status, String declineReason) {
     }
 
     public record MyRentPaymentRow(UUID id, LocalDate dueDate, BigDecimal amount, String status, LocalDate paidDate) {
@@ -33,7 +33,7 @@ public class RentalPortalQueries {
 
     public List<MyLeaseRow> myLeases(UUID linkedUserId) {
         String sql = """
-                SELECT l.id, l.property_id, l.start_date, l.end_date, l.monthly_rent, l.status
+                SELECT l.id, l.property_id, l.start_date, l.end_date, l.monthly_rent, l.status, l.decline_reason
                 FROM leases l
                 JOIN rental_tenants rt ON rt.id = l.tenant_id_ref
                 WHERE rt.linked_user_id = ?
@@ -42,7 +42,7 @@ public class RentalPortalQueries {
         return jdbcTemplate.query(sql, (rs, rowNum) -> new MyLeaseRow(
                 UUID.fromString(rs.getString("id")), UUID.fromString(rs.getString("property_id")),
                 rs.getDate("start_date").toLocalDate(), rs.getDate("end_date").toLocalDate(),
-                rs.getBigDecimal("monthly_rent"), rs.getString("status")), linkedUserId);
+                rs.getBigDecimal("monthly_rent"), rs.getString("status"), rs.getString("decline_reason")), linkedUserId);
     }
 
     public List<MyRentPaymentRow> myRentSchedule(UUID linkedUserId, UUID leaseId) {

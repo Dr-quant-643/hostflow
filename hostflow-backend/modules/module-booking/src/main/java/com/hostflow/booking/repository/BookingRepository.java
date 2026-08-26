@@ -32,4 +32,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
                                    @Param("blockingStatuses") List<BookingStatus> blockingStatuses);
 
     List<Booking> findByGuestUserId(UUID guestUserId);
+
+    long countByStatus(BookingStatus status);
 }

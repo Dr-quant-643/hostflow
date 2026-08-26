@@ -48,13 +48,6 @@ public class GuestBookingController {
         return ResponseEntity.ok(ApiResponse.success(orchestrator.myBookings(guestUserId)));
     }
 
-    @PatchMapping("/{id}/confirm")
-    public ResponseEntity<ApiResponse<BookingResponse>> confirm(@PathVariable UUID id,
-            @AuthenticationPrincipal Jwt jwt) {
-        UUID guestUserId = UUID.fromString(jwt.getSubject());
-        return ResponseEntity.ok(ApiResponse.success(orchestrator.confirmBooking(id, guestUserId)));
-    }
-
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<ApiResponse<BookingResponse>> cancel(@PathVariable UUID id,
             @AuthenticationPrincipal Jwt jwt) {

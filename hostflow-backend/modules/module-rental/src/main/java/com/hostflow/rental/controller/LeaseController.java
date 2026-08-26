@@ -2,6 +2,7 @@ package com.hostflow.rental.controller;
 
 import com.hostflow.common.response.ApiResponse;
 import com.hostflow.rental.dto.CreateLeaseRequest;
+import com.hostflow.rental.dto.DeclineLeaseRequest;
 import com.hostflow.rental.dto.LeaseResponse;
 import com.hostflow.rental.entity.Lease;
 import com.hostflow.rental.service.LeaseService;
@@ -53,5 +54,18 @@ public class LeaseController {
     @PatchMapping("/{id}/terminate")
     public ResponseEntity<ApiResponse<LeaseResponse>> terminate(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(LeaseResponse.from(leaseService.terminate(id))));
+    }
+
+    @PatchMapping("/{id}/decline")
+    public ResponseEntity<ApiResponse<LeaseResponse>> decline(@PathVariable UUID id,
+            @Valid @RequestBody DeclineLeaseRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(LeaseResponse.from(leaseService.decline(id, request.reason()))));
+    }
+
+    /** Tenant-wide count of DRAFT leases -- backs the XanuOS Bookings nav badge
+     *  alongside BookingController's pendingCount(). */
+    @GetMapping("/pending-count")
+    public ResponseEntity<ApiResponse<Long>> pendingCount() {
+        return ResponseEntity.ok(ApiResponse.success(leaseService.countDraft()));
     }
 }

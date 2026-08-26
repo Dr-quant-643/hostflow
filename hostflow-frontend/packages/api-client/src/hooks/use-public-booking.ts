@@ -30,31 +30,6 @@ export function useCreateGuestBooking(propertyId: string) {
   });
 }
 
-// Create + confirm in one call so the guest never leaves the property page --
-// there is no payment/processor step between the two (confirm is a plain
-// status flip), so splitting them across a create-then-redirect-to-/checkout
-// flow was pure friction, not a materially different step.
-export function useCreateAndConfirmGuestBooking(propertyId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (values: GuestBookingFormValues & { totalPrice: string }) => {
-      const booking = await api.post<BookingResponse>("/bookings/public", {
-        propertyId,
-        checkIn: values.checkIn,
-        checkOut: values.checkOut,
-        totalPrice: values.totalPrice,
-      });
-      return api.patch<BookingResponse>(`/bookings/public/${booking.id}/confirm`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["public", "bookings", "availability", propertyId],
-      });
-      queryClient.invalidateQueries({ queryKey: ["guest-portal", "my-bookings"] });
-    },
-  });
-}
-
 export function isOverlapConflict(err: unknown): boolean {
   return err instanceof ApiError && err.isValidationError;
 }
