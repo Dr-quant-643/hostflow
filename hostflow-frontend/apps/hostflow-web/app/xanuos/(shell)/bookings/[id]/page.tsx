@@ -9,6 +9,7 @@ import {
   useCancelBooking,
   useDeclineBooking,
 } from "@hostflow/api-client/src/hooks/use-bookings";
+import { formatKES } from "@/lib/currency";
 
 export default function BookingDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +27,7 @@ export default function BookingDetailPage() {
     <Stack gap="md">
       <PageHeader
         title={`Booking ${booking.id.slice(0, 8)}`}
-        description={`${booking.checkIn} → ${booking.checkOut} · $${booking.totalPrice}`}
+        description={`${booking.checkIn} → ${booking.checkOut} · ${formatKES(booking.totalPrice)}`}
         actions={<Badge>{booking.status}</Badge>}
       />
       {booking.status === "DECLINED" && booking.declineReason && (

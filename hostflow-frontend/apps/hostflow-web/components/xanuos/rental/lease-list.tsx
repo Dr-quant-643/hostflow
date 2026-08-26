@@ -4,6 +4,7 @@ import { DataTable, Skeleton, EmptyState, Badge } from "@hostflow/ui";
 import { useLeases } from "@hostflow/api-client/src/hooks/use-rental";
 import type { LeaseResponse } from "@hostflow/types";
 import { ColumnDef } from "@tanstack/react-table";
+import { formatKES } from "@/lib/currency";
 
 const columns: ColumnDef<LeaseResponse>[] = [
   { accessorKey: "startDate", header: "Start" },
@@ -11,7 +12,7 @@ const columns: ColumnDef<LeaseResponse>[] = [
   {
     accessorKey: "monthlyRent",
     header: "Monthly Rent",
-    cell: ({ row }) => `$${row.original.monthlyRent}`,
+    cell: ({ row }) => formatKES(row.original.monthlyRent),
   },
   {
     accessorKey: "status",

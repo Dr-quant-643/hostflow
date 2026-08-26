@@ -4,6 +4,7 @@ import { DataTable, Skeleton, EmptyState, Badge } from "@hostflow/ui";
 import { useBookings } from "@hostflow/api-client/src/hooks/use-bookings";
 import type { BookingResponse } from "@hostflow/types";
 import { ColumnDef } from "@tanstack/react-table";
+import { formatKES } from "@/lib/currency";
 
 const columns: ColumnDef<BookingResponse>[] = [
   { accessorKey: "propertyId", header: "Property" },
@@ -12,7 +13,7 @@ const columns: ColumnDef<BookingResponse>[] = [
   {
     accessorKey: "totalPrice",
     header: "Total",
-    cell: ({ row }) => `$${row.original.totalPrice}`,
+    cell: ({ row }) => formatKES(row.original.totalPrice),
   },
   {
     accessorKey: "status",

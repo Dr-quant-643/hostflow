@@ -5,6 +5,7 @@ import type {
   AssetResponse,
   CreateMaintenanceRequestRequest,
   MyMaintenanceRequestRow,
+  OwnerWorkOrderRow,
 } from "@hostflow/types";
 import type {
   WorkOrderFormValues,
@@ -19,6 +20,19 @@ export function useOpenWorkOrderCount() {
   return useQuery({
     queryKey: ["maintenance", "work-orders", "open-count"],
     queryFn: () => api.get<number>("/maintenance/work-orders/open-count"),
+  });
+}
+
+// Owner-facing global list across ALL of their properties -- the Maintenance
+// tab's default view, so a tenant-reported issue is visible without first
+// picking the right property from the dropdown.
+export function useOwnerWorkOrders(limit = 50, offset = 0) {
+  return useQuery({
+    queryKey: ["maintenance", "work-orders", "mine-as-owner", limit, offset],
+    queryFn: () =>
+      api.get<OwnerWorkOrderRow[]>("/maintenance/work-orders/mine-as-owner", {
+        params: { limit, offset },
+      }),
   });
 }
 

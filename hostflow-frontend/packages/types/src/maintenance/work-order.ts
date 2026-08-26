@@ -54,3 +54,18 @@ export interface MyMaintenanceRequestRow {
   status: WorkOrderStatus;
   resolutionNotes: string | null;
 }
+
+// Owner-facing global list across all properties (OwnerWorkOrderQueries.OwnerWorkOrderRow)
+// -- backs the Maintenance tab's default view, unlike the per-property
+// WorkOrderResponse list.
+export interface OwnerWorkOrderRow {
+  id: string;
+  propertyId: string;
+  propertyName: string;
+  category: MaintenanceCategory;
+  title: string;
+  description: string | null;
+  priority: WorkOrderPriority;
+  status: WorkOrderStatus;
+  resolutionNotes: string | null;
+}

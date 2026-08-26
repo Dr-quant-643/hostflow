@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { PageHeader, Skeleton, EmptyState, Badge, Stack, Button, Textarea, toast } from "@hostflow/ui";
 import { useLease, useActivateLease, useTerminateLease, useDeclineLease } from "@hostflow/api-client/src/hooks/use-rental";
 import { RentPaymentList } from "@/components/xanuos/rental/rent-payment-list";
+import { formatKES } from "@/lib/currency";
 
 export default function LeaseDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,7 +23,7 @@ export default function LeaseDetailPage() {
     <Stack gap="lg">
       <PageHeader
         title={`Lease ${lease.id.slice(0, 8)}`}
-        description={`${lease.startDate} → ${lease.endDate} · $${lease.monthlyRent}/mo`}
+        description={`${lease.startDate} → ${lease.endDate} · ${formatKES(lease.monthlyRent)}/mo`}
         actions={
           <Stack direction="row" gap="sm" align="center">
             <Badge>{lease.status}</Badge>

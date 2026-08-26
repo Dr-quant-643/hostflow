@@ -6,6 +6,7 @@ import { PageHeader, Select, Stack, Skeleton, EmptyState, Button } from "@hostfl
 import { useProperties } from "@hostflow/api-client/src/hooks/use-properties";
 import { WorkOrderForm } from "@/components/xanuos/maintenance/work-order-form";
 import { WorkOrderList } from "@/components/xanuos/maintenance/work-order-list";
+import { OwnerWorkOrderList } from "@/components/xanuos/maintenance/owner-work-order-list";
 
 export default function MaintenancePage() {
   const { data: properties, isLoading } = useProperties();
@@ -30,6 +31,10 @@ export default function MaintenancePage() {
         }
       />
 
+      {/* Default, cross-property view -- includes tenant-reported issues from
+          any property, not just whichever one the picker below defaults to. */}
+      <OwnerWorkOrderList />
+
       {isLoading && <Skeleton className="h-10 w-64" />}
       {!isLoading && (!properties || properties.length === 0) && (
         <EmptyState
@@ -40,7 +45,7 @@ export default function MaintenancePage() {
       {!isLoading && properties && properties.length > 0 && (
         <>
           <Select
-            label="Property"
+            label="Report an issue for a specific property"
             value={selected}
             onChange={(e) => setPropertyId(e.target.value)}
             options={properties.map((p) => ({ value: p.id, label: p.name }))}
