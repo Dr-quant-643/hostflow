@@ -20,6 +20,7 @@ import { formatKES } from "@/lib/currency";
 import { PhotoGallery } from "@/components/nazilco/property/photo-gallery";
 import { PropertyVideoSection } from "@/components/nazilco/property/video-section";
 import { NightlyBookingCard } from "@/components/nazilco/property/nightly-booking-card";
+import { ReserveRentalCard } from "@/components/nazilco/property/reserve-rental-card";
 import { RentalInquiryCard } from "@/components/nazilco/property/rental-inquiry-card";
 import { ReviewsSection } from "@/components/nazilco/property/reviews-section";
 
@@ -198,7 +199,10 @@ function PropertyDetailPageContent() {
             </div>
           )}
           {property.rentalModel === "MONTHLY" ? (
-            <RentalInquiryCard propertyId={property.id} basePrice={property.basePrice} />
+            <Stack gap="md">
+              <ReserveRentalCard propertyId={property.id} basePrice={property.basePrice} />
+              <RentalInquiryCard propertyId={property.id} />
+            </Stack>
           ) : (
             <NightlyBookingCard
               propertyId={property.id}

@@ -3,9 +3,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { XANUOS_NAV } from "@/lib/xanuos-nav-config";
+import { useOwnerRentalInquiries } from "@hostflow/api-client/src/hooks/use-rental";
+
+// Instagram-style unread count on the Notifications nav item -- an owner
+// should be able to tell "there's something waiting" before ever opening the
+// tab. Counts inquiries awaiting reply; extend here if other unread sources
+// (e.g. the generic delivery log, once it tracks read state) join the badge.
+function useNotificationBadgeCount() {
+  const { data } = useOwnerRentalInquiries();
+  return data?.filter((i) => i.status === "OPEN").length ?? 0;
+}
+
+function NavBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-semibold text-white">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const badgeCount = useNotificationBadgeCount();
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-border bg-card">
@@ -33,6 +53,7 @@ export function AppSidebar() {
             >
               <Icon className="h-4 w-4 shrink-0" />
               <span className="truncate">{item.label}</span>
+              {item.href === "/xanuos/notifications" && <NavBadge count={badgeCount} />}
             </Link>
           );
         })}

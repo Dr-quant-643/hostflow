@@ -34,6 +34,9 @@ public class NotificationTemplateSeedService {
                 "A prospective tenant is interested in renting {{property_name}}. Message: {{message}}");
         seedIfMissing("rental_inquiry_reply_guest", NotificationChannel.EMAIL, "The owner replied about {{property_name}}",
                 "The owner of {{property_name}} replied to your inquiry: {{reply_message}}");
+        seedIfMissing("rental_reservation_owner", NotificationChannel.EMAIL, "New reservation on {{property_name}}",
+                "A tenant reserved {{property_name}} starting {{move_in_date}} for {{months}} month(s) "
+                        + "at {{monthly_rent}}/month. The lease is already active in your Rental tab.");
     }
 
     private void seedIfMissing(String code, NotificationChannel channel, String subject, String body) {

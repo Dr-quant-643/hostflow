@@ -119,12 +119,24 @@ export function useSendRentalInquiry(propertyId: string) {
   });
 }
 
+// Self-service alternative to useSendRentalInquiry -- reserves a MONTHLY
+// property directly (creates an ACTIVE Lease) without waiting for the owner
+// to reply to an inquiry first. Inquiry stays available on the same page as
+// an optional support/engagement channel, not a gate in front of this.
+export function useReserveRental(propertyId: string) {
+  return useMutation({
+    mutationFn: (values: { moveInDate: string; months: number }) =>
+      api.post<LeaseResponse>("/rental/reservations", { propertyId, ...values }),
+  });
+}
+
 // Guest's own sent inquiries + any owner reply -- the in-app alternative to
 // finding out "did they answer" only via email.
-export function useMyRentalInquiries() {
+export function useMyRentalInquiries(enabled = true) {
   return useQuery({
     queryKey: ["rental", "inquiries", "mine"],
     queryFn: () => api.get<MyRentalInquiry[]>("/rental/inquiries/mine"),
+    enabled,
   });
 }
 
