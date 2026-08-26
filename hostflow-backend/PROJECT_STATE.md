@@ -1,8 +1,8 @@
-# HostFlow Backend — Project State (as of this handoff)
+# RvanaFlow Backend — Project State (as of this handoff)
 
 ## Project Identity
 
-HostFlow = parent brand. Two products: XanuOS (property/business ops, B2B) and
+RvanaFlow = parent brand. Two products: XanuOS (property/business ops, B2B) and
 NazilCo (guest-facing booking/discovery marketplace, B2C, cross-tenant).
 Backend location: C:\Users\YourUsername\Desktop\hostflow-backend
 Frontend location (not yet built beyond scaffold): C:\Users\YourUsername\Desktop\hostflow-frontend

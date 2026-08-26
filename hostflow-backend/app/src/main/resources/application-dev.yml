@@ -100,7 +100,7 @@ hostflow:
     providers:
       email:
         from-address: ${NOTIFICATION_FROM_EMAIL:no-reply@hostflow.app}
-        from-name: HostFlow
+        from-name: RvanaFlow
         api-url: ${RESEND_API_URL:https://api.resend.com/emails}
         api-key: ${RESEND_API_KEY:changeme_in_env}
       sms:

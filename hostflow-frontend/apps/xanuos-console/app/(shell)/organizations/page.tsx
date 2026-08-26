@@ -6,7 +6,7 @@ export default function OrganizationsPage() {
     <div>
       <PageHeader
         title="Organizations"
-        description="All tenant organizations across HostFlow"
+        description="All tenant organizations across RvanaFlow"
       />
       <OrganizationList />
     </div>

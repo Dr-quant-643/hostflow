@@ -4,7 +4,7 @@ import { createAuthConfig } from "@hostflow/auth/src/config";
 import { Providers } from "../providers";
 
 export const metadata: Metadata = {
-  title: "XanuOS Admin | HostFlow",
+  title: "XanuOS Admin | RvanaFlow",
   description: "XanuOS support, billing, and product administration",
 };
 

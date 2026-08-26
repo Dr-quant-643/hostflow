@@ -26,7 +26,7 @@ public class NotificationProviderProperties {
 
     public static class Email {
         private String fromAddress = "no-reply@hostflow.app";
-        private String fromName = "HostFlow";
+        private String fromName = "RvanaFlow";
         // Resend's HTTP API, not raw SMTP -- Railway (and most PaaS hosts)
         // block outbound SMTP ports (25/465/587) by default to prevent spam
         // abuse, which silently connection-timed-out every send in

@@ -59,7 +59,7 @@ public enum ProductScope {
         return switch (this) {
             case XANUOS -> "XanuOS Property Management";
             case NAZILCO -> "NazilCo Customer Platform";
-            case PLATFORM -> "HostFlow Platform Admin";
+            case PLATFORM -> "RvanaFlow Platform Admin";
         };
     }
 

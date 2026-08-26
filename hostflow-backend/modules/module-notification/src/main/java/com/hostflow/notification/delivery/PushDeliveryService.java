@@ -33,7 +33,7 @@ public class PushDeliveryService {
         try {
             Map<String, Object> payload = Map.of(
                     "to", deviceToken,
-                    "notification", Map.of("title", title != null ? title : "HostFlow", "body", body)
+                    "notification", Map.of("title", title != null ? title : "RvanaFlow", "body", body)
             );
 
             webClient.post()

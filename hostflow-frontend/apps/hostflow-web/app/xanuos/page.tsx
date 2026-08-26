@@ -86,7 +86,7 @@ export default function XanuosLandingPage() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="mx-auto mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg"
           >
-            XanuOS is HostFlow&rsquo;s operations platform for real estate and
+            XanuOS is RvanaFlow&rsquo;s operations platform for real estate and
             property managers — billing, leasing, maintenance, and CRM, all
             in one place, so you spend less time on admin and more time
             growing your portfolio.
@@ -291,7 +291,7 @@ export default function XanuosLandingPage() {
               <Link href="/xanuos/signup">Create your workspace</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <Link href="/">Explore other HostFlow products</Link>
+              <Link href="/">Explore other RvanaFlow products</Link>
             </Button>
           </div>
         </motion.div>

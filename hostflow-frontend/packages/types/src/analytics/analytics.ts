@@ -34,3 +34,25 @@ export interface GuestSegmentRow {
   hasActiveLease: boolean;
   segment: GuestSegment;
 }
+
+// Mirrors SegmentCampaign -- a message an owner sends to every guest
+// currently in a given segment (or "ALL"), closing the loop on segmentation
+// being actionable instead of read-only.
+export type SegmentCampaignStatus = "DRAFT" | "SENT";
+export type SegmentCampaignTarget = GuestSegment | "ALL";
+
+export interface SegmentCampaignResponse {
+  id: string;
+  targetSegment: SegmentCampaignTarget;
+  subject: string;
+  body: string;
+  status: SegmentCampaignStatus;
+  recipientCount: number | null;
+  sentAt: string | null;
+}
+
+export interface CreateSegmentCampaignRequest {
+  targetSegment: SegmentCampaignTarget;
+  subject: string;
+  body: string;
+}

@@ -30,7 +30,7 @@ public class EmailDeliveryService {
             Map<String, Object> payload = Map.of(
                     "from", properties.getEmail().getFromName() + " <" + properties.getEmail().getFromAddress() + ">",
                     "to", List.of(toEmail),
-                    "subject", subject != null ? subject : "Notification from HostFlow",
+                    "subject", subject != null ? subject : "Notification from RvanaFlow",
                     "text", body);
 
             webClient.post()

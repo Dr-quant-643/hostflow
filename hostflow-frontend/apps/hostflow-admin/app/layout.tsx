@@ -5,7 +5,7 @@ import "./globals.css";
 // app/xanuos-admin/layout.tsx and app/nazilco-admin/layout.tsx for each
 // admin workspace's own independent session.
 export const metadata: Metadata = {
-  title: "HostFlow Admin",
+  title: "RvanaFlow Admin",
   description: "XanuOS and NazilCo administration",
 };
 

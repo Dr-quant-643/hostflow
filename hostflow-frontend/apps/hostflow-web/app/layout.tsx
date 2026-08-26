@@ -7,7 +7,7 @@ import "./globals.css";
 // ApiClientProvider) belongs at this level; it would otherwise be shared
 // between two sessions that must never touch.
 export const metadata: Metadata = {
-  title: "HostFlow",
+  title: "RvanaFlow",
   description: "Property and business operations platform",
 };
 
