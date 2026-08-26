@@ -3,6 +3,7 @@ package com.hostflow.office.service;
 import com.hostflow.common.exception.ResourceNotFoundException;
 import com.hostflow.office.dto.RegisterVisitorRequest;
 import com.hostflow.office.entity.Visitor;
+import com.hostflow.office.entity.VisitorStatus;
 import com.hostflow.office.repository.VisitorRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +44,11 @@ public class VisitorService {
     @Transactional(readOnly = true)
     public Page<Visitor> listByProperty(UUID propertyId, int limit, int offset) {
         return repository.findByPropertyId(propertyId, PageRequest.of(offset / Math.max(limit, 1), limit));
+    }
+
+    @Transactional(readOnly = true)
+    public long countCheckedIn() {
+        return repository.countByStatus(VisitorStatus.CHECKED_IN);
     }
 
     private Visitor getById(UUID id) {

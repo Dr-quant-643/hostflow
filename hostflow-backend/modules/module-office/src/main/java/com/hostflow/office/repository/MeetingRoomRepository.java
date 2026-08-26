@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface MeetingRoomRepository extends JpaRepository<MeetingRoom, UUID> {
     List<MeetingRoom> findByPropertyIdAndActiveTrue(UUID propertyId);
+    long countByActiveTrue();
 }

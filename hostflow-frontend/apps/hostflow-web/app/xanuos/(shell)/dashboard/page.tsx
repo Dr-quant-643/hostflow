@@ -22,6 +22,8 @@ import { useContacts } from "@hostflow/api-client/src/hooks/use-crm";
 import { useCampaigns } from "@hostflow/api-client/src/hooks/use-marketing";
 import { useInvoices } from "@hostflow/api-client/src/hooks/use-billing";
 import { useMyOrgUsers } from "@hostflow/api-client/src/hooks/use-team";
+import { useMeetingRoomCount, useVisitorOnSiteCount } from "@hostflow/api-client/src/hooks/use-office";
+import { useRetailOccupancySummary, useUpcomingMallEventCount } from "@hostflow/api-client/src/hooks/use-mall";
 import { OccupancyChart } from "@/components/xanuos/dashboard/occupancy-chart";
 import { formatKES } from "@/lib/currency";
 
@@ -59,6 +61,10 @@ export default function DashboardPage() {
   const { data: invoices } = useInvoices(100);
   const { data: team } = useMyOrgUsers(100);
   const { data: segments } = useGuestSegments();
+  const { data: meetingRooms } = useMeetingRoomCount();
+  const { data: visitorsOnSite } = useVisitorOnSiteCount();
+  const { data: retailOccupancy } = useRetailOccupancySummary();
+  const { data: upcomingMallEvents } = useUpcomingMallEventCount();
 
   const activeProperties = properties?.filter((p) => p.status === "ACTIVE").length;
   const totalBookings = occupancy?.reduce((sum, p) => sum + p.totalBookings, 0);
@@ -71,6 +77,12 @@ export default function DashboardPage() {
   const outstandingTotal = outstandingInvoices?.reduce((sum, i) => sum + Number(i.amount ?? 0), 0);
   const vipCount = segments?.filter((s) => s.segment === "VIP").length;
   const atRiskCount = segments?.filter((s) => s.segment === "AT_RISK").length;
+
+  // Office/Mall tiles only matter to owners who actually have that property
+  // type -- most owners here are residential/hotel-only, so this section
+  // stays hidden for them instead of showing permanently-empty tiles.
+  const hasOfficeProperty = properties?.some((p) => p.propertyType === "OFFICE" || p.propertyType === "MIXED_USE");
+  const hasMallProperty = properties?.some((p) => p.propertyType === "RETAIL_MALL" || p.propertyType === "MIXED_USE");
 
   return (
     <Stack gap="xl">
@@ -191,6 +203,44 @@ export default function DashboardPage() {
           />
         </Grid>
       </Stack>
+
+      {(hasOfficeProperty || hasMallProperty) && (
+        <Stack gap="sm">
+          <SectionHeading>Office &amp; Mall</SectionHeading>
+          <Grid cols={4} gap="md">
+            {hasOfficeProperty && (
+              <>
+                <LinkedStat
+                  href="/xanuos/office"
+                  label="Meeting Rooms"
+                  value={meetingRooms !== undefined ? String(meetingRooms) : "—"}
+                />
+                <LinkedStat
+                  href="/xanuos/office"
+                  label="Visitors On Site"
+                  value={visitorsOnSite !== undefined ? String(visitorsOnSite) : "—"}
+                  tone="info"
+                />
+              </>
+            )}
+            {hasMallProperty && (
+              <>
+                <LinkedStat
+                  href="/xanuos/mall"
+                  label="Retail Occupancy"
+                  value={retailOccupancy ? `${retailOccupancy.occupied}/${retailOccupancy.total}` : "—"}
+                  tone="success"
+                />
+                <LinkedStat
+                  href="/xanuos/mall"
+                  label="Upcoming Mall Events"
+                  value={upcomingMallEvents !== undefined ? String(upcomingMallEvents) : "—"}
+                />
+              </>
+            )}
+          </Grid>
+        </Stack>
+      )}
 
       <OccupancyChart />
     </Stack>

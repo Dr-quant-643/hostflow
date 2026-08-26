@@ -32,6 +32,20 @@ export function useCreateRetailUnit() {
   });
 }
 
+// Tenant-wide (all properties) -- backs the Dashboard's Mall tile.
+export interface RetailOccupancySummary {
+  total: number;
+  occupied: number;
+  vacant: number;
+}
+
+export function useRetailOccupancySummary() {
+  return useQuery({
+    queryKey: ["mall", "retail-units", "occupancy-summary"],
+    queryFn: () => api.get<RetailOccupancySummary>("/mall/retail-units/occupancy-summary"),
+  });
+}
+
 export function useAssignRetailTenant(propertyId: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -48,6 +62,14 @@ export function useMallEvents(propertyId: string) {
     queryKey: ["mall", "events", propertyId],
     queryFn: () => api.get<MallEventResponse[]>("/mall/events", { params: { propertyId } }),
     enabled: !!propertyId,
+  });
+}
+
+// Tenant-wide count of upcoming events -- backs the Dashboard's Mall tile.
+export function useUpcomingMallEventCount() {
+  return useQuery({
+    queryKey: ["mall", "events", "upcoming-count"],
+    queryFn: () => api.get<number>("/mall/events/upcoming-count"),
   });
 }
 

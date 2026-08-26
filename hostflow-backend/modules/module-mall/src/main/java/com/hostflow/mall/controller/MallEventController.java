@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,5 +42,12 @@ public class MallEventController {
         List<MallEventResponse> events = repository.findByPropertyId(propertyId).stream()
                 .map(MallEventResponse::from).toList();
         return ResponseEntity.ok(ApiResponse.success(events));
+    }
+
+    /** Tenant-wide (all properties) -- backs the Dashboard's Mall tile. */
+    @GetMapping("/upcoming-count")
+    @PreAuthorize("hasAuthority('PRODUCT_XANUOS')")
+    public ResponseEntity<ApiResponse<Long>> upcomingCount() {
+        return ResponseEntity.ok(ApiResponse.success(repository.countByStartsAtAfter(Instant.now())));
     }
 }

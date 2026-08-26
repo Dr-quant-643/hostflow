@@ -39,4 +39,11 @@ public class MeetingRoomController {
                 .map(MeetingRoomResponse::from).toList();
         return ResponseEntity.ok(ApiResponse.success(rooms));
     }
+
+    /** Tenant-wide (all properties) -- backs the Dashboard's Office tile,
+     *  same reasoning as LeaseController.statusCount / WorkOrderController.openCount. */
+    @GetMapping("/count")
+    public ResponseEntity<ApiResponse<Long>> count() {
+        return ResponseEntity.ok(ApiResponse.success(roomRepository.countByActiveTrue()));
+    }
 }

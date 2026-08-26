@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface VisitorRepository extends JpaRepository<Visitor, UUID> {
     Page<Visitor> findByPropertyIdAndStatus(UUID propertyId, VisitorStatus status, Pageable pageable);
     Page<Visitor> findByPropertyId(UUID propertyId, Pageable pageable);
+    long countByStatus(VisitorStatus status);
 }

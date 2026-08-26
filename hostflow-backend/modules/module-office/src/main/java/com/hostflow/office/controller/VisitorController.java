@@ -51,4 +51,11 @@ public class VisitorController {
     public ResponseEntity<ApiResponse<VisitorResponse>> checkOut(@PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(VisitorResponse.from(service.checkOut(id))));
     }
+
+    /** Tenant-wide count of visitors currently on site -- backs the
+     *  Dashboard's Office tile. */
+    @GetMapping("/on-site-count")
+    public ResponseEntity<ApiResponse<Long>> onSiteCount() {
+        return ResponseEntity.ok(ApiResponse.success(service.countCheckedIn()));
+    }
 }

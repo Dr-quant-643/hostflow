@@ -15,6 +15,14 @@ export function useMeetingRooms(propertyId: string) {
   });
 }
 
+// Tenant-wide (all properties) -- backs the Dashboard's Office tile.
+export function useMeetingRoomCount() {
+  return useQuery({
+    queryKey: ["office", "rooms", "count"],
+    queryFn: () => api.get<number>("/office/rooms/count"),
+  });
+}
+
 export function useCreateMeetingRoom() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -86,4 +94,13 @@ export function useCheckInVisitor(propertyId: string) {
 
 export function useCheckOutVisitor(propertyId: string) {
   return useUpdateVisitorStatus("check-out", propertyId);
+}
+
+// Tenant-wide count of visitors currently checked in -- backs the
+// Dashboard's Office tile.
+export function useVisitorOnSiteCount() {
+  return useQuery({
+    queryKey: ["office", "visitors", "on-site-count"],
+    queryFn: () => api.get<number>("/office/visitors/on-site-count"),
+  });
 }
