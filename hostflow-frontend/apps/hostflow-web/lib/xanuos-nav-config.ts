@@ -16,6 +16,7 @@ import {
   Building,
   Store,
   UsersRound,
+  Webhook,
 } from "lucide-react";
 
 export interface NavItem {
@@ -41,5 +42,6 @@ export const XANUOS_NAV: NavItem[] = [
   { label: "My Team", href: "/xanuos/team", icon: UsersRound },
   { label: "Analytics", href: "/xanuos/analytics", icon: BarChart3 },
   { label: "Notifications", href: "/xanuos/notifications", icon: Bell },
+  { label: "Developer", href: "/xanuos/developer", icon: Webhook },
   { label: "Settings", href: "/xanuos/settings", icon: Settings },
 ];
