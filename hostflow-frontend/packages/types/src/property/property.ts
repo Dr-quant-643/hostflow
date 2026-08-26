@@ -34,6 +34,11 @@ export interface PropertyResponse {
   basePrice: string | null;
   /** Owner/manager-set "in use" override, independent of Booking/Lease data. */
   manualOccupiedUntil: string | null;
+  /** Owner-entered unit inventory (e.g. 10 units, 6 occupied) -- not derived
+   *  from Booking/Lease data. Defaults to 1 total / 0 occupied. */
+  totalUnits: number;
+  occupiedUnits: number;
+  occupancyPercent: number;
 }
 
 export interface CreatePropertyRequest {
@@ -51,6 +56,8 @@ export interface UpdatePropertyDetailsRequest {
   basePrice?: string;
   latitude?: number;
   longitude?: number;
+  totalUnits?: number;
+  occupiedUnits?: number;
 }
 
 // PropertyDocumentType/PropertyDocumentResponse live in ./property-document.ts.

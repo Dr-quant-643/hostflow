@@ -17,6 +17,8 @@ export function PropertyDetailsForm({ property }: { property: PropertyResponse }
   const [basePrice, setBasePrice] = useState(property.basePrice ?? "");
   const [latitude, setLatitude] = useState(property.latitude?.toString() ?? "");
   const [longitude, setLongitude] = useState(property.longitude?.toString() ?? "");
+  const [totalUnits, setTotalUnits] = useState(String(property.totalUnits));
+  const [occupiedUnits, setOccupiedUnits] = useState(String(property.occupiedUnits));
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,6 +28,8 @@ export function PropertyDetailsForm({ property }: { property: PropertyResponse }
         basePrice: basePrice || undefined,
         latitude: latitude !== "" ? Number(latitude) : undefined,
         longitude: longitude !== "" ? Number(longitude) : undefined,
+        totalUnits: totalUnits !== "" ? Number(totalUnits) : undefined,
+        occupiedUnits: occupiedUnits !== "" ? Number(occupiedUnits) : undefined,
       });
       toast.success("Listing details saved");
     } catch {
@@ -74,6 +78,28 @@ export function PropertyDetailsForm({ property }: { property: PropertyResponse }
           Right-click the location on Google Maps and choose the coordinates to copy them here.
           Without these, the property won&rsquo;t appear on NazilCo&rsquo;s map or support
           directions.
+        </p>
+        <Stack direction="row" gap="md">
+          <Input
+            label="Total units"
+            type="number"
+            min={1}
+            step="1"
+            value={totalUnits}
+            onChange={(e) => setTotalUnits(e.target.value)}
+          />
+          <Input
+            label="Occupied units"
+            type="number"
+            min={0}
+            step="1"
+            value={occupiedUnits}
+            onChange={(e) => setOccupiedUnits(e.target.value)}
+          />
+        </Stack>
+        <p className="text-xs text-muted-foreground">
+          For multi-unit properties (e.g. an apartment building) -- you report how many of the
+          total units are currently occupied. Not derived automatically from bookings or leases.
         </p>
         <Button type="submit" loading={updateDetails.isPending} className="w-fit">
           Save listing details

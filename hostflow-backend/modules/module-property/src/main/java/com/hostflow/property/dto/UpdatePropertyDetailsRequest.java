@@ -14,6 +14,8 @@ public record UpdatePropertyDetailsRequest(
         String description,
         BigDecimal basePrice,
         Double latitude,
-        Double longitude
+        Double longitude,
+        Integer totalUnits,
+        Integer occupiedUnits
 ) {
 }

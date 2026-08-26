@@ -61,6 +61,11 @@ public class PropertyService {
         if (request.latitude() != null && request.longitude() != null) {
             property.updateLocation(request.latitude(), request.longitude());
         }
+        if (request.totalUnits() != null || request.occupiedUnits() != null) {
+            int totalUnits = request.totalUnits() != null ? request.totalUnits() : property.getTotalUnits();
+            int occupiedUnits = request.occupiedUnits() != null ? request.occupiedUnits() : property.getOccupiedUnits();
+            property.updateUnitOccupancy(totalUnits, occupiedUnits);
+        }
         eventPublisher.updated(property, actorUserId);
         return property;
     }

@@ -31,6 +31,15 @@ const columns: ColumnDef<PropertyResponse>[] = [
     header: "Nightly Rate",
     cell: ({ row }) => (row.original.basePrice ? formatKES(row.original.basePrice) : "—"),
   },
+  {
+    accessorKey: "occupancyPercent",
+    header: "Occupancy",
+    cell: ({ row }) => {
+      const { totalUnits, occupiedUnits, occupancyPercent } = row.original;
+      if (totalUnits <= 1) return "—";
+      return `${occupiedUnits}/${totalUnits} (${occupancyPercent}%)`;
+    },
+  },
 ];
 
 export function PropertyList() {

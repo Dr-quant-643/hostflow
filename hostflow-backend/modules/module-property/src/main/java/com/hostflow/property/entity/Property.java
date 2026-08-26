@@ -88,6 +88,21 @@ public class Property extends TenantScopedEntity {
     @Column(name = "manual_occupied_until")
     private Instant manualOccupiedUntil;
 
+    /**
+     * Owner-entered unit inventory (e.g. a 10-unit apartment building with 6
+     * currently occupied) -- NOT derived from Booking/Lease data. The
+     * booking system enforces exactly one active booking per property at
+     * the database level (excl_bookings_no_overlap), so there is no live
+     * per-unit signal to compute this from; the owner reports it directly,
+     * same manual-input pattern as manualOccupiedUntil. Defaults keep every
+     * existing single-unit property at 1/0 (0%) with no behavior change.
+     */
+    @Column(name = "total_units", nullable = false)
+    private Integer totalUnits = 1;
+
+    @Column(name = "occupied_units", nullable = false)
+    private Integer occupiedUnits = 0;
+
     protected Property() {
     }
 
@@ -154,6 +169,17 @@ public class Property extends TenantScopedEntity {
 
     public void clearOccupied() {
         this.manualOccupiedUntil = null;
+    }
+
+    public void updateUnitOccupancy(int totalUnits, int occupiedUnits) {
+        if (totalUnits < 1) {
+            throw new BusinessRuleException("Total units must be at least 1");
+        }
+        if (occupiedUnits < 0 || occupiedUnits > totalUnits) {
+            throw new BusinessRuleException("Occupied units must be between 0 and total units");
+        }
+        this.totalUnits = totalUnits;
+        this.occupiedUnits = occupiedUnits;
     }
 
     public void setName(String name) {
@@ -242,5 +268,13 @@ public class Property extends TenantScopedEntity {
 
     public Instant getManualOccupiedUntil() {
         return manualOccupiedUntil;
+    }
+
+    public Integer getTotalUnits() {
+        return totalUnits;
+    }
+
+    public Integer getOccupiedUnits() {
+        return occupiedUnits;
     }
 }

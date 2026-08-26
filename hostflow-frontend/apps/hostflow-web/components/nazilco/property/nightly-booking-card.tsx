@@ -5,17 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, Stack, Input, Button, Badge, toast } from "@hostflow/ui";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { useCheckAvailability } from "@hostflow/api-client/src/hooks/use-public-properties";
-import { nightsBetween, useCreateGuestBooking } from "@hostflow/api-client/src/hooks/use-public-booking";
+import { nightsBetween, useCreateAndConfirmGuestBooking } from "@hostflow/api-client/src/hooks/use-public-booking";
 import { formatKES } from "@/lib/currency";
 
-// Consolidates what used to be three separate steps across two pages
-// (AvailabilityCalendar on the property page -> navigate to /book -> submit
-// there) into one inline flow. Splitting availability-checking from the
-// actual booking form across pages was itself the source of the original
-// stranding/redirect-loop bugs -- there is no reason a NIGHTLY booking can't
-// happen entirely on the property page. The final "confirm" step still lives
-// on its own /checkout/[bookingId] page (reviewing total + confirming is a
-// materially different action from creating the booking).
+// Consolidates what used to be four separate steps across two pages (check
+// availability -> navigate to /book -> submit -> navigate to /checkout to
+// confirm) into one inline flow entirely on the property page. Confirming is
+// a plain status flip with no payment/processor step in between, so there
+// was no real step for a separate /checkout page to justify.
 export function NightlyBookingCard({
   propertyId,
   basePrice,
@@ -32,13 +29,14 @@ export function NightlyBookingCard({
   const [checked, setChecked] = useState<{ checkIn: string; checkOut: string } | null>(
     initialCheckIn && initialCheckOut ? { checkIn: initialCheckIn, checkOut: initialCheckOut } : null,
   );
+  const [confirmed, setConfirmed] = useState<{ checkIn: string; checkOut: string; totalPrice: string } | null>(null);
 
   const { data: availability, isFetching } = useCheckAvailability(
     propertyId,
     checked?.checkIn ?? "",
     checked?.checkOut ?? "",
   );
-  const createBooking = useCreateGuestBooking(propertyId);
+  const bookAndConfirm = useCreateAndConfirmGuestBooking(propertyId);
 
   const canCheck = !!checkIn && !!checkOut && checkOut > checkIn;
   const nights = checked ? nightsBetween(checked.checkIn, checked.checkOut) : 0;
@@ -47,19 +45,33 @@ export function NightlyBookingCard({
   const onBookNow = async () => {
     if (!checked || !totalPrice) return;
     try {
-      const booking = await createBooking.mutateAsync({
+      await bookAndConfirm.mutateAsync({
         checkIn: checked.checkIn,
         checkOut: checked.checkOut,
         totalPrice,
       });
-      // Full-page navigation: checkout is the confirm step, and this keeps
-      // the same "no soft-nav across an auth boundary" discipline as the
-      // rest of this flow, even though checkout doesn't itself redirect.
-      window.location.href = `/nazilco/checkout/${booking.id}`;
+      setConfirmed({ checkIn: checked.checkIn, checkOut: checked.checkOut, totalPrice });
+      toast.success("Booking confirmed");
     } catch {
-      toast.error("Couldn't create your booking. Please try again.");
+      toast.error("Couldn't complete your booking. Please try again.");
     }
   };
+
+  if (confirmed) {
+    return (
+      <Card className="shadow-lg">
+        <Stack gap="sm">
+          <div className="flex items-center gap-2 text-emerald-600">
+            <CheckCircle2 className="h-5 w-5" />
+            <p className="font-medium">Booking confirmed</p>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {confirmed.checkIn} → {confirmed.checkOut} · {formatKES(confirmed.totalPrice)}
+          </p>
+        </Stack>
+      </Card>
+    );
+  }
 
   return (
     <Card className="shadow-lg">
@@ -130,7 +142,7 @@ export function NightlyBookingCard({
                         {nights} night{nights === 1 ? "" : "s"} × {formatKES(basePrice)} ={" "}
                         <span className="font-medium text-foreground">{formatKES(totalPrice)}</span>
                       </p>
-                      <Button onClick={onBookNow} loading={createBooking.isPending}>
+                      <Button onClick={onBookNow} loading={bookAndConfirm.isPending}>
                         Book Now
                       </Button>
                     </>
