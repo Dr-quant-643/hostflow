@@ -3,6 +3,7 @@ package com.hostflow.billing.controller;
 import com.hostflow.billing.dto.CreateExpenseRequest;
 import com.hostflow.billing.dto.ExpenseResponse;
 import com.hostflow.billing.entity.Expense;
+import com.hostflow.billing.entity.ExpenseCategory;
 import com.hostflow.billing.service.ExpenseService;
 import com.hostflow.common.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @RestController
@@ -41,5 +43,10 @@ public class ExpenseController {
             @RequestParam(defaultValue = "0") int offset) {
         Page<ExpenseResponse> page = expenseService.listByProperty(propertyId, limit, offset).map(ExpenseResponse::from);
         return ResponseEntity.ok(ApiResponse.success(page));
+    }
+
+    @GetMapping("/total-by-category")
+    public ResponseEntity<ApiResponse<BigDecimal>> totalByCategory(@RequestParam ExpenseCategory category) {
+        return ResponseEntity.ok(ApiResponse.success(expenseService.totalByCategory(category)));
     }
 }

@@ -68,8 +68,8 @@ export function useBatchCreateInvoices() {
   });
 }
 
-// ExpenseController.listByProperty requires propertyId — there is no
-// "all expenses across my org" endpoint.
+// ExpenseController.listByProperty requires propertyId — for an org-wide
+// total, use useExpenseTotalByCategory below instead of listing everything.
 export function useExpenses(propertyId: string, limit = 20, offset = 0) {
   return useQuery({
     queryKey: ["billing", "expenses", propertyId, limit, offset],
@@ -78,6 +78,16 @@ export function useExpenses(propertyId: string, limit = 20, offset = 0) {
         params: { propertyId, limit, offset },
       }),
     enabled: !!propertyId,
+  });
+}
+
+// Tenant-wide, all-time sum for one category (e.g. MAINTENANCE) -- backs
+// dashboard tiles like "Maintenance cost" without listing every expense.
+export function useExpenseTotalByCategory(category: string) {
+  return useQuery({
+    queryKey: ["billing", "expenses", "total-by-category", category],
+    queryFn: () =>
+      api.get<string>("/billing/expenses/total-by-category", { params: { category } }),
   });
 }
 

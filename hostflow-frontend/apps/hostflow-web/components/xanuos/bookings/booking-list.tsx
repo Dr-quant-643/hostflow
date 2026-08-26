@@ -5,6 +5,7 @@ import { useBookings } from "@hostflow/api-client/src/hooks/use-bookings";
 import type { BookingResponse } from "@hostflow/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatKES } from "@/lib/currency";
+import { BOOKING_STATUS_VARIANT } from "@/lib/status-badge";
 
 const columns: ColumnDef<BookingResponse>[] = [
   { accessorKey: "propertyId", header: "Property" },
@@ -18,7 +19,7 @@ const columns: ColumnDef<BookingResponse>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => <Badge>{row.original.status}</Badge>,
+    cell: ({ row }) => <Badge variant={BOOKING_STATUS_VARIANT[row.original.status]}>{row.original.status}</Badge>,
   },
 ];
 

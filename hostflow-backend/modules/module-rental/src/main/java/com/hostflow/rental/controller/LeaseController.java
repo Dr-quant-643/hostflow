@@ -5,6 +5,7 @@ import com.hostflow.rental.dto.CreateLeaseRequest;
 import com.hostflow.rental.dto.DeclineLeaseRequest;
 import com.hostflow.rental.dto.LeaseResponse;
 import com.hostflow.rental.entity.Lease;
+import com.hostflow.rental.entity.LeaseStatus;
 import com.hostflow.rental.service.LeaseService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -67,5 +68,12 @@ public class LeaseController {
     @GetMapping("/pending-count")
     public ResponseEntity<ApiResponse<Long>> pendingCount() {
         return ResponseEntity.ok(ApiResponse.success(leaseService.countDraft()));
+    }
+
+    /** Tenant-wide count for any status -- backs dashboard tiles like
+     *  "Active Leases" without needing a propertyId. */
+    @GetMapping("/status-count")
+    public ResponseEntity<ApiResponse<Long>> statusCount(@RequestParam LeaseStatus status) {
+        return ResponseEntity.ok(ApiResponse.success(leaseService.countByStatus(status)));
     }
 }

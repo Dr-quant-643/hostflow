@@ -5,6 +5,7 @@ import { useLeases } from "@hostflow/api-client/src/hooks/use-rental";
 import type { LeaseResponse } from "@hostflow/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatKES } from "@/lib/currency";
+import { LEASE_STATUS_VARIANT } from "@/lib/status-badge";
 
 const columns: ColumnDef<LeaseResponse>[] = [
   { accessorKey: "startDate", header: "Start" },
@@ -17,7 +18,7 @@ const columns: ColumnDef<LeaseResponse>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => <Badge>{row.original.status}</Badge>,
+    cell: ({ row }) => <Badge variant={LEASE_STATUS_VARIANT[row.original.status]}>{row.original.status}</Badge>,
   },
 ];
 

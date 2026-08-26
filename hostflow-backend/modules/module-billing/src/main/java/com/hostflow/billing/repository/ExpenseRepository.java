@@ -27,4 +27,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
                                               @Param("monthEnd") LocalDate monthEnd);
 
     List<Expense> findByExpenseDateBetween(LocalDate start, LocalDate end);
+
+    @Query("SELECT COALESCE(SUM(e.amount), 0) FROM Expense e WHERE e.category = :category")
+    BigDecimal sumByCategory(@Param("category") ExpenseCategory category);
 }

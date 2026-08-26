@@ -39,6 +39,11 @@ public class LeaseService {
         return leaseRepository.countByStatus(LeaseStatus.DRAFT);
     }
 
+    @Transactional(readOnly = true)
+    public long countByStatus(LeaseStatus status) {
+        return leaseRepository.countByStatus(status);
+    }
+
     @Transactional
     public Lease create(CreateLeaseRequest request) {
         Lease lease = new Lease(request.propertyId(), request.tenantIdRef(), request.startDate(),

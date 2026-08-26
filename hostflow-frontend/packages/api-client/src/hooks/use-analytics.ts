@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../http-client";
-import type { PropertyOccupancyResponse, MonthlyRevenueResponse } from "@hostflow/types";
+import type { PropertyOccupancyResponse, MonthlyRevenueResponse, GuestSegmentRow } from "@hostflow/types";
 
 // Backend only exposes these two report endpoints (module-analytics) — both
 // return a plain list, no pagination, no trend/rate endpoints exist.
@@ -16,5 +16,12 @@ export function useMonthlyRevenue() {
   return useQuery({
     queryKey: ["analytics", "monthly-revenue"],
     queryFn: () => api.get<MonthlyRevenueResponse[]>("/analytics/monthly-revenue"),
+  });
+}
+
+export function useGuestSegments() {
+  return useQuery({
+    queryKey: ["analytics", "guest-segments"],
+    queryFn: () => api.get<GuestSegmentRow[]>("/analytics/guest-segments"),
   });
 }

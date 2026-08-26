@@ -3,6 +3,7 @@ import { api } from "../http-client";
 import type {
   RentalTenantResponse,
   LeaseResponse,
+  LeaseStatus,
   RentPaymentResponse,
   RentalInquiryResponse,
   MyRentalInquiry,
@@ -95,6 +96,15 @@ export function useLeasePendingCount() {
   return useQuery({
     queryKey: ["rental", "leases", "pending-count"],
     queryFn: () => api.get<number>("/rental/leases/pending-count"),
+  });
+}
+
+// Tenant-wide count for any LeaseStatus -- backs dashboard tiles like
+// "Active Leases" without needing a propertyId.
+export function useLeaseStatusCount(status: LeaseStatus) {
+  return useQuery({
+    queryKey: ["rental", "leases", "status-count", status],
+    queryFn: () => api.get<number>("/rental/leases/status-count", { params: { status } }),
   });
 }
 

@@ -6,6 +6,7 @@ import { PageHeader, Skeleton, EmptyState, Badge, Stack, Button, Textarea, toast
 import { useLease, useActivateLease, useTerminateLease, useDeclineLease } from "@hostflow/api-client/src/hooks/use-rental";
 import { RentPaymentList } from "@/components/xanuos/rental/rent-payment-list";
 import { formatKES } from "@/lib/currency";
+import { LEASE_STATUS_VARIANT } from "@/lib/status-badge";
 
 export default function LeaseDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -26,7 +27,7 @@ export default function LeaseDetailPage() {
         description={`${lease.startDate} → ${lease.endDate} · ${formatKES(lease.monthlyRent)}/mo`}
         actions={
           <Stack direction="row" gap="sm" align="center">
-            <Badge>{lease.status}</Badge>
+            <Badge variant={LEASE_STATUS_VARIANT[lease.status]}>{lease.status}</Badge>
             {lease.status === "DRAFT" && !declining && (
               <>
                 <Button
