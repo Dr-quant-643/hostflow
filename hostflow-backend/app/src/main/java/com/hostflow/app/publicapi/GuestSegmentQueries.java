@@ -20,10 +20,8 @@ import java.util.UUID;
  *
  * Deliberately LIVE, not a materialized view: same reasoning as
  * PublicRentalOccupancyQueries -- an owner deciding how to treat a guest
- * needs a current number, and (as of this class's own addition) this
- * codebase's existing materialized views were discovered to have no refresh
- * scheduled at all (see RefreshAnalyticsViewsJob), which is exactly the
- * failure mode a live query avoids.
+ * needs a current number, not one that's stale until AnalyticsRefreshJob's
+ * next daily 2 AM run.
  *
  * Same platformAdminJdbcTemplate + explicit owner_user_id filter as
  * RentalInquiryOrchestrator.myInquiriesAsOwner / OwnerWorkOrderQueries --
